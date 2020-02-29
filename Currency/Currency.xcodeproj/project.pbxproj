@@ -51,6 +51,7 @@
 		B5642476240AB3CF00915DE1 /* DataAccess */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DataAccess; path = ../DataAccess; sourceTree = "<group>"; };
 		B5642478240AB47100915DE1 /* ConverterFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ConverterFeature; path = ../ConverterFeature; sourceTree = "<group>"; };
 		B5642495240AB54500915DE1 /* DesignLibrary */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DesignLibrary; path = ../DesignLibrary; sourceTree = "<group>"; };
+		B5642496240AC5D000915DE1 /* Future */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Future; path = ../Future; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +86,7 @@
 		B56423B6240AAFB000915DE1 = {
 			isa = PBXGroup;
 			children = (
+				B5642496240AC5D000915DE1 /* Future */,
 				B5642478240AB47100915DE1 /* ConverterFeature */,
 				B5642495240AB54500915DE1 /* DesignLibrary */,
 				B5642476240AB3CF00915DE1 /* DataAccess */,
