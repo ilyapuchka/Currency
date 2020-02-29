@@ -17,6 +17,8 @@
 		B564247C240AB4B900915DE1 /* DataAccess in Frameworks */ = {isa = PBXBuildFile; productRef = B564247B240AB4B900915DE1 /* DataAccess */; };
 		B564247E240AB4BB00915DE1 /* DesignLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = B564247D240AB4BB00915DE1 /* DesignLibrary */; };
 		B5D07D95240B12AC001F3A98 /* currencies.json in Resources */ = {isa = PBXBuildFile; fileRef = B5D07D94240B12AC001F3A98 /* currencies.json */; };
+		B5D07DB0240B1AB4001F3A98 /* Preview.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B5D07DAF240B1AB4001F3A98 /* Preview.storyboard */; };
+		B5D07DB2240B1AEA001F3A98 /* ViewControllerPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D07DB1240B1AEA001F3A98 /* ViewControllerPreview.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +56,8 @@
 		B5642495240AB54500915DE1 /* DesignLibrary */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DesignLibrary; path = ../DesignLibrary; sourceTree = "<group>"; };
 		B5642496240AC5D000915DE1 /* Future */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Future; path = ../Future; sourceTree = "<group>"; };
 		B5D07D94240B12AC001F3A98 /* currencies.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = currencies.json; path = ../../../../Downloads/revolut_ios_test/currencies.json; sourceTree = "<group>"; };
+		B5D07DAF240B1AB4001F3A98 /* Preview.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Preview.storyboard; sourceTree = "<group>"; };
+		B5D07DB1240B1AEA001F3A98 /* ViewControllerPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerPreview.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +120,8 @@
 			children = (
 				B5D07D94240B12AC001F3A98 /* currencies.json */,
 				B56423C2240AAFB000915DE1 /* AppDelegate.swift */,
+				B5D07DAF240B1AB4001F3A98 /* Preview.storyboard */,
+				B5D07DB1240B1AEA001F3A98 /* ViewControllerPreview.swift */,
 				B56423CB240AAFB400915DE1 /* Assets.xcassets */,
 				B56423CD240AAFB400915DE1 /* LaunchScreen.storyboard */,
 				B56423D0240AAFB400915DE1 /* Info.plist */,
@@ -261,6 +267,7 @@
 				B56423CF240AAFB400915DE1 /* LaunchScreen.storyboard in Resources */,
 				B56423CC240AAFB400915DE1 /* Assets.xcassets in Resources */,
 				B5D07D95240B12AC001F3A98 /* currencies.json in Resources */,
+				B5D07DB0240B1AB4001F3A98 /* Preview.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +293,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B56423C3240AAFB000915DE1 /* AppDelegate.swift in Sources */,
+				B5D07DB2240B1AEA001F3A98 /* ViewControllerPreview.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
