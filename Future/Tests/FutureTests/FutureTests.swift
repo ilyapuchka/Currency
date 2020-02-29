@@ -165,6 +165,27 @@ final class FutureTests: XCTestCase {
         XCTAssertEqual(result, .success(true))
         XCTAssertEqual(mappedResult, .success("true"))
     }
+
+    func test_flatMap() {
+        var future: Future<Bool, String>
+        var result: Result<Bool, String>?
+        var mappedResult: Result<String, String>?
+
+        future = Future { promise in
+            promise.fulfill(.success(true))
+        }
+        future
+            .on { result = $0 }
+            .flatMap { value in
+                Future { promise in
+                    promise.fulfill(.success("\(value)"))
+                }
+            }
+            .on { mappedResult = $0 }
+
+        XCTAssertEqual(result, .success(true))
+        XCTAssertEqual(mappedResult, .success("true"))
+    }
 }
 
 extension String: Error {}

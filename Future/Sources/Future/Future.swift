@@ -24,12 +24,12 @@ public struct Future<Value, Error: Swift.Error> {
     }
 
     @discardableResult
-    public func on(success: Success? = nil, failure: Failure? = nil) -> Self {
+    public func on(success: @escaping Success, failure: Failure? = nil) -> Self {
         let scheduler = self.scheduler ?? Scheduler.mainQueue()
         promise.observe { result in
             scheduler.schedule {
                 switch result {
-                case let .success(value): success?(value)
+                case let .success(value): success(value)
                 case let .failure(error): failure?(error)
                 }
             }
@@ -50,7 +50,24 @@ public struct Future<Value, Error: Swift.Error> {
 
     public func map<T>(_ transform: @escaping (Value) -> T) -> Future<T, Error> {
         let promise = Promise<T, Error>()
-        on(success: { promise.fulfill(.success(transform($0))) }, failure: { promise.fulfill(.failure($0)) })
+        self.on(
+            success: { promise.fulfill(.success(transform($0))) },
+            failure: { promise.fulfill(.failure($0)) }
+        )
+        return Future<T, Error>(scheduler: scheduler, promise: promise)
+    }
+
+    public func flatMap<T>(_ transform: @escaping (Value) -> Future<T, Error>) -> Future<T, Error> {
+        let promise = Promise<T, Error>()
+        self.on(
+            success: {
+                transform($0).on(
+                    success: { promise.fulfill(.success($0)) },
+                    failure: { promise.fulfill(.failure($0)) }
+                )
+            },
+            failure: { promise.fulfill(.failure($0)) }
+        )
         return Future<T, Error>(scheduler: scheduler, promise: promise)
     }
 }
