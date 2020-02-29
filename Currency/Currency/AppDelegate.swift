@@ -1,4 +1,5 @@
 import UIKit
+import ConverterFeature
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

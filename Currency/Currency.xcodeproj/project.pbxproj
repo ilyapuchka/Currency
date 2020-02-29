@@ -3,16 +3,19 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		B56423C3240AAFB000915DE1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56423C2240AAFB000915DE1 /* AppDelegate.swift */; };
-		B56423C7240AAFB000915DE1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56423C6240AAFB000915DE1 /* ViewController.swift */; };
 		B56423CC240AAFB400915DE1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B56423CB240AAFB400915DE1 /* Assets.xcassets */; };
 		B56423CF240AAFB400915DE1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B56423CD240AAFB400915DE1 /* LaunchScreen.storyboard */; };
 		B56423DA240AAFB500915DE1 /* CurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56423D9240AAFB500915DE1 /* CurrencyTests.swift */; };
 		B56423E5240AAFB500915DE1 /* CurrencyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56423E4240AAFB500915DE1 /* CurrencyUITests.swift */; };
+		B5642475240AB39200915DE1 /* Domain in Frameworks */ = {isa = PBXBuildFile; productRef = B5642474240AB39200915DE1 /* Domain */; };
+		B564247A240AB4B600915DE1 /* ConverterFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B5642479240AB4B600915DE1 /* ConverterFeature */; };
+		B564247C240AB4B900915DE1 /* DataAccess in Frameworks */ = {isa = PBXBuildFile; productRef = B564247B240AB4B900915DE1 /* DataAccess */; };
+		B564247E240AB4BB00915DE1 /* DesignLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = B564247D240AB4BB00915DE1 /* DesignLibrary */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,7 +38,6 @@
 /* Begin PBXFileReference section */
 		B56423BF240AAFB000915DE1 /* Currency.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Currency.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B56423C2240AAFB000915DE1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B56423C6240AAFB000915DE1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		B56423CB240AAFB400915DE1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B56423CE240AAFB400915DE1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B56423D0240AAFB400915DE1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -45,6 +47,10 @@
 		B56423E0240AAFB500915DE1 /* CurrencyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CurrencyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B56423E4240AAFB500915DE1 /* CurrencyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyUITests.swift; sourceTree = "<group>"; };
 		B56423E6240AAFB500915DE1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B5642472240AB35400915DE1 /* Domain */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Domain; path = ../Domain; sourceTree = "<group>"; };
+		B5642476240AB3CF00915DE1 /* DataAccess */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DataAccess; path = ../DataAccess; sourceTree = "<group>"; };
+		B5642478240AB47100915DE1 /* ConverterFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ConverterFeature; path = ../ConverterFeature; sourceTree = "<group>"; };
+		B5642495240AB54500915DE1 /* DesignLibrary */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DesignLibrary; path = ../DesignLibrary; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +58,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B564247E240AB4BB00915DE1 /* DesignLibrary in Frameworks */,
+				B564247A240AB4B600915DE1 /* ConverterFeature in Frameworks */,
+				B564247C240AB4B900915DE1 /* DataAccess in Frameworks */,
+				B5642475240AB39200915DE1 /* Domain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,10 +85,15 @@
 		B56423B6240AAFB000915DE1 = {
 			isa = PBXGroup;
 			children = (
+				B5642478240AB47100915DE1 /* ConverterFeature */,
+				B5642495240AB54500915DE1 /* DesignLibrary */,
+				B5642476240AB3CF00915DE1 /* DataAccess */,
+				B5642472240AB35400915DE1 /* Domain */,
 				B56423C1240AAFB000915DE1 /* Currency */,
 				B56423D8240AAFB500915DE1 /* CurrencyTests */,
 				B56423E3240AAFB500915DE1 /* CurrencyUITests */,
 				B56423C0240AAFB000915DE1 /* Products */,
+				B5642473240AB39200915DE1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -96,7 +111,6 @@
 			isa = PBXGroup;
 			children = (
 				B56423C2240AAFB000915DE1 /* AppDelegate.swift */,
-				B56423C6240AAFB000915DE1 /* ViewController.swift */,
 				B56423CB240AAFB400915DE1 /* Assets.xcassets */,
 				B56423CD240AAFB400915DE1 /* LaunchScreen.storyboard */,
 				B56423D0240AAFB400915DE1 /* Info.plist */,
@@ -122,6 +136,13 @@
 			path = CurrencyUITests;
 			sourceTree = "<group>";
 		};
+		B5642473240AB39200915DE1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -138,6 +159,12 @@
 			dependencies = (
 			);
 			name = Currency;
+			packageProductDependencies = (
+				B5642474240AB39200915DE1 /* Domain */,
+				B5642479240AB4B600915DE1 /* ConverterFeature */,
+				B564247B240AB4B900915DE1 /* DataAccess */,
+				B564247D240AB4BB00915DE1 /* DesignLibrary */,
+			);
 			productName = Currency;
 			productReference = B56423BF240AAFB000915DE1 /* Currency.app */;
 			productType = "com.apple.product-type.application";
@@ -252,7 +279,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B56423C7240AAFB000915DE1 /* ViewController.swift in Sources */,
 				B56423C3240AAFB000915DE1 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -568,6 +594,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B5642474240AB39200915DE1 /* Domain */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Domain;
+		};
+		B5642479240AB4B600915DE1 /* ConverterFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ConverterFeature;
+		};
+		B564247B240AB4B900915DE1 /* DataAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DataAccess;
+		};
+		B564247D240AB4BB00915DE1 /* DesignLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DesignLibrary;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B56423B7240AAFB000915DE1 /* Project object */;
 }
