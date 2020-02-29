@@ -16,6 +16,7 @@
 		B564247A240AB4B600915DE1 /* ConverterFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B5642479240AB4B600915DE1 /* ConverterFeature */; };
 		B564247C240AB4B900915DE1 /* DataAccess in Frameworks */ = {isa = PBXBuildFile; productRef = B564247B240AB4B900915DE1 /* DataAccess */; };
 		B564247E240AB4BB00915DE1 /* DesignLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = B564247D240AB4BB00915DE1 /* DesignLibrary */; };
+		B5D07D95240B12AC001F3A98 /* currencies.json in Resources */ = {isa = PBXBuildFile; fileRef = B5D07D94240B12AC001F3A98 /* currencies.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +53,7 @@
 		B5642478240AB47100915DE1 /* ConverterFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ConverterFeature; path = ../ConverterFeature; sourceTree = "<group>"; };
 		B5642495240AB54500915DE1 /* DesignLibrary */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DesignLibrary; path = ../DesignLibrary; sourceTree = "<group>"; };
 		B5642496240AC5D000915DE1 /* Future */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Future; path = ../Future; sourceTree = "<group>"; };
+		B5D07D94240B12AC001F3A98 /* currencies.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = currencies.json; path = ../../../../Downloads/revolut_ios_test/currencies.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 		B56423C1240AAFB000915DE1 /* Currency */ = {
 			isa = PBXGroup;
 			children = (
+				B5D07D94240B12AC001F3A98 /* currencies.json */,
 				B56423C2240AAFB000915DE1 /* AppDelegate.swift */,
 				B56423CB240AAFB400915DE1 /* Assets.xcassets */,
 				B56423CD240AAFB400915DE1 /* LaunchScreen.storyboard */,
@@ -257,6 +260,7 @@
 			files = (
 				B56423CF240AAFB400915DE1 /* LaunchScreen.storyboard in Resources */,
 				B56423CC240AAFB400915DE1 /* Assets.xcassets in Resources */,
+				B5D07D95240B12AC001F3A98 /* currencies.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
