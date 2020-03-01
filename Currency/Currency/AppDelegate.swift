@@ -13,24 +13,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let bundle = Bundle(for: Self.self)
         let designLibrary = DesignLibrary(bundle: bundle)
 
-        let vc = UIViewController.init(nibName: nil, bundle: nil)
-        vc.view.backgroundColor = .white
-        let emptyState = EmptyStateView(bundle: bundle, designLibrary: designLibrary)
-        vc.view.addSubview(emptyState)
-        emptyState.translatesAutoresizingMaskIntoConstraints = false
+//        let vc = UIViewController.init(nibName: nil, bundle: nil)
+//        vc.view.backgroundColor = .white
+//        let emptyState = EmptyStateView(bundle: bundle, designLibrary: designLibrary)
+//        vc.view.addSubview(emptyState)
+//        emptyState.translatesAutoresizingMaskIntoConstraints = false
+//
+//        NSLayoutConstraint.activate([
+//            emptyState.centerYAnchor.constraint(equalTo: vc.view.centerYAnchor),
+//            emptyState.leadingAnchor.constraint(equalTo: vc.view.safeAreaLayoutGuide.leadingAnchor),
+//            emptyState.trailingAnchor.constraint(equalTo: vc.view.safeAreaLayoutGuide.trailingAnchor)
+//        ])
+//
 
-        NSLayoutConstraint.activate([
-            emptyState.centerYAnchor.constraint(equalTo: vc.view.centerYAnchor),
-            emptyState.leadingAnchor.constraint(equalTo: vc.view.safeAreaLayoutGuide.leadingAnchor),
-            emptyState.trailingAnchor.constraint(equalTo: vc.view.safeAreaLayoutGuide.trailingAnchor)
-        ])
+        let vc = TableViewController()
+        DispatchQueue.main.async {
+            vc.update(sections: [
+                [
+                    AddCurrencyPairButtonComponent(bundle: bundle, designLibrary: designLibrary).asAnyComponent(),
+                    CurrencyRowViewComponent(
+                        designLibrary: designLibrary,
+                        image: UIImage(named: "EUR", in: bundle, compatibleWith: nil)!,
+                        code: "EUR",
+                        name: "Euro").asAnyComponent()
+                ]
+            ])
+        }
 
         window.rootViewController = vc
-
-//        window.rootViewController = ViewController(
-//            bundle: bundle,
-//            designLibrary: designLibrary
-//        )
         window.makeKeyAndVisible()
         self.window = window
 

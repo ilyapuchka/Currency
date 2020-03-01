@@ -1,5 +1,28 @@
 import UIKit
 
+public struct CurrencyPairRowViewComponent: Component {
+    let designLibrary: DesignLibrary
+    let from: (amount: String, name: String)
+    let to: (amount: String, name: String)
+
+    public init(
+        designLibrary: DesignLibrary,
+        from: (amount: String, name: String),
+        to: (amount: String, name: String)
+    ) {
+        self.designLibrary = designLibrary
+        self.from = from
+        self.to = to
+    }
+    public func makeView() -> CurrencyPairRowView {
+        CurrencyPairRowView(designLibrary: designLibrary)
+    }
+
+    public func render(in view: CurrencyPairRowView) {
+        view.configure(from: from, to: to)
+    }
+}
+
 public final class CurrencyPairRowView: UIView {
 
     let fromAmountLabel: UILabel = {

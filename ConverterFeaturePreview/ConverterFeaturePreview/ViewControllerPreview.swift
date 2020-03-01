@@ -11,7 +11,18 @@ class ViewController_Preview: PreviewProvider {
             .instantiateInitialViewController { coder in
                 let bundle = Bundle(for: Self.self)
                 let designLibrary = DesignLibrary(bundle: bundle)
-                return ViewController(coder: coder, bundle: bundle, designLibrary: designLibrary)
+                let vc = TableViewController(coder: coder)!
+                vc.update(sections: [
+                    [
+                        AddCurrencyPairButtonComponent(bundle: bundle, designLibrary: designLibrary).asAnyComponent(),
+                        CurrencyRowViewComponent(
+                            designLibrary: designLibrary,
+                            image: UIImage(named: "EUR", in: bundle, compatibleWith: nil)!,
+                            code: "EUR",
+                            name: "Euro").asAnyComponent()
+                    ]
+                ])
+                return vc
         }!
       }.previewLayout(.sizeThatFits)
   }

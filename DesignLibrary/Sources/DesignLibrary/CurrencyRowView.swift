@@ -1,5 +1,32 @@
 import UIKit
 
+public struct CurrencyRowViewComponent: Component {
+    let designLibrary: DesignLibrary
+    let image: UIImage
+    let code: String
+    let name: String
+
+    public init(
+        designLibrary: DesignLibrary,
+        image: UIImage,
+        code: String,
+        name: String
+    ) {
+        self.designLibrary = designLibrary
+        self.image = image
+        self.code = code
+        self.name = name
+    }
+
+    public func makeView() -> CurrencyRowView {
+        CurrencyRowView(designLibrary: designLibrary)
+    }
+
+    public func render(in view: CurrencyRowView) {
+        view.configure(image: image, code: code, name: name)
+    }
+}
+
 public final class CurrencyRowView: UIView {
     let imageView: UIImageView = {
         let imageView = UIImageView()

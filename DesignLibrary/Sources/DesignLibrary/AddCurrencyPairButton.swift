@@ -1,5 +1,23 @@
 import UIKit
 
+public struct AddCurrencyPairButtonComponent: Component {
+    let bundle: Bundle
+    let designLibrary: DesignLibrary
+
+    public init(bundle: Bundle, designLibrary: DesignLibrary) {
+        self.bundle = bundle
+        self.designLibrary = designLibrary
+    }
+
+    public func makeView() -> AddCurrencyPairButton {
+        AddCurrencyPairButton(bundle: bundle, designLibrary: designLibrary)
+    }
+
+    public func render(in view: AddCurrencyPairButton) {
+
+    }
+}
+
 public final class AddCurrencyPairButton: UIView {
     let imageView: UIImageView = {
         let imageView = UIImageView()

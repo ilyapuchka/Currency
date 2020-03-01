@@ -1,5 +1,23 @@
 import UIKit
 
+public struct EmptyStateViewComponent: Component {
+    let bundle: Bundle
+    let designLibrary: DesignLibrary
+
+    public init(bundle: Bundle, designLibrary: DesignLibrary) {
+        self.bundle = bundle
+        self.designLibrary = designLibrary
+    }
+    
+    public func makeView() -> EmptyStateView {
+        EmptyStateView(bundle: bundle, designLibrary: designLibrary)
+    }
+
+    public func render(in view: EmptyStateView) {
+
+    }
+}
+
 public final class EmptyStateView: UIView {
     let button: VerticalContentButton = {
         let button = VerticalContentButton()
