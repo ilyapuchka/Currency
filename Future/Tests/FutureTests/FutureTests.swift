@@ -6,55 +6,62 @@ final class FutureTests: XCTestCase {
 
     func test_syncScheduler() {
         var done: Bool = false
-        let work = { done = true }
+        let work = {
+            dispatchPrecondition(condition: .onQueue(.main))
+            done = true
+        }
 
         let sync = Scheduler.sync()
         sync.schedule(work)
-        XCTAssertTrue(done == true)
+        XCTAssertTrue(done)
     }
 
     func test_mainQueueScheduler() {
         var done: Bool = false
-        let work = { done = true }
+        let work = {
+            dispatchPrecondition(condition: .onQueue(.main))
+            done = true
+        }
 
         let mainQueue = Scheduler.mainQueue()
         mainQueue.schedule(work)
-        XCTAssertTrue(done == true)
+        XCTAssertTrue(done)
 
         done = false
         let workDone = expectation(description: "Work done")
         backgroundQueue.async {
             mainQueue.schedule(work)
-            XCTAssertTrue(done == false)
 
             DispatchQueue.main.async {
-                XCTAssertTrue(done == true)
+                XCTAssertTrue(done)
                 workDone.fulfill()
             }
         }
-        XCTAssertTrue(done == false)
+        XCTAssertFalse(done)
         waitForExpectations(timeout: 1, handler: nil)
     }
 
     func test_asyncScheduler() {
         var done: Bool = false
-        let work = { done = true }
         let backgroundQueue = DispatchQueue(label: "")
+        let work = {
+            dispatchPrecondition(condition: .onQueue(backgroundQueue))
+            done = true
+        }
 
         let async = Scheduler.async(queue: backgroundQueue)
 
         let workDone = expectation(description: "Work done")
         DispatchQueue.main.async {
             async.schedule(work)
-            XCTAssertTrue(done == false)
 
             backgroundQueue.async {
-                XCTAssertTrue(done == true)
+                XCTAssertTrue(done)
                 workDone.fulfill()
             }
         }
 
-        XCTAssertTrue(done == false)
+        XCTAssertFalse(done)
         waitForExpectations(timeout: 1, handler: nil)
     }
 
@@ -96,7 +103,7 @@ final class FutureTests: XCTestCase {
         XCTAssertEqual(result, .success(true))
     }
 
-    func test_asyncObserve_syncFulfill() {
+    func test_syncObserve() {
         var future: Future<Bool, String>
         var result: Result<Bool, String>?
 
@@ -122,7 +129,7 @@ final class FutureTests: XCTestCase {
         XCTAssertEqual(result, .success(true))
     }
 
-    func test_asyncObserve_asyncFulfill() {
+    func test_asyncObserve() {
         var future: Future<Bool, String>
         var result: Result<Bool, String>?
 
