@@ -2,18 +2,18 @@ import Domain
 import Future
 import Foundation
 
-struct DatafileSelectedCurrencyPairsService: SelectedCurrencyPairsService {
+public struct DatafileSelectedCurrencyPairsService: SelectedCurrencyPairsService {
     let dataFileService: DatafileService<CurrencyPairs>
 
-    public init(path: String, queue: DispatchQueue? = nil) {
-        dataFileService = DatafileService(path: path, queue: queue)
+    public init(url: URL, queue: DispatchQueue? = nil) {
+        dataFileService = DatafileService(url: url, queue: queue)
     }
 
-    func selectedCurrencyPairs() -> Future<[CurrencyPair], Error> {
+    public func selectedCurrencyPairs() -> Future<[ExchangeRate], Error> {
         dataFileService.read().map { $0.pairs }
     }
 
-    func save(selectedPairs: [CurrencyPair]) -> Future<Void, Error> {
+    public func save(selectedPairs: [ExchangeRate]) -> Future<Void, Error> {
         dataFileService.write(CurrencyPairs(pairs: selectedPairs))
     }
 }

@@ -62,6 +62,56 @@
                ReferencedContainer = "container:Currency.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "ConverterFeatureTests"
+               BuildableName = "ConverterFeatureTests"
+               BlueprintName = "ConverterFeatureTests"
+               ReferencedContainer = "container:../ConverterFeature">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DataAccessTests"
+               BuildableName = "DataAccessTests"
+               BlueprintName = "DataAccessTests"
+               ReferencedContainer = "container:../DataAccess">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DesignLibraryTests"
+               BuildableName = "DesignLibraryTests"
+               BlueprintName = "DesignLibraryTests"
+               ReferencedContainer = "container:../DesignLibrary">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DomainTests"
+               BuildableName = "DomainTests"
+               BlueprintName = "DomainTests"
+               ReferencedContainer = "container:../Domain">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FutureTests"
+               BuildableName = "FutureTests"
+               BlueprintName = "FutureTests"
+               ReferencedContainer = "container:../Future">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

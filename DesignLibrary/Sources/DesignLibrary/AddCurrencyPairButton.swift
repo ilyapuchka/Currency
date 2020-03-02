@@ -1,12 +1,14 @@
 import UIKit
 
-public struct AddCurrencyPairButtonComponent: Component {
+public struct AddCurrencyPairButtonComponent: Component, SelectableComponent {
     let bundle: Bundle
     let designLibrary: DesignLibrary
+    let action: () -> Void
 
-    public init(bundle: Bundle, designLibrary: DesignLibrary) {
+    public init(bundle: Bundle, designLibrary: DesignLibrary, action: @escaping () -> Void) {
         self.bundle = bundle
         self.designLibrary = designLibrary
+        self.action = action
     }
 
     public func makeView() -> AddCurrencyPairButton {
@@ -14,7 +16,11 @@ public struct AddCurrencyPairButtonComponent: Component {
     }
 
     public func render(in view: AddCurrencyPairButton) {
+        
+    }
 
+    public func didSelect() {
+        action()
     }
 }
 

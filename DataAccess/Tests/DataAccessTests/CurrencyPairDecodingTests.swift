@@ -10,7 +10,12 @@ final class CurrencyPairDecodingTests: XCTestCase {
 
         let pairs = try JSONDecoder().decode(CurrencyPairs.self, from: data)
 
-        XCTAssertTrue(pairs.pairs.contains(CurrencyPair(from: "GBP", to: "USD", rate: 1.2994)))
-        XCTAssertTrue(pairs.pairs.contains(CurrencyPair(from: "USD", to: "GBP", rate: 0.7807)))
+        let gbp = try XCTUnwrap(pairs.pairs.first(where: { $0.from == "GBP" }))
+        // Decimal created from float literal also results in loss of precision
+        // https://bugs.swift.org/browse/SR-3317
+        XCTAssertEqual(gbp.rate, Decimal(string: "1.2994"))
+
+        let usd = try XCTUnwrap(pairs.pairs.first(where: { $0.from == "USD" }))
+        XCTAssertEqual(usd.rate, Decimal(string: "0.7807"))
     }
 }

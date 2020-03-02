@@ -14,15 +14,15 @@ public struct RevolutExchangeRateService: ExchangeRateService {
         self.urlSession = session
     }
 
-    func makeURL(pairs: [(from: Currency, to: Currency)]) -> URL {
+    func makeURL(pairs: [CurrencyPair]) -> URL {
         var url = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
-        url.queryItems = pairs.map { (from, to) in
-            URLQueryItem(name: "pairs", value: "\(from.code)\(to.code)")
+        url.queryItems = pairs.map {
+            URLQueryItem(name: "pairs", value: "\($0.from.code)\($0.to.code)")
         }
         return url.url!
     }
 
-    public func exchangeRates(pairs: [(from: Currency, to: Currency)]) -> Future<[CurrencyPair], Swift.Error> {
+    public func exchangeRates(pairs: [CurrencyPair]) -> Future<[ExchangeRate], Swift.Error> {
         urlSession
             .get(url: makeURL(pairs: pairs))
             .flatMap { (data, _) in
@@ -32,7 +32,14 @@ public struct RevolutExchangeRateService: ExchangeRateService {
                     }
                     promise.fulfill(
                         Result {
-                            try JSONDecoder().decode(CurrencyPairs.self, from: data).pairs
+                            try JSONDecoder().decode(CurrencyPairs.self, from: data)
+                                .pairs
+                                .filter { pairs.contains(CurrencyPair(from: $0.from, to: $0.to)) }
+                                .sorted { lhs, rhs in
+                                    let lhsIndex = pairs.firstIndex(of: CurrencyPair(from: lhs.from, to: lhs.to))!
+                                    let rhsIndex = pairs.firstIndex(of: CurrencyPair(from: rhs.from, to: rhs.to))!
+                                    return lhsIndex < rhsIndex
+                            }
                         }
                     )
                 }

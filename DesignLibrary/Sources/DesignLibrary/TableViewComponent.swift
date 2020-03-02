@@ -1,6 +1,27 @@
 import UIKit
 import DesignLibrary
 
+public struct TableViewComponent: Component {
+    let adapter: TableViewAdapter
+
+    init(sections: [[AnyComponent]]) {
+        self.adapter = TableViewAdapter(sections: sections)
+    }
+
+    public func makeView() -> UITableView {
+        let tableView = UITableView()
+        tableView.separatorColor = .clear
+        tableView.estimatedRowHeight = 56
+        tableView.rowHeight = UITableView.automaticDimension
+        return tableView
+    }
+
+    public func render(in view: UITableView) {
+        adapter.tableView = view
+        adapter.tableView?.reloadData()
+    }
+}
+
 class ComponentCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -14,6 +35,11 @@ class ComponentCell: UITableViewCell {
     }
 
     func mount(component: AnyComponent) -> UIView {
+        if let componentView = contentView.subviews.first, type(of: componentView) == component.viewType {
+            return componentView
+        }
+
+        contentView.subviews.first?.removeFromSuperview()
         let componentView = component.makeView()
         componentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(componentView)
@@ -33,6 +59,7 @@ public class TableViewAdapter: NSObject, UITableViewDataSource, UITableViewDeleg
     public func numberOfSections(in tableView: UITableView) -> Int {
         return sections.count
     }
+
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return sections[section].count
     }
@@ -49,50 +76,20 @@ public class TableViewAdapter: NSObject, UITableViewDataSource, UITableViewDeleg
         return cell
     }
 
-    let tableView: UITableView
-
-    public init(with tableView: UITableView) {
-        self.tableView = tableView
-        super.init()
-        tableView.delegate = self
-        tableView.dataSource = self
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let component = sections[indexPath.section][indexPath.row]
+        component.didSelect()
     }
 
-    public func update(sections: [[AnyComponent]]) {
+    var tableView: UITableView? {
+        didSet {
+            tableView?.delegate = self
+            tableView?.dataSource = self
+        }
+    }
+
+    public init(sections: [[AnyComponent]]) {
         self.sections = sections
-        tableView.reloadData()
-    }
-}
-
-
-public class TableViewController: UIViewController {
-    let tableView = UITableView()
-    lazy var adapter = TableViewAdapter(with: tableView)
-
-    public init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    public required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-
-    public func update(sections: [[AnyComponent]]) {
-        self.adapter.update(sections: sections)
-    }
-
-    public override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-
-        tableView.frame = view.bounds
-        tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-
-        tableView.separatorColor = .clear
-
-        tableView.estimatedRowHeight = 56
-        tableView.rowHeight = UITableView.automaticDimension
-
-        view.addSubview(tableView)
+        super.init()
     }
 }

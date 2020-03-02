@@ -3,10 +3,12 @@ import UIKit
 public struct EmptyStateViewComponent: Component {
     let bundle: Bundle
     let designLibrary: DesignLibrary
+    let action: () -> Void
 
-    public init(bundle: Bundle, designLibrary: DesignLibrary) {
+    public init(bundle: Bundle, designLibrary: DesignLibrary, action: @escaping () -> Void) {
         self.bundle = bundle
         self.designLibrary = designLibrary
+        self.action = action
     }
     
     public func makeView() -> EmptyStateView {
@@ -14,7 +16,7 @@ public struct EmptyStateViewComponent: Component {
     }
 
     public func render(in view: EmptyStateView) {
-
+        view.action = action
     }
 }
 
@@ -84,8 +86,10 @@ public final class EmptyStateView: UIView {
         subtitleLabel.textColor = designLibrary.colors.secondaryText
     }
 
+    var action: () -> Void = {}
+
     @objc func buttonTapped() {
-        print("tapped button")
+        action()
     }
 }
 

@@ -14,7 +14,7 @@ public struct Future<Value, Error: Swift.Error> {
         perform(promise)
     }
 
-    private init(scheduler: Scheduler? = nil, promise: Promise<Value, Error>) {
+    public init(scheduler: Scheduler? = nil, promise: Promise<Value, Error>) {
         self.scheduler = scheduler
         self.promise = promise
     }
@@ -70,6 +70,32 @@ public struct Future<Value, Error: Swift.Error> {
         )
         return Future<T, Error>(scheduler: scheduler, promise: promise)
     }
+
+    public func flatMapError<E>(_ transform: @escaping (Error) -> Future<Value, E>) -> Future<Value, E> {
+        let promise = Promise<Value, E>()
+        self.on(
+            success: {
+                promise.fulfill(.success($0))
+            },
+            failure: {
+                transform($0).on(
+                    success: { promise.fulfill(.success($0)) },
+                    failure: { promise.fulfill(.failure($0)) }
+                )
+            }
+        )
+        return Future<Value, E>(scheduler: scheduler, promise: promise)
+    }
+
+    public static func just(_ value: Value) -> Future {
+        Future { promise in
+            promise.fulfill(.success(value))
+        }
+    }
+
+    public static var empty: Future {
+        return Future { _ in }
+    }
 }
 
 public final class Promise<Value, Error: Swift.Error> {
@@ -82,6 +108,8 @@ public final class Promise<Value, Error: Swift.Error> {
         defer { lock.unlock() }
         return cachedResult
     }
+
+    public init() {}
 
     /// Fulfills the promise with the result
     public func fulfill(_ result: Result<Value, Error>) {
@@ -98,7 +126,7 @@ public final class Promise<Value, Error: Swift.Error> {
         observers.forEach { $0(result) }
     }
 
-    func observe(_ observer: @escaping Future<Value, Error>.Completed) {
+    public func observe(_ observer: @escaping Future<Value, Error>.Completed) {
         lock.lock()
         if let result = cachedResult {
             lock.unlock()

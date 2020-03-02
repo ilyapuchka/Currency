@@ -2,9 +2,9 @@ import Foundation
 import Domain
 
 public struct CurrencyPairs: Codable, Equatable {
-    public let pairs: [CurrencyPair]
+    public let pairs: [ExchangeRate]
 
-    init(pairs: [CurrencyPair]) {
+    init(pairs: [ExchangeRate]) {
         self.pairs = pairs
     }
 
@@ -31,11 +31,17 @@ public struct CurrencyPairs: Codable, Equatable {
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        self.pairs = try values.allKeys.map { key in
-            try CurrencyPair(
+        self.pairs = try values.allKeys.compactMap { key in
+            // Decimal seem to be decoded as Double so looses precision sometimes
+            // https://forums.swift.org/t/parsing-decimal-values-from-json/6906/8
+            // https://blog.skagedal.tech/2017/12/30/decimal-decoding.html
+            guard let rate = try Decimal(string: "\(values.decode(Double.self, forKey: key))") else {
+                return nil
+            }
+            return ExchangeRate(
                 from: Currency(code: key.from),
                 to: Currency(code: key.to),
-                rate: values.decode(Decimal.self, forKey: key)
+                rate: rate
             )
         }
     }

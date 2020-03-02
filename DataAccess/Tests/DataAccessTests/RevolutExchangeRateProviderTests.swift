@@ -4,7 +4,10 @@ import Future
 import Domain
 
 final class RevolutExchangeRateServiceTests: XCTestCase {
-    let pairs: [(from: Currency, to: Currency)] = [(from: "USD", to: "GBP"), (from: "GBP", to: "USD")]
+    let pairs: [CurrencyPair] = [
+        CurrencyPair(from: "USD", to: "GBP"),
+        CurrencyPair(from: "GBP", to: "USD")
+    ]
     let expectedURL = URL(string: "https://europe-west1-revolut-230009.cloudfunctions.net/revolut-ios?pairs=USDGBP&pairs=GBPUSD")!
 
     func test_makeURL() {
@@ -24,12 +27,16 @@ final class RevolutExchangeRateServiceTests: XCTestCase {
         }, expectedURL: expectedURL)
         let sut = RevolutExchangeRateService(session: urlSession)
 
-        var result: [CurrencyPair]!
+        var result: [ExchangeRate]!
         sut.exchangeRates(pairs: pairs).on { result = try? $0.get() }
 
         result = try XCTUnwrap(result)
-        XCTAssertTrue(result.contains(CurrencyPair(from: "USD", to: "GBP", rate: 0.7807)))
-        XCTAssertTrue(result.contains(CurrencyPair(from: "GBP", to: "USD", rate: 1.2994)))
+
+        let gbp = try XCTUnwrap(result.first(where: { $0.from == "GBP" }))
+        XCTAssertEqual(gbp.rate, Decimal(string: "1.2994"))
+
+        let usd = try XCTUnwrap(result.first(where: { $0.from == "USD" }))
+        XCTAssertEqual(usd.rate, Decimal(string: "0.7807"))
     }
 }
 

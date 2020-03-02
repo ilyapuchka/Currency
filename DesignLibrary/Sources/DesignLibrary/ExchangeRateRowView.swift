@@ -1,6 +1,6 @@
 import UIKit
 
-public struct CurrencyPairRowViewComponent: Component {
+public struct ExchangeRateRowViewComponent: Component {
     let designLibrary: DesignLibrary
     let from: (amount: String, name: String)
     let to: (amount: String, name: String)
@@ -14,21 +14,34 @@ public struct CurrencyPairRowViewComponent: Component {
         self.from = from
         self.to = to
     }
-    public func makeView() -> CurrencyPairRowView {
-        CurrencyPairRowView(designLibrary: designLibrary)
+
+    public func makeView() -> ExchangeRateRowView {
+        ExchangeRateRowView(designLibrary: designLibrary)
     }
 
-    public func render(in view: CurrencyPairRowView) {
+    public func render(in view: ExchangeRateRowView) {
         view.configure(from: from, to: to)
     }
 }
 
-public final class CurrencyPairRowView: UIView {
+public final class ExchangeRateRowView: UIView {
+
+    static var fromLabelTextAlignment: NSTextAlignment {
+        UIView.userInterfaceLayoutDirection(for: .unspecified) == .leftToRight
+            ? .left
+            : .right
+    }
+
+    static var toLabelTextAlignment: NSTextAlignment {
+        UIView.userInterfaceLayoutDirection(for: .unspecified) == .leftToRight
+            ? .right
+            : .left
+    }
 
     let fromAmountLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .headline)
-        label.textAlignment = .left
+        label.font = UIFont.preferredFont(forTextStyle: .title2)
+        label.textAlignment = ExchangeRateRowView.fromLabelTextAlignment
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -36,15 +49,15 @@ public final class CurrencyPairRowView: UIView {
     let fromNameLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
-        label.textAlignment = .left
+        label.textAlignment = ExchangeRateRowView.fromLabelTextAlignment
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     let toAmountLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .headline)
-        label.textAlignment = .right
+        label.font = UIFont.preferredFont(forTextStyle: .title2)
+        label.textAlignment = ExchangeRateRowView.toLabelTextAlignment
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -52,7 +65,7 @@ public final class CurrencyPairRowView: UIView {
     let toNameLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
-        label.textAlignment = .right
+        label.textAlignment = ExchangeRateRowView.toLabelTextAlignment
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

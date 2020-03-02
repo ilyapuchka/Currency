@@ -17,6 +17,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
          .package(url: "../DesignLibrary", from: "1.0.0"),
+         .package(url: "../DataAccess", from: "1.0.0"),
          .package(url: "../Domain", from: "1.0.0"),
     ],
     targets: [
@@ -24,7 +25,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "ConverterFeature",
-            dependencies: ["DesignLibrary", "Domain"]),
+            dependencies: ["DesignLibrary", "DataAccess", "Domain"]),
         .testTarget(
             name: "ConverterFeatureTests",
             dependencies: ["ConverterFeature"]),

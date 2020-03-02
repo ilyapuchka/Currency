@@ -3,9 +3,14 @@ import DataAccess
 import Domain
 
 final class DatafileServiceTests: XCTestCase {
-    func test_can_read_from_file() {
-        let bundle = Bundle.init(for: type(of: self))
-        let path = bundle.bundlePath + "/supported_currencies.json"
+    let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("supported_currencies.json")
+
+    override func tearDown() {
+        super.tearDown()
+        try? FileManager.default.removeItem(at: url)
+    }
+
+    func test_can_read_from_file() throws {
         let data = """
         [
             "ABC",
@@ -13,9 +18,9 @@ final class DatafileServiceTests: XCTestCase {
         ]
         """.data(using: .utf8)!
 
-        FileManager.default.createFile(atPath: path, contents: data, attributes: nil)
+        try data.write(to: url, options: .atomic)
 
-        let sut = DatafileService<[String]>(path: path)
+        let sut = DatafileService<[String]>(url: url)
         var result: [String]?
 
         let done = expectation(description: "")
@@ -29,29 +34,28 @@ final class DatafileServiceTests: XCTestCase {
     }
 
     func test_throws_error_on_invalid_path() {
-        let sut = DatafileService<[String]>(path: "")
+        let url = URL(string: "some")!
+        let sut = DatafileService<[String]>(url: url)
 
-        var error: DatafileServiceError?
+        var error: Error?
         let done = expectation(description: "")
         sut.read().on {
-            if case let .failure(_error as DatafileServiceError) = $0 {
+            if case let .failure(_error) = $0 {
                 error = _error
             }
             done.fulfill()
         }
         waitForExpectations(timeout: 1, handler: nil)
 
-        XCTAssertEqual(error, .fileNotReadable)
+        XCTAssertNotNil(error)
     }
 
     func test_throws_error_on_invalid_content() throws {
-        let bundle = Bundle.init(for: type(of: self))
-        let path = bundle.bundlePath + "/supported_currencies.json"
         let data = "".data(using: .utf8)!
 
-        FileManager.default.createFile(atPath: path, contents: data, attributes: nil)
+        try data.write(to: url, options: .atomic)
 
-        let sut = DatafileService<[String]>(path: path)
+        let sut = DatafileService<[String]>(url: url)
 
         var error: DecodingError?
         let done = expectation(description: "")
@@ -69,10 +73,7 @@ final class DatafileServiceTests: XCTestCase {
     }
 
     func test_can_write_to_file() {
-        let bundle = Bundle.init(for: type(of: self))
-        let path = bundle.bundlePath + "/supported_currencies.json"
-
-        let sut = DatafileService<[String]>(path: path)
+        let sut = DatafileService<[String]>(url: url)
 
         var result: Void?
         var done = expectation(description: "")

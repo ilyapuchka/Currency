@@ -1,21 +1,24 @@
 import UIKit
 
-public struct CurrencyRowViewComponent: Component {
+public struct CurrencyRowViewComponent: Component, SelectableComponent {
     let designLibrary: DesignLibrary
-    let image: UIImage
+    let image: UIImage?
     let code: String
     let name: String
+    let action: () -> Void
 
     public init(
         designLibrary: DesignLibrary,
-        image: UIImage,
+        image: UIImage?,
         code: String,
-        name: String
+        name: String,
+        action: @escaping () -> Void
     ) {
         self.designLibrary = designLibrary
         self.image = image
         self.code = code
         self.name = name
+        self.action = action
     }
 
     public func makeView() -> CurrencyRowView {
@@ -25,6 +28,10 @@ public struct CurrencyRowViewComponent: Component {
     public func render(in view: CurrencyRowView) {
         view.configure(image: image, code: code, name: name)
     }
+
+    public func didSelect() {
+        action()
+    }
 }
 
 public final class CurrencyRowView: UIView {
@@ -32,6 +39,10 @@ public final class CurrencyRowView: UIView {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .lightGray
+        imageView.layer.cornerRadius = 12
+        imageView.backgroundColor = .lightGray
+        imageView.clipsToBounds = true
         return imageView
     }()
 
@@ -89,7 +100,7 @@ public final class CurrencyRowView: UIView {
         nameLabel.textColor = designLibrary.colors.regularText
     }
 
-    public func configure(image: UIImage, code: String, name: String) {
+    public func configure(image: UIImage?, code: String, name: String) {
         imageView.image = image
         codeLabel.text = code
         nameLabel.text = name

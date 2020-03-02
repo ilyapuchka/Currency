@@ -1,17 +1,18 @@
 import Foundation
 import Future
 
-public enum DatafileServiceError: Swift.Error {
-    case fileNotReadable
-    case failedToWrite
+public extension FileManager {
+    var documentsDir: URL {
+        return urls(for: .documentDirectory, in: .userDomainMask).first!
+    }
 }
 
 public struct DatafileService<T> {
-    let path: String
+    let url: URL
     let queue: DispatchQueue?
 
-    public init(path: String, queue: DispatchQueue? = nil) {
-        self.path = path
+    public init(url: URL, queue: DispatchQueue? = nil) {
+        self.url = url
         self.queue = queue
     }
 
@@ -19,14 +20,12 @@ public struct DatafileService<T> {
 
 extension DatafileService where T: Decodable {
     public func read() -> Future<T, Swift.Error> {
-        Future(scheduler: self.queue.map(Scheduler.async(queue:))) { [path] (promise) in
+        Future(scheduler: self.queue.map(Scheduler.async(queue:))) { [url] (promise) in
             DispatchQueue.main.async {
-                guard let data = FileManager.default.contents(atPath: path) else {
-                    return promise.fulfill(.failure(DatafileServiceError.fileNotReadable))
-                }
                 promise.fulfill(
                     Result {
-                        try JSONDecoder().decode(T.self, from: data)
+                        let data = try Data(contentsOf: url)
+                        return try JSONDecoder().decode(T.self, from: data)
                     }
                 )
             }
@@ -36,14 +35,12 @@ extension DatafileService where T: Decodable {
 
 extension DatafileService where T: Encodable {
     public func write(_ value: T) -> Future<Void, Swift.Error> {
-        Future(scheduler: self.queue.map(Scheduler.async(queue:))) { [path] (promise) in
+        Future(scheduler: self.queue.map(Scheduler.async(queue:))) { [url] (promise) in
             DispatchQueue.main.async {
                 promise.fulfill(
                     Result {
                         let data = try JSONEncoder().encode(value)
-                        guard FileManager.default.createFile(atPath: path, contents: data) else {
-                            throw DatafileServiceError.failedToWrite
-                        }
+                        try data.write(to: url, options: .atomic)
                     }
                 )
             }
