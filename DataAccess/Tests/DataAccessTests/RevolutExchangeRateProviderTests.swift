@@ -32,10 +32,10 @@ final class RevolutExchangeRateServiceTests: XCTestCase {
 
         result = try XCTUnwrap(result)
 
-        let gbp = try XCTUnwrap(result.first(where: { $0.from == "GBP" }))
+        let gbp = try XCTUnwrap(result.first(where: { $0.pair.from == "GBP" }))
         XCTAssertEqual(gbp.rate, Decimal(string: "1.2994"))
 
-        let usd = try XCTUnwrap(result.first(where: { $0.from == "USD" }))
+        let usd = try XCTUnwrap(result.first(where: { $0.pair.from == "USD" }))
         XCTAssertEqual(usd.rate, Decimal(string: "0.7807"))
     }
 }

@@ -48,9 +48,10 @@ public struct ConverterFactory {
         return viewController
     }
 
-    public func makeSelectFirstCurrency(selected: Promise<CurrencyPair?, Never>) -> UIViewController {
+    public func makeSelectFirstCurrency(disabled: [Currency], selected: Promise<CurrencyPair?, Never>) -> UIViewController {
         let viewModel = CurrencyPairSelectorViewModel(
             supportedCurrenciesService: supportedCurrenciesService,
+            disabled: disabled,
             selected: selected
         )
 
@@ -80,9 +81,10 @@ public struct ConverterFactory {
         return navigation
     }
 
-    public func makeSelectSecondCurrency(first: Currency, selected: Promise<CurrencyPair?, Never>) -> UIViewController {
+    public func makeSelectSecondCurrency(first: Currency, disabled: [Currency], selected: Promise<CurrencyPair?, Never>) -> UIViewController {
         let viewModel = CurrencyPairSelectorViewModel(
             from: first,
+            disabled: disabled + [first],
             supportedCurrenciesService: supportedCurrenciesService,
             selected: selected
         )

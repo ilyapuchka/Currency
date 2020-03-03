@@ -4,21 +4,20 @@ import Domain
 
 struct RootFlowController {
     let modal: UIViewController
-    let addPair: (Promise<CurrencyPair?, Never>) -> UIViewController
+    let addPair: ([Currency], Promise<CurrencyPair?, Never>) -> UIViewController
 
     init(
         modal: UIViewController,
-        addPair: @escaping (Promise<CurrencyPair?, Never>) -> UIViewController
+        addPair: @escaping ([Currency], Promise<CurrencyPair?, Never>) -> UIViewController
     ) {
         self.modal = modal
         self.addPair = addPair
     }
 
-    func addPair(promise: Promise<CurrencyPair?, Never>) {
-        let vc = addPair(promise)
-        modal.present(vc, animated: true, completion: nil)
+    func addPair(disabled: [Currency], promise: Promise<CurrencyPair?, Never>) {
+        modal.present(addPair(disabled, promise), animated: true, completion: nil)
 
-        promise.observe { [modal] (result) in
+        Future(promise: promise).observe(on: .mainQueue()).on { [modal] (_) in
             modal.dismiss(animated: true, completion: nil)
         }
     }

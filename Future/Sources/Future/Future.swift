@@ -87,6 +87,17 @@ public struct Future<Value, Error: Swift.Error> {
         return Future<Value, E>(scheduler: scheduler, promise: promise)
     }
 
+    public func ignoreError() -> Future<Value, Never> {
+        let promise = Promise<Value, Never>()
+        self.on(
+            success: {
+                promise.fulfill(.success($0))
+            },
+            failure: { _ in }
+        )
+        return Future<Value, Never>(scheduler: scheduler, promise: promise)
+    }
+
     public static func just(_ value: Value) -> Future {
         Future { promise in
             promise.fulfill(.success(value))

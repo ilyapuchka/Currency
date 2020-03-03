@@ -1,4 +1,4 @@
-public struct CurrencyPair: Equatable {
+public struct CurrencyPair: Equatable, Hashable {
     public let from: Currency
     public let to: Currency
 

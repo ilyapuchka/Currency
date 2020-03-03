@@ -4,8 +4,10 @@ import XCTest
 final class CurrencyTests: XCTestCase {
     func testCurrencyArithmetics() {
         let rate = ExchangeRate(
-            from: "USD",
-            to: "EUR",
+            pair: CurrencyPair(
+                from: "USD",
+                to: "EUR"
+            ),
             rate: 1.1629
         )
 

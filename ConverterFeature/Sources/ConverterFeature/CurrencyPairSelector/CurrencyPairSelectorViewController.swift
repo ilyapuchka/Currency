@@ -35,6 +35,7 @@ final class CurrencyPairSelectorViewController<ViewModel: CurrencyPairSelectorVi
                             image: UIImage(named: currency.code, in: config.bundle, compatibleWith: nil),
                             code: currency.code,
                             name: currency.code,
+                            isEnabled: !state.disabled.contains(currency),
                             action: { sendAction(.selected(currency)) }
                         ).asAnyComponent()
                     }

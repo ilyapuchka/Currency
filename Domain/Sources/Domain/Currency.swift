@@ -1,4 +1,4 @@
-public struct Currency: Equatable, ExpressibleByStringLiteral {
+public struct Currency: Equatable, Hashable, ExpressibleByStringLiteral {
     public let code: String
 
     public init(code: String) {

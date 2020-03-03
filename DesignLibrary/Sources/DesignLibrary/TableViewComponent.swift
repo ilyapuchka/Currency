@@ -1,10 +1,9 @@
 import UIKit
-import DesignLibrary
 
 public struct TableViewComponent: Component {
     let adapter: TableViewAdapter
 
-    init(sections: [[AnyComponent]]) {
+    public init(sections: [[AnyComponent]]) {
         self.adapter = TableViewAdapter(sections: sections)
     }
 
@@ -17,8 +16,16 @@ public struct TableViewComponent: Component {
     }
 
     public func render(in view: UITableView) {
+        let selectedRows = view.indexPathForSelectedRow
         adapter.tableView = view
         adapter.tableView?.reloadData()
+
+        if
+            let selectedRow = selectedRows, selectedRow.row != NSNotFound,
+            adapter.shouldRestoreSelectionBetweenUpdates(componentAt: selectedRow)
+        {
+            view.selectRow(at: selectedRow, animated: false, scrollPosition: .none)
+        }
     }
 }
 
@@ -43,11 +50,15 @@ class ComponentCell: UITableViewCell {
         let componentView = component.makeView()
         componentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(componentView)
+
+        let bottom = componentView.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor)
+        bottom.priority = UILayoutPriority(999)
+
         NSLayoutConstraint.activate([
             componentView.trailingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
             componentView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
-            componentView.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
             componentView.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
+            bottom,
         ])
         return componentView
     }
@@ -72,13 +83,43 @@ public class TableViewAdapter: NSObject, UITableViewDataSource, UITableViewDeleg
             tableView.register(ComponentCell.self, forCellReuseIdentifier: reuseIdentifier)
             return self.tableView(tableView, cellForRowAt: indexPath)
         }
+
         component.render(in: cell.mount(component: component))
         return cell
+    }
+
+    public func shouldRestoreSelectionBetweenUpdates(componentAt indexPath: IndexPath) -> Bool {
+        let component = sections[indexPath.section][indexPath.row]
+        return component.shouldPersistSelectionBetweenStateUpdates()
+    }
+
+    public func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
+        let component = sections[indexPath.section][indexPath.row]
+        return component.shouldSelect()
     }
 
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let component = sections[indexPath.section][indexPath.row]
         component.didSelect()
+    }
+
+    public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let component = sections[indexPath.section][indexPath.row]
+        if editingStyle == .delete, component.shouldDelete() {
+            // first delete row "in place" and when animation is done report deletion
+            // which will update the state and cause reload
+            sections[indexPath.section].remove(at: indexPath.row)
+
+            CATransaction.begin()
+            tableView.beginUpdates()
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            tableView.endUpdates()
+
+            CATransaction.setCompletionBlock {
+                component.didDelete()
+            }
+            CATransaction.commit()
+        }
     }
 
     var tableView: UITableView? {

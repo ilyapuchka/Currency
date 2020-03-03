@@ -1,37 +1,55 @@
 import Foundation
 import Domain
 
-public struct CurrencyPairs: Codable, Equatable {
-    public let pairs: [ExchangeRate]
+public struct CurrencyPairCodingKey: CodingKey {
+    public let stringValue: String
+    public let intValue: Int? = nil
 
-    init(pairs: [ExchangeRate]) {
-        self.pairs = pairs
+    public init?(stringValue: String) {
+        self.stringValue = stringValue
     }
 
-    public struct CodingKeys: CodingKey {
-        public let stringValue: String
-        public let intValue: Int? = nil
+    public init?(intValue: Int) {
+        return nil
+    }
 
-        public init?(stringValue: String) {
-            self.stringValue = stringValue
-        }
+    // for simplicity assume that currency codes are always 3 characters long and pair is 6 characters
+    var from: String { String(stringValue.prefix(3)) }
+    var to: String { String(stringValue.suffix(3)) }
 
-        public init?(intValue: Int) {
-            return nil
-        }
+    init(_ pair: CurrencyPair) {
+        self.stringValue = "\(pair.from.code)\(pair.to.code)"
+    }
+}
 
-        // for simplicity assume that currency codes are always 3 characters long and pair is 6 characters
-        var from: String { String(stringValue.prefix(3)) }
-        var to: String { String(stringValue.suffix(3)) }
+extension CurrencyPair: Codable {
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.singleValueContainer()
+        let stringValue = try values.decode(String.self)
 
-        init(from: Currency, to: Currency) {
-            self.stringValue = "\(from.code)\(to.code)"
-        }
+        let key = CurrencyPairCodingKey(stringValue: stringValue)!
+        self.init(
+            from: Currency(code: key.from),
+            to: Currency(code: key.to)
+        )
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(CurrencyPairCodingKey(self).stringValue)
+    }
+}
+
+public struct ExchangeRates: Decodable, Equatable {
+    public let rates: [ExchangeRate]
+
+    init(rates: [ExchangeRate]) {
+        self.rates = rates
     }
 
     public init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        self.pairs = try values.allKeys.compactMap { key in
+        let values = try decoder.container(keyedBy: CurrencyPairCodingKey.self)
+        self.rates = try values.allKeys.compactMap { key in
             // Decimal seem to be decoded as Double so looses precision sometimes
             // https://forums.swift.org/t/parsing-decimal-values-from-json/6906/8
             // https://blog.skagedal.tech/2017/12/30/decimal-decoding.html
@@ -39,17 +57,12 @@ public struct CurrencyPairs: Codable, Equatable {
                 return nil
             }
             return ExchangeRate(
-                from: Currency(code: key.from),
-                to: Currency(code: key.to),
+                pair: CurrencyPair(
+                    from: Currency(code: key.from),
+                    to: Currency(code: key.to)
+                ),
                 rate: rate
             )
-        }
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var values = encoder.container(keyedBy: CodingKeys.self)
-        try self.pairs.forEach {
-            try values.encode($0.rate, forKey: CodingKeys(from: $0.from, to: $0.to))
         }
     }
 }

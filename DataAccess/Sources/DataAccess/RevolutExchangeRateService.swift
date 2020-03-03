@@ -32,12 +32,12 @@ public struct RevolutExchangeRateService: ExchangeRateService {
                     }
                     promise.fulfill(
                         Result {
-                            try JSONDecoder().decode(CurrencyPairs.self, from: data)
-                                .pairs
-                                .filter { pairs.contains(CurrencyPair(from: $0.from, to: $0.to)) }
+                            try JSONDecoder().decode(ExchangeRates.self, from: data)
+                                .rates
+                                .filter { pairs.contains($0.pair) }
                                 .sorted { lhs, rhs in
-                                    let lhsIndex = pairs.firstIndex(of: CurrencyPair(from: lhs.from, to: lhs.to))!
-                                    let rhsIndex = pairs.firstIndex(of: CurrencyPair(from: rhs.from, to: rhs.to))!
+                                    let lhsIndex = pairs.firstIndex(of: lhs.pair)!
+                                    let rhsIndex = pairs.firstIndex(of: rhs.pair)!
                                     return lhsIndex < rhsIndex
                             }
                         }

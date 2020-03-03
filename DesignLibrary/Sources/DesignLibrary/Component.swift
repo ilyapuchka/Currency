@@ -16,18 +16,20 @@ public extension Component {
     }
 }
 
-public struct AnyComponent: Component, SelectableComponent {
+public struct AnyComponent: Component, SelectableComponent, DeletableComponent {
     private let wrapped: AnyComponentBoxBase
     public let componentType: Any.Type
     public let viewType: Any.Type
 
     private let selectable: SelectableComponent?
+    private let deletable: DeletableComponent?
 
     init<Base: Component>(_ wrapped: Base) {
         self.wrapped = AnyComponentBox(wrapped)
         self.componentType = Base.self
         self.viewType = Base.View.self
         self.selectable = wrapped as? SelectableComponent
+        self.deletable = wrapped as? DeletableComponent
     }
 
     public func makeView() -> UIView {
@@ -40,6 +42,22 @@ public struct AnyComponent: Component, SelectableComponent {
 
     public func didSelect() {
         selectable?.didSelect()
+    }
+
+    public func shouldSelect() -> Bool {
+        selectable?.shouldSelect() ?? false
+    }
+
+    public func shouldPersistSelectionBetweenStateUpdates() -> Bool {
+        selectable?.shouldPersistSelectionBetweenStateUpdates() ?? false
+    }
+
+    public func shouldDelete() -> Bool {
+        deletable?.shouldDelete() ?? false
+    }
+
+    public func didDelete() {
+        deletable?.didDelete()
     }
 }
 
@@ -66,4 +84,17 @@ private struct AnyComponentBox<Wrapped: Component>: AnyComponentBoxBase {
 
 public protocol SelectableComponent {
     func didSelect()
+    func shouldSelect() -> Bool
+    func shouldPersistSelectionBetweenStateUpdates() -> Bool
+}
+
+extension SelectableComponent {
+    public func shouldPersistSelectionBetweenStateUpdates() -> Bool {
+        return true
+    }
+}
+
+public protocol DeletableComponent {
+    func shouldDelete() -> Bool
+    func didDelete()
 }

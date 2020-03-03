@@ -5,6 +5,7 @@ public struct CurrencyRowViewComponent: Component, SelectableComponent {
     let image: UIImage?
     let code: String
     let name: String
+    let isEnabled: Bool
     let action: () -> Void
 
     public init(
@@ -12,12 +13,14 @@ public struct CurrencyRowViewComponent: Component, SelectableComponent {
         image: UIImage?,
         code: String,
         name: String,
+        isEnabled: Bool = true,
         action: @escaping () -> Void
     ) {
         self.designLibrary = designLibrary
         self.image = image
         self.code = code
         self.name = name
+        self.isEnabled = isEnabled
         self.action = action
     }
 
@@ -26,11 +29,15 @@ public struct CurrencyRowViewComponent: Component, SelectableComponent {
     }
 
     public func render(in view: CurrencyRowView) {
-        view.configure(image: image, code: code, name: name)
+        view.configure(image: image, code: code, name: name, isEnabled: isEnabled)
     }
 
     public func didSelect() {
         action()
+    }
+
+    public func shouldSelect() -> Bool {
+        isEnabled
     }
 }
 
@@ -77,7 +84,11 @@ public final class CurrencyRowView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    let designLibrary: DesignLibrary
+
     public init(designLibrary: DesignLibrary) {
+        self.designLibrary = designLibrary
+
         super.init(frame: .zero)
 
         stackView.addArrangedSubview(imageView)
@@ -100,9 +111,15 @@ public final class CurrencyRowView: UIView {
         nameLabel.textColor = designLibrary.colors.regularText
     }
 
-    public func configure(image: UIImage?, code: String, name: String) {
+    public func configure(image: UIImage?, code: String, name: String, isEnabled: Bool) {
         imageView.image = image
         codeLabel.text = code
         nameLabel.text = name
+
+        if isEnabled {
+            nameLabel.textColor = designLibrary.colors.regularText
+        } else {
+            nameLabel.textColor = designLibrary.colors.secondaryText
+        }
     }
 }

@@ -49,19 +49,23 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
 
     private func renderRates(state: RootState, sendAction: @escaping (RootEvent.UserAction) -> Void) -> [AnyComponent] {
         var rows = state.rates.map { rate -> AnyComponent in
-            let amount = withUnsafePointer(to: rate.convert(amount: 1)) { (pointer) -> String in
-                NSDecimalString(pointer, nil)
-            }
             return ExchangeRateRowViewComponent(
                 designLibrary: self.config.designLibrary,
-                from: (amount: "1 \(rate.from.code)", name: rate.from.code),
-                to: (amount: "\(amount) \(rate.to.code)", name: rate.to.code)
+                from: (amount: "1 \(rate.pair.from.code)", name: rate.pair.from.code),
+                to: (amount: "\(rate.convert(amount: 1)) \(rate.pair.to.code)", name: rate.pair.to.code),
+                onDelete: { sendAction(.deletePair(rate.pair)) },
+                onUpdate: { update in
+                    state.observeRateUpdate(pair: rate.pair) { rate in
+                        update("\(rate.convert(amount: 1)) \(rate.pair.to.code)")
+                    }
+                }
             ).asAnyComponent()
         }
         rows.insert(
             AddCurrencyPairButtonComponent(
                 bundle: self.config.bundle,
                 designLibrary: self.config.designLibrary,
+                isSelected: { if case .addingPair = state.status { return true } else { return false }}(),
                 action: { sendAction(.addPair) }
             ).asAnyComponent(),
             at: 0

@@ -1,13 +1,11 @@
 import Foundation
 
 public struct ExchangeRate: Equatable {
-    public let from: Currency
-    public let to: Currency
+    public let pair: CurrencyPair
     public let rate: Decimal
 
-    public init(from: Currency, to: Currency, rate: Decimal) {
-        self.from = from
-        self.to = to
+    public init(pair: CurrencyPair, rate: Decimal) {
+        self.pair = pair
         self.rate = rate
     }
 

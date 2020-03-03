@@ -14,10 +14,16 @@ final class CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol
 
     init(
         supportedCurrenciesService: SupportedCurrenciesService,
+        disabled: [Currency],
         selected: Promise<CurrencyPair?, Never>
     ) {
         state = StateMachine(
-            initial: .init(supported: [], status: .selectingFirst, selected: selected),
+            initial: .init(
+                supported: [],
+                disabled: disabled,
+                status: .selectingFirst,
+                selected: selected
+            ),
             reduce: Self.reduce(supportedCurrenciesService: supportedCurrenciesService)
         )
         state.sink(event: .initialised)
@@ -25,11 +31,16 @@ final class CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol
 
     init(
         from: Currency,
+        disabled: [Currency],
         supportedCurrenciesService: SupportedCurrenciesService,
         selected: Promise<CurrencyPair?, Never>
     ) {
         state = StateMachine(
-            initial: .init(status: .selectingSecond(first: from), selected: selected),
+            initial: .init(
+                disabled: disabled,
+                status: .selectingSecond(first: from),
+                selected: selected
+            ),
             reduce: Self.reduce(supportedCurrenciesService: supportedCurrenciesService)
         )
         state.sink(event: .initialised)
@@ -68,10 +79,10 @@ final class CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol
         state.observeState(observer)
     }
 
-    func selectSecond(_ observer: @escaping (Currency, Promise<CurrencyPair?, Never>) -> Void) {
+    func selectSecond(_ observer: @escaping (Currency, [Currency], Promise<CurrencyPair?, Never>) -> Void) {
         state.observeState { (state) in
             if let first = state.first {
-                observer(first, state.selected)
+                observer(first, state.disabled, state.selected)
             }
         }
     }
@@ -80,6 +91,7 @@ final class CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol
 
 struct CurrencyPairSelectorState {
     var supported: [Currency] = []
+    let disabled: [Currency]
     var status: Status
     let selected: Promise<CurrencyPair?, Never>
 

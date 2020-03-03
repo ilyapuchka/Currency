@@ -4,10 +4,17 @@ public struct AddCurrencyPairButtonComponent: Component, SelectableComponent {
     let bundle: Bundle
     let designLibrary: DesignLibrary
     let action: () -> Void
+    let isSelected: Bool
 
-    public init(bundle: Bundle, designLibrary: DesignLibrary, action: @escaping () -> Void) {
+    public init(
+        bundle: Bundle,
+        designLibrary: DesignLibrary,
+        isSelected: Bool = false,
+        action: @escaping () -> Void
+    ) {
         self.bundle = bundle
         self.designLibrary = designLibrary
+        self.isSelected = isSelected
         self.action = action
     }
 
@@ -21,6 +28,14 @@ public struct AddCurrencyPairButtonComponent: Component, SelectableComponent {
 
     public func didSelect() {
         action()
+    }
+
+    public func shouldSelect() -> Bool {
+        return true
+    }
+
+    public func shouldPersistSelectionBetweenStateUpdates() -> Bool {
+        return isSelected
     }
 }
 

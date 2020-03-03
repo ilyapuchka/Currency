@@ -1,18 +1,24 @@
 import UIKit
 
-public struct ExchangeRateRowViewComponent: Component {
+public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
     let designLibrary: DesignLibrary
     let from: (amount: String, name: String)
     let to: (amount: String, name: String)
+    let onDelete: () -> Void
+    let onUpdate: (@escaping (String) -> Void) -> Void
 
     public init(
         designLibrary: DesignLibrary,
         from: (amount: String, name: String),
-        to: (amount: String, name: String)
+        to: (amount: String, name: String),
+        onDelete: @escaping () -> Void,
+        onUpdate: @escaping (@escaping (String) -> Void) -> Void
     ) {
         self.designLibrary = designLibrary
         self.from = from
         self.to = to
+        self.onDelete = onDelete
+        self.onUpdate = onUpdate
     }
 
     public func makeView() -> ExchangeRateRowView {
@@ -20,7 +26,15 @@ public struct ExchangeRateRowViewComponent: Component {
     }
 
     public func render(in view: ExchangeRateRowView) {
-        view.configure(from: from, to: to)
+        view.configure(from: from, to: to, onUpdate: onUpdate)
+    }
+
+    public func shouldDelete() -> Bool {
+        return true
+    }
+
+    public func didDelete() {
+        onDelete()
     }
 }
 
@@ -117,12 +131,20 @@ public final class ExchangeRateRowView: UIView {
         toNameLabel.textColor = designLibrary.colors.secondaryText
     }
 
+    var onUpdate: (String) -> Void = { _ in }
+
     public func configure(
-        from: (amount: String, name: String), to: (amount: String, name: String)
+        from: (amount: String, name: String),
+        to: (amount: String, name: String),
+        onUpdate: (@escaping (String) -> Void) -> Void
     ) {
         fromAmountLabel.text = from.amount
         fromNameLabel.text = from.name
         toAmountLabel.text = to.amount
         toNameLabel.text = to.name
+
+        onUpdate { [weak self] rate in
+            self?.toAmountLabel.text = rate
+        }
     }
 }
