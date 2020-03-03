@@ -1,6 +1,6 @@
 import Foundation
 
-class Timer {
+final class Timer {
     private let source: DispatchSourceTimer
     private var isRunning: Bool = false
 

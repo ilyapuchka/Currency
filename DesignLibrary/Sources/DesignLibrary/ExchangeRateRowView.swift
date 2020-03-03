@@ -2,23 +2,24 @@ import UIKit
 
 public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
     let designLibrary: DesignLibrary
-    let from: (amount: String, name: String)
-    let to: (amount: String, name: String)
+    let from: (amount: String, description: String)
+    let to: (amount: String, description: String)
     let onDelete: () -> Void
-    let onUpdate: (@escaping (String) -> Void) -> Void
+
+    let onRateUpdate: ExchangeRateRowView.OnRateUpdate
 
     public init(
         designLibrary: DesignLibrary,
-        from: (amount: String, name: String),
-        to: (amount: String, name: String),
+        from: (amount: String, description: String),
+        to: (amount: String, description: String),
         onDelete: @escaping () -> Void,
-        onUpdate: @escaping (@escaping (String) -> Void) -> Void
+        onRateUpdate: @escaping ExchangeRateRowView.OnRateUpdate
     ) {
         self.designLibrary = designLibrary
         self.from = from
         self.to = to
         self.onDelete = onDelete
-        self.onUpdate = onUpdate
+        self.onRateUpdate = onRateUpdate
     }
 
     public func makeView() -> ExchangeRateRowView {
@@ -26,11 +27,7 @@ public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
     }
 
     public func render(in view: ExchangeRateRowView) {
-        view.configure(from: from, to: to, onUpdate: onUpdate)
-    }
-
-    public func shouldDelete() -> Bool {
-        return true
+        view.configure(from: from, to: to, onRateUpdate: onRateUpdate)
     }
 
     public func didDelete() {
@@ -39,6 +36,8 @@ public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
 }
 
 public final class ExchangeRateRowView: UIView {
+
+    public typealias OnRateUpdate = (@escaping (String) -> Void) -> Void
 
     static var fromLabelTextAlignment: NSTextAlignment {
         UIView.userInterfaceLayoutDirection(for: .unspecified) == .leftToRight
@@ -131,19 +130,17 @@ public final class ExchangeRateRowView: UIView {
         toNameLabel.textColor = designLibrary.colors.secondaryText
     }
 
-    var onUpdate: (String) -> Void = { _ in }
-
     public func configure(
-        from: (amount: String, name: String),
-        to: (amount: String, name: String),
-        onUpdate: (@escaping (String) -> Void) -> Void
+        from: (amount: String, description: String),
+        to: (amount: String, description: String),
+        onRateUpdate: OnRateUpdate
     ) {
         fromAmountLabel.text = from.amount
-        fromNameLabel.text = from.name
+        fromNameLabel.text = from.description
         toAmountLabel.text = to.amount
-        toNameLabel.text = to.name
+        toNameLabel.text = to.description
 
-        onUpdate { [weak self] rate in
+        onRateUpdate { [weak self] rate in
             self?.toAmountLabel.text = rate
         }
     }

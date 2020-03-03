@@ -48,33 +48,40 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
     }
 
     private func renderRates(state: RootState, sendAction: @escaping (RootEvent.UserAction) -> Void) -> [AnyComponent] {
-        var rows = state.rates.map { rate -> AnyComponent in
-            return ExchangeRateRowViewComponent(
-                designLibrary: self.config.designLibrary,
-                from: (amount: "1 \(rate.pair.from.code)", name: rate.pair.from.code),
-                to: (amount: "\(rate.convert(amount: 1)) \(rate.pair.to.code)", name: rate.pair.to.code),
-                onDelete: { sendAction(.deletePair(rate.pair)) },
-                onUpdate: { update in
-                    state.observeRateUpdate(pair: rate.pair) { rate in
-                        update("\(rate.convert(amount: 1)) \(rate.pair.to.code)")
-                    }
-                }
-            ).asAnyComponent()
-        }
-        rows.insert(
-            AddCurrencyPairButtonComponent(
-                bundle: self.config.bundle,
-                designLibrary: self.config.designLibrary,
-                isSelected: { if case .addingPair = state.status { return true } else { return false }}(),
-                action: { sendAction(.addPair) }
-            ).asAnyComponent(),
-            at: 0
-        )
         return [
             HostViewComponent(host: view, alignment: .fill) {
-                TableViewComponent(sections: [rows]).asAnyComponent()
+                TableViewComponent(sections: [
+                    [
+                        AddCurrencyPairButtonComponent(
+                            bundle: self.config.bundle,
+                            designLibrary: self.config.designLibrary,
+                            isSelected: { if case .addingPair = state.status { return true } else { return false }}(),
+                            action: { sendAction(.addPair) }
+                        ).asAnyComponent()
+                    ] + state.rates.map { rate in
+                        renderExchangeRateRow(state: state, rate: rate, sendAction: sendAction)
+                    }
+                ]).asAnyComponent()
             }.asAnyComponent()
         ]
+    }
+
+    func renderExchangeRateRow(state: RootState, rate: ExchangeRate, sendAction: @escaping (RootEvent.UserAction) -> Void) -> AnyComponent {
+        func formatAmount(_ amount: Decimal, currency: Currency) -> String {
+            "\(amount) \(currency.code)"
+        }
+        return ExchangeRateRowViewComponent(
+            designLibrary: self.config.designLibrary,
+            from: (amount: formatAmount(1, currency: rate.pair.from), description: rate.pair.from.code),
+            to: (amount: formatAmount(rate.convert(amount: 1), currency: rate.pair.to), description: rate.pair.to.code),
+            onDelete: { sendAction(.deletePair(rate.pair)) },
+            onRateUpdate: { update in
+                let observer = state.rateUpdatesObserver(rate.pair)
+                observer { rate in
+                    update(formatAmount(rate.convert(amount: 1), currency: rate.pair.to))
+                }
+            }
+        ).asAnyComponent()
     }
 }
 

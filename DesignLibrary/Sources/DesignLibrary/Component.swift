@@ -52,10 +52,6 @@ public struct AnyComponent: Component, SelectableComponent, DeletableComponent {
         selectable?.shouldPersistSelectionBetweenStateUpdates() ?? false
     }
 
-    public func shouldDelete() -> Bool {
-        deletable?.shouldDelete() ?? false
-    }
-
     public func didDelete() {
         deletable?.didDelete()
     }
@@ -95,6 +91,5 @@ extension SelectableComponent {
 }
 
 public protocol DeletableComponent {
-    func shouldDelete() -> Bool
     func didDelete()
 }

@@ -105,7 +105,7 @@ public class TableViewAdapter: NSObject, UITableViewDataSource, UITableViewDeleg
 
     public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let component = sections[indexPath.section][indexPath.row]
-        if editingStyle == .delete, component.shouldDelete() {
+        if editingStyle == .delete {
             // first delete row "in place" and when animation is done report deletion
             // which will update the state and cause reload
             sections[indexPath.section].remove(at: indexPath.row)

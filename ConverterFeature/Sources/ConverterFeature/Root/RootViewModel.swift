@@ -11,28 +11,25 @@ protocol RootViewModelProtocol: ViewModelProtocol where
 
 final class RootViewModel: RootViewModelProtocol {
     let state: StateMachine<RootState, RootEvent>
-    let updateTimer = Timer(repeatInterval: 1)
 
     init(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService
     ) {
+        let ratesUpdateObserving = RatesUpdateObserving()
+
         state = StateMachine(
-            initial: .init(rates: [], status: .isLoaded),
+            initial: .init(rates: [], status: .isLoaded, rateUpdatesObserver: ratesUpdateObserving.observer),
             reduce: Self.reduce(
                 selectedCurrencyPairsService: selectedCurrencyPairsService,
                 ratesService: ratesService,
-                updateTimer: updateTimer
+                ratesUpdateObserving: ratesUpdateObserving
             )
         )
-        updateTimer.observe { [state] in
+        ratesUpdateObserving.observe { [state, ratesUpdateObserving] in
             ratesService
                 .exchangeRates(pairs: state.state.pairs)
-                .on(success: { rates in
-                    rates.forEach { rate in
-                        state.state.updatesObservers[rate.pair]?(rate)
-                    }
-                })
+                .on(success: ratesUpdateObserving.post)
         }
         state.sink(event: .initialised)
     }
@@ -40,7 +37,7 @@ final class RootViewModel: RootViewModelProtocol {
     static func reduce(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService,
-        updateTimer: Timer
+        ratesUpdateObserving: RatesUpdateObserving
     ) -> (inout RootState, RootEvent) -> [Future<RootEvent, Never>] {
         return { state, event in
             switch event {
@@ -64,7 +61,7 @@ final class RootViewModel: RootViewModelProtocol {
             case let .added(pair?):
                 state.status = .isLoaded
                 state.pairs.insert(pair, at: 0)
-                updateTimer.start()
+                ratesUpdateObserving.start()
 
                 return [
                     selectedCurrencyPairsService
@@ -78,7 +75,7 @@ final class RootViewModel: RootViewModelProtocol {
                 ]
             case .ui(.addPair):
                 let promise = Promise<CurrencyPair?, Never>()
-                updateTimer.pause()
+                ratesUpdateObserving.pause()
                 state.status = .addingPair(promise)
 
                 return [
@@ -87,10 +84,9 @@ final class RootViewModel: RootViewModelProtocol {
             case let .ui(.deletePair(pair)):
                 state.rates.removeAll(where: { $0.pair == pair })
                 state.pairs.removeAll(where: { $0 == pair })
-                state.updatesObservers[pair] = nil
 
                 if state.pairs.isEmpty {
-                    updateTimer.pause()
+                    ratesUpdateObserving.pause()
                 }
 
                 return [
@@ -105,7 +101,7 @@ final class RootViewModel: RootViewModelProtocol {
 
                 state.status = .isLoaded
                 if !rates.isEmpty {
-                    updateTimer.start()
+                    ratesUpdateObserving.start()
                 }
 
                 return []
@@ -151,16 +147,7 @@ struct RootState {
     var rates: [ExchangeRate] = []
     var pairs: [CurrencyPair] = []
     var status: Status
-
-    // Reference type to store update so that adding new update does not mutate state
-    // In real life this would be a signal/property (reference values as well) observed by the view
-    // Alternatively we could use NotificationCenter for updates
-    // as it does not require objects to know about each other
-    @Reference var updatesObservers: [CurrencyPair: (ExchangeRate) -> Void] = [:]
-
-    func observeRateUpdate(pair: CurrencyPair, update observer: @escaping (ExchangeRate) -> Void) {
-        updatesObservers[pair] = observer
-    }
+    let rateUpdatesObserver: RatesUpdateObserving.Observer
 
     enum Status {
         case loading
@@ -180,14 +167,5 @@ enum RootEvent {
     enum UserAction {
         case addPair
         case deletePair(CurrencyPair)
-    }
-}
-
-@propertyWrapper
-class Reference<T> {
-    var wrappedValue: T
-
-    init(wrappedValue: T) {
-        self.wrappedValue = wrappedValue
     }
 }
