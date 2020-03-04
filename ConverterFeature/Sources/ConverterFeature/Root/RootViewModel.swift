@@ -9,27 +9,30 @@ protocol RootViewModelProtocol: ViewModelProtocol where
     UserAction == RootEvent.UserAction {
 }
 
-final class RootViewModel: RootViewModelProtocol {
+struct RootViewModel: RootViewModelProtocol {
     let state: StateMachine<RootState, RootEvent>
 
     init(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService
     ) {
-        let ratesUpdateObserving = RatesUpdateObserving()
+        let ratesObserving = RatesUpdateObserving()
 
         state = StateMachine(
-            initial: .init(rates: [], status: .isLoaded, rateUpdatesObserver: ratesUpdateObserving.observer),
+            initial: .init(
+                status: .isLoaded,
+                rateUpdatesObserver: RatesUpdateObserving.observeUpdates
+            ),
             reduce: Self.reduce(
                 selectedCurrencyPairsService: selectedCurrencyPairsService,
                 ratesService: ratesService,
-                ratesUpdateObserving: ratesUpdateObserving
+                ratesObserving: ratesObserving
             )
         )
-        ratesUpdateObserving.observe { [state, ratesUpdateObserving] in
+        ratesObserving.observe { [state] in
             ratesService
                 .exchangeRates(pairs: state.state.pairs)
-                .on(success: ratesUpdateObserving.post)
+                .on(success: RatesUpdateObserving.post)
         }
         state.sink(event: .initialised)
     }
@@ -37,7 +40,7 @@ final class RootViewModel: RootViewModelProtocol {
     static func reduce(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService,
-        ratesUpdateObserving: RatesUpdateObserving
+        ratesObserving: RatesUpdateObserving
     ) -> (inout RootState, RootEvent) -> [Future<RootEvent, Never>] {
         return { state, event in
             switch event {
@@ -55,13 +58,15 @@ final class RootViewModel: RootViewModelProtocol {
                         }
                         .flatMapError { _ in .just(.loadedRates([])) }
                 ]
-            case .added(nil):
+            case let .added(pair):
                 state.status = .isLoaded
-                return []
-            case let .added(pair?):
-                state.status = .isLoaded
+
+                guard let pair = pair else {
+                    return []
+                }
+
                 state.pairs.insert(pair, at: 0)
-                ratesUpdateObserving.start()
+                ratesObserving.start()
 
                 return [
                     selectedCurrencyPairsService
@@ -75,7 +80,7 @@ final class RootViewModel: RootViewModelProtocol {
                 ]
             case .ui(.addPair):
                 let promise = Promise<CurrencyPair?, Never>()
-                ratesUpdateObserving.pause()
+                ratesObserving.pause()
                 state.status = .addingPair(promise)
 
                 return [
@@ -86,7 +91,7 @@ final class RootViewModel: RootViewModelProtocol {
                 state.pairs.removeAll(where: { $0 == pair })
 
                 if state.pairs.isEmpty {
-                    ratesUpdateObserving.pause()
+                    ratesObserving.pause()
                 }
 
                 return [
@@ -101,7 +106,7 @@ final class RootViewModel: RootViewModelProtocol {
 
                 state.status = .isLoaded
                 if !rates.isEmpty {
-                    ratesUpdateObserving.start()
+                    ratesObserving.start()
                 }
 
                 return []

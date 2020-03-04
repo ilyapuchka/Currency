@@ -9,7 +9,7 @@ protocol CurrencyPairSelectorViewModelProtocol: ViewModelProtocol where
     UserAction == CurrencyPairSelectorEvent.UserAction {
 }
 
-final class CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
+struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
     private let state: StateMachine<CurrencyPairSelectorState, CurrencyPairSelectorEvent>
 
     init(

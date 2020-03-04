@@ -37,8 +37,6 @@ public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
 
 public final class ExchangeRateRowView: UIView {
 
-    public typealias OnRateUpdate = (@escaping (String) -> Void) -> Void
-
     static var fromLabelTextAlignment: NSTextAlignment {
         UIView.userInterfaceLayoutDirection(for: .unspecified) == .leftToRight
             ? .left
@@ -129,6 +127,8 @@ public final class ExchangeRateRowView: UIView {
         fromNameLabel.textColor = designLibrary.colors.secondaryText
         toNameLabel.textColor = designLibrary.colors.secondaryText
     }
+
+    public typealias OnRateUpdate = (@escaping (String) -> Void) -> Void
 
     public func configure(
         from: (amount: String, description: String),

@@ -5,26 +5,29 @@ struct RatesUpdateObserving {
     static let notificationName = NSNotification.Name("ratesUpdated")
 
     typealias Observer = (CurrencyPair) -> (@escaping (ExchangeRate) -> Void) -> Void
-    typealias Publisher = ([ExchangeRate]) -> Void
 
-    private let updateTimer = Timer(repeatInterval: 1)
-
-    let post: Publisher = { rates in
-        NotificationCenter.default.post(
-            name: RatesUpdateObserving.notificationName,
-            object: nil,
-            userInfo: Dictionary(rates.map { ($0.pair, $0) }, uniquingKeysWith: { $1 })
-        )
-    }
-
-    let observer: Observer = { pair in
+    static func observeUpdates(_ pair: CurrencyPair) -> (@escaping (ExchangeRate) -> Void) -> Void {
         return { update in
-            NotificationCenter.default.addObserver(forName: RatesUpdateObserving.notificationName, object: nil, queue: .main) { notification in
+            NotificationCenter.default.addObserver(
+                forName: RatesUpdateObserving.notificationName,
+                object: nil,
+                queue: .main
+            ) { notification in
                 guard let rate = notification.userInfo?[pair] as? ExchangeRate else { return }
                 update(rate)
             }
         }
     }
+
+    static func post(rates: [ExchangeRate]) -> Void {
+        NotificationCenter.default.post(
+            name: RatesUpdateObserving.notificationName,
+            object: nil,
+            userInfo: .init(rates.map { ($0.pair, $0) }, uniquingKeysWith: { $1 })
+        )
+    }
+
+    private let updateTimer = Timer(repeatInterval: 1)
 
     func pause() {
         updateTimer.pause()
