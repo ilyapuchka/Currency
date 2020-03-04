@@ -39,7 +39,7 @@ final class CurrencyPairSelectorViewController<ViewModel: CurrencyPairSelectorVi
                             action: { sendAction(.selected(currency)) }
                         ).asAnyComponent()
                     }
-                ]).asAnyComponent()
+                ])
             }.asAnyComponent()
         ]
     }

@@ -3,7 +3,7 @@ import Future
 import Domain
 
 struct CurrencyPairSelectorFlowController {
-    let navigation: UINavigationController
+    weak var navigation: UINavigationController?
     let makeSecond: (Currency, [Currency], Promise<CurrencyPair?, Never>) -> UIViewController
 
     init(
@@ -15,6 +15,6 @@ struct CurrencyPairSelectorFlowController {
     }
 
     func selectSecond(first: Currency, disabled: [Currency], selected: Promise<CurrencyPair?, Never>) -> Void {
-        navigation.pushViewController(makeSecond(first, disabled, selected), animated: true)
+        navigation?.pushViewController(makeSecond(first, disabled, selected), animated: true)
     }
 }
