@@ -79,9 +79,9 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
             from: (amount: formatAmount(1, currency: rate.pair.from), description: rate.pair.from.code),
             to: (amount: formatAmount(rate.convert(amount: 1), currency: rate.pair.to), description: rate.pair.to.code),
             onDelete: { sendAction(.deletePair(rate.pair)) },
-            onRateUpdate: { update in
-                let observer = state.rateUpdatesObserver(rate.pair)
-                observer { rate in
+            onRateUpdate: { oldObserver, update in
+                let addObserver = state.observeUpdates(rate.pair)
+                return addObserver(oldObserver) { rate in
                     update(formatAmount(rate.convert(amount: 1), currency: rate.pair.to))
                 }
             }

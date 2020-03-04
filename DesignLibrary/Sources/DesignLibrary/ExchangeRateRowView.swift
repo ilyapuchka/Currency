@@ -128,7 +128,8 @@ public final class ExchangeRateRowView: UIView {
         toNameLabel.textColor = designLibrary.colors.secondaryText
     }
 
-    public typealias OnRateUpdate = (@escaping (String) -> Void) -> Void
+    public typealias OnRateUpdate = (Any?, @escaping (String) -> Void) -> Any
+    private var rateObserver: Any?
 
     public func configure(
         from: (amount: String, description: String),
@@ -140,7 +141,7 @@ public final class ExchangeRateRowView: UIView {
         toAmountLabel.text = to.amount
         toNameLabel.text = to.description
 
-        onRateUpdate { [weak self] rate in
+        rateObserver = onRateUpdate(rateObserver) { [weak self] rate in
             self?.toAmountLabel.text = rate
         }
     }

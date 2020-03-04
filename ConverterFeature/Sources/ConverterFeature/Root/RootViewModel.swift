@@ -21,7 +21,7 @@ struct RootViewModel: RootViewModelProtocol {
         state = StateMachine(
             initial: .init(
                 status: .isLoaded,
-                rateUpdatesObserver: RatesUpdateObserving.observeUpdates
+                observeUpdates: RatesUpdateObserving.observeUpdates
             ),
             reduce: Self.reduce(
                 selectedCurrencyPairsService: selectedCurrencyPairsService,
@@ -152,7 +152,7 @@ struct RootState {
     var rates: [ExchangeRate] = []
     var pairs: [CurrencyPair] = []
     var status: Status
-    let rateUpdatesObserver: RatesUpdateObserving.Observer
+    let observeUpdates: (CurrencyPair) -> RatesUpdateObserving.AddObserver
 
     enum Status {
         case loading

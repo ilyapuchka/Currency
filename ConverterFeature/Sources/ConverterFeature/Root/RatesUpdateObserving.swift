@@ -4,11 +4,14 @@ import Domain
 struct RatesUpdateObserving {
     static let notificationName = NSNotification.Name("ratesUpdated")
 
-    typealias Observer = (CurrencyPair) -> (@escaping (ExchangeRate) -> Void) -> Void
+    typealias AddObserver = (_ oldObserver: Any?, _ update: @escaping (ExchangeRate) -> Void) -> Any
 
-    static func observeUpdates(_ pair: CurrencyPair) -> (@escaping (ExchangeRate) -> Void) -> Void {
-        return { update in
-            NotificationCenter.default.addObserver(
+    static func observeUpdates(_ pair: CurrencyPair) -> AddObserver {
+        return { oldObserver, update in
+            if let oldObserver = oldObserver {
+                NotificationCenter.default.removeObserver(oldObserver)
+            }
+            return NotificationCenter.default.addObserver(
                 forName: RatesUpdateObserving.notificationName,
                 object: nil,
                 queue: .main
