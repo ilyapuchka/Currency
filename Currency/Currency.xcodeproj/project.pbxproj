@@ -18,13 +18,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		B5358878240BC2C700A0A713 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B5358872240BC2C700A0A713 /* ConverterFeaturePreview.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = B5D07E4B240BC294001F3A98;
-			remoteInfo = ConverterFeaturePreview;
-		};
 		B56423D6240AAFB400915DE1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B56423B7240AAFB000915DE1 /* Project object */;
@@ -50,7 +43,6 @@
 
 /* Begin PBXFileReference section */
 		B52AE6EE240BEEAA00641E94 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
-		B5358872240BC2C700A0A713 /* ConverterFeaturePreview.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ConverterFeaturePreview.xcodeproj; path = ../ConverterFeaturePreview/ConverterFeaturePreview.xcodeproj; sourceTree = "<group>"; };
 		B535888B240BC36400A0A713 /* DesignLibrary */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DesignLibrary; path = ../DesignLibrary; sourceTree = "<group>"; };
 		B535888C240BC37800A0A713 /* ConverterFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ConverterFeature; path = ../ConverterFeature; sourceTree = "<group>"; };
 		B5358892240BC5E400A0A713 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -97,21 +89,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B5358873240BC2C700A0A713 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				B5358879240BC2C700A0A713 /* ConverterFeaturePreview.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		B56423B6240AAFB000915DE1 = {
 			isa = PBXGroup;
 			children = (
 				B535888C240BC37800A0A713 /* ConverterFeature */,
 				B535888B240BC36400A0A713 /* DesignLibrary */,
 				B5D07E3B240BC272001F3A98 /* DesignLibraryPreview.xcodeproj */,
-				B5358872240BC2C700A0A713 /* ConverterFeaturePreview.xcodeproj */,
 				B5642496240AC5D000915DE1 /* Future */,
 				B5642476240AB3CF00915DE1 /* DataAccess */,
 				B5642472240AB35400915DE1 /* Domain */,
@@ -273,10 +256,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = B5358873240BC2C700A0A713 /* Products */;
-					ProjectRef = B5358872240BC2C700A0A713 /* ConverterFeaturePreview.xcodeproj */;
-				},
-				{
 					ProductGroup = B5D07E3C240BC272001F3A98 /* Products */;
 					ProjectRef = B5D07E3B240BC272001F3A98 /* DesignLibraryPreview.xcodeproj */;
 				},
@@ -291,13 +270,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		B5358879240BC2C700A0A713 /* ConverterFeaturePreview.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = ConverterFeaturePreview.framework;
-			remoteRef = B5358878240BC2C700A0A713 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		B5D07E40240BC273001F3A98 /* DesignLibraryPreview.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;

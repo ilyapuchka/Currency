@@ -8,10 +8,15 @@ class EmptyStateView_Preview: PreviewProvider {
     UIViewPreview {
         let bundle = Bundle(for: Self.self)
         let designLibrary = DesignLibrary(bundle: bundle)
-        let view = EmptyStateView(bundle: bundle, designLibrary: designLibrary)
-        return view
+
+        let host = UIView()
+        let component = HostViewComponent.init(host: host, alignment: .center) {
+            EmptyStateViewComponent(bundle: bundle, designLibrary: designLibrary, action: {})
+        }
+        component.render(in: component.makeView())
+        return host
     }
-    .previewLayout(.fixed(width: 320, height: 200))
+    .previewLayout(.sizeThatFits)
   }
 }
 #endif

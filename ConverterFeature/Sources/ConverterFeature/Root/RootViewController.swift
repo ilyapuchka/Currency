@@ -101,7 +101,7 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
             onRateUpdate: { oldObserver, update in
                 let addObserver = state.observeUpdates(rate.pair)
                 return addObserver(oldObserver) { rate in
-//                    update(formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, currency: rate.pair.to))
+                    update(formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, currency: rate.pair.to))
                 }
             }
         ).asAnyComponent()
