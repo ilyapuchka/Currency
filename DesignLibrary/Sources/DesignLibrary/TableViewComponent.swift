@@ -111,13 +111,14 @@ public class TableViewAdapter: NSObject, UITableViewDataSource, UITableViewDeleg
             sections[indexPath.section].remove(at: indexPath.row)
 
             CATransaction.begin()
+            CATransaction.setCompletionBlock {
+                component.didDelete()
+            }
+
             tableView.beginUpdates()
             tableView.deleteRows(at: [indexPath], with: .automatic)
             tableView.endUpdates()
 
-            CATransaction.setCompletionBlock {
-                component.didDelete()
-            }
             CATransaction.commit()
         }
     }
