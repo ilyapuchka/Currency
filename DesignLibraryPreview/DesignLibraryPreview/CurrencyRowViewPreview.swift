@@ -10,7 +10,7 @@ class CurrencyRowView_Preview: PreviewProvider {
         let designLibrary = DesignLibrary(bundle: bundle)
 
         let component = TableViewComponent(sections: [[
-            CurrencyRowViewComponent(
+            CurrencyViewComponent(
                 designLibrary: designLibrary,
                 image: UIImage(named: "EUR", in: bundle, with: nil),
                 code: "ABC",
@@ -18,7 +18,7 @@ class CurrencyRowView_Preview: PreviewProvider {
                 isEnabled: false,
                 action: {}
             ).asAnyComponent(),
-            CurrencyRowViewComponent(
+            CurrencyViewComponent(
                 designLibrary: designLibrary,
                 image: UIImage(named: "EUR", in: bundle, with: nil),
                 code: "ABC",

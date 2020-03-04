@@ -1,4 +1,5 @@
 import UIKit
+import DesignLibrary
 
 public protocol ViewModelProtocol {
     associatedtype State

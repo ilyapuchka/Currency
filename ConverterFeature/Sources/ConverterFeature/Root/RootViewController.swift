@@ -61,7 +61,7 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
         HostViewComponent(host: view, alignment: .fill) {
             TableViewComponent(sections: [
                 [
-                    AddCurrencyPairButtonComponent(
+                    AddCurrencyPairViewComponent(
                         bundle: self.config.bundle,
                         designLibrary: self.config.designLibrary,
                         isSelected: { if case .addingPair = state.status { return true } else { return false }}(),

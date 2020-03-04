@@ -6,14 +6,14 @@ public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
     let to: (amount: String, description: String)
     let onDelete: () -> Void
 
-    let onRateUpdate: ExchangeRateRowView.OnRateUpdate
+    let onRateUpdate: ExchangeRateView.OnRateUpdate
 
     public init(
         designLibrary: DesignLibrary,
         from: (amount: String, description: String),
         to: (amount: String, description: String),
         onDelete: @escaping () -> Void,
-        onRateUpdate: @escaping ExchangeRateRowView.OnRateUpdate
+        onRateUpdate: @escaping ExchangeRateView.OnRateUpdate
     ) {
         self.designLibrary = designLibrary
         self.from = from
@@ -22,11 +22,11 @@ public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
         self.onRateUpdate = onRateUpdate
     }
 
-    public func makeView() -> ExchangeRateRowView {
-        ExchangeRateRowView(designLibrary: designLibrary)
+    public func makeView() -> ExchangeRateView {
+        ExchangeRateView(designLibrary: designLibrary)
     }
 
-    public func render(in view: ExchangeRateRowView) {
+    public func render(in view: ExchangeRateView) {
         view.configure(from: from, to: to, onRateUpdate: onRateUpdate)
     }
 
@@ -35,7 +35,7 @@ public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
     }
 }
 
-public final class ExchangeRateRowView: UIView {
+public final class ExchangeRateView: UIView {
 
     static var fromLabelTextAlignment: NSTextAlignment {
         UIView.userInterfaceLayoutDirection(for: .unspecified) == .leftToRight
@@ -52,7 +52,7 @@ public final class ExchangeRateRowView: UIView {
     let fromAmountLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.preferredFont(forTextStyle: .title2)
-        label.textAlignment = ExchangeRateRowView.fromLabelTextAlignment
+        label.textAlignment = ExchangeRateView.fromLabelTextAlignment
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -60,7 +60,7 @@ public final class ExchangeRateRowView: UIView {
     let fromNameLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
-        label.textAlignment = ExchangeRateRowView.fromLabelTextAlignment
+        label.textAlignment = ExchangeRateView.fromLabelTextAlignment
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -69,7 +69,7 @@ public final class ExchangeRateRowView: UIView {
     let toAmountLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.preferredFont(forTextStyle: .title2)
-        label.textAlignment = ExchangeRateRowView.toLabelTextAlignment
+        label.textAlignment = ExchangeRateView.toLabelTextAlignment
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -77,7 +77,7 @@ public final class ExchangeRateRowView: UIView {
     let toNameLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
-        label.textAlignment = ExchangeRateRowView.toLabelTextAlignment
+        label.textAlignment = ExchangeRateView.toLabelTextAlignment
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

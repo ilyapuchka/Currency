@@ -1,6 +1,6 @@
 import UIKit
 
-public struct AddCurrencyPairButtonComponent: Component, SelectableComponent {
+public struct AddCurrencyPairViewComponent: Component, SelectableComponent {
     let bundle: Bundle
     let designLibrary: DesignLibrary
     let action: () -> Void
@@ -18,11 +18,11 @@ public struct AddCurrencyPairButtonComponent: Component, SelectableComponent {
         self.action = action
     }
 
-    public func makeView() -> AddCurrencyPairButton {
-        AddCurrencyPairButton(bundle: bundle, designLibrary: designLibrary)
+    public func makeView() -> AddCurrencyPairView {
+        AddCurrencyPairView(bundle: bundle, designLibrary: designLibrary)
     }
 
-    public func render(in view: AddCurrencyPairButton) {
+    public func render(in view: AddCurrencyPairView) {
         
     }
 
@@ -39,7 +39,7 @@ public struct AddCurrencyPairButtonComponent: Component, SelectableComponent {
     }
 }
 
-public final class AddCurrencyPairButton: UIView {
+public final class AddCurrencyPairView: UIView {
     let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -89,6 +89,6 @@ public final class AddCurrencyPairButton: UIView {
 
         titleLabel.textColor = designLibrary.colors.cta
         titleLabel.text = NSLocalizedString("add_currency_pair_button_title", tableName: nil, bundle: bundle, comment: "")
-        imageView.image = UIImage(named: "plus", in: bundle, compatibleWith: nil)!
+        imageView.image = designLibrary.assets.plust
     }
 }

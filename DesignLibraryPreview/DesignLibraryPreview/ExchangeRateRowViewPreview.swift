@@ -10,7 +10,7 @@ class ExchangeRateRowView_Preview: PreviewProvider {
         let designLibrary = DesignLibrary(bundle: bundle)
 
         let component = TableViewComponent(sections: [[
-            AddCurrencyPairButtonComponent(
+            AddCurrencyPairRowComponent(
                 bundle: bundle,
                 designLibrary: designLibrary,
                 action: {}

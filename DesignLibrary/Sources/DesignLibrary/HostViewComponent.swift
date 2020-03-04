@@ -26,7 +26,6 @@ public struct HostViewComponent<T: Component>: Component {
         if let subview = host.subviews.first as? T.View {
             return subview
         }
-        host.subviews.first?.removeFromSuperview()
         let contentView = component.makeView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
         return contentView
@@ -38,6 +37,7 @@ public struct HostViewComponent<T: Component>: Component {
             return
         }
 
+        host.subviews.first?.removeFromSuperview()
         host.addSubview(view)
 
         switch alignment {

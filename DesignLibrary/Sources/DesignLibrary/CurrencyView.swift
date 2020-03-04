@@ -1,6 +1,6 @@
 import UIKit
 
-public struct CurrencyRowViewComponent: Component, SelectableComponent {
+public struct CurrencyViewComponent: Component, SelectableComponent {
     let designLibrary: DesignLibrary
     let image: UIImage?
     let code: String
@@ -24,11 +24,11 @@ public struct CurrencyRowViewComponent: Component, SelectableComponent {
         self.action = action
     }
 
-    public func makeView() -> CurrencyRowView {
-        CurrencyRowView(designLibrary: designLibrary)
+    public func makeView() -> CurrencyView {
+        CurrencyView(designLibrary: designLibrary)
     }
 
-    public func render(in view: CurrencyRowView) {
+    public func render(in view: CurrencyView) {
         view.configure(image: image, code: code, name: name, isEnabled: isEnabled)
     }
 
@@ -41,7 +41,7 @@ public struct CurrencyRowViewComponent: Component, SelectableComponent {
     }
 }
 
-public final class CurrencyRowView: UIView {
+public final class CurrencyView: UIView {
     let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false

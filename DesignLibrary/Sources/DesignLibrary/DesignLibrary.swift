@@ -17,7 +17,18 @@ public struct DesignLibrary {
         }
     }
 
+    public let assets: Assets
+    
+    public struct Assets {
+        let bundle: Bundle
+
+        public var plust: UIImage {
+            UIImage(named: "plus", in: bundle, compatibleWith: nil)!
+        }
+    }
+
     public init(bundle: Bundle) {
         self.colors = Colors(bundle: bundle)
+        self.assets = Assets(bundle: bundle)
     }
 }

@@ -80,7 +80,7 @@ public final class EmptyStateView: UIView {
         button.button.setTitleColor(designLibrary.colors.cta.withAlphaComponent(0.5), for: .highlighted)
         button.button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 
-        button.imageView.image = UIImage(named: "plus", in: bundle, compatibleWith: nil)!
+        button.imageView.image = designLibrary.assets.plust
 
         subtitleLabel.text = NSLocalizedString("add_currency_pair_button_subtitle", tableName: nil, bundle: bundle, comment: "")
         subtitleLabel.textColor = designLibrary.colors.secondaryText
