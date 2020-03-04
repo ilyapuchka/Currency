@@ -79,29 +79,44 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
         rate: ExchangeRate,
         sendAction: @escaping (RootEvent.UserAction) -> Void
     ) -> AnyComponent {
-        func formatAmount(_ amount: Decimal, minimumFractionDigits: Int = 0, currency: Currency) -> String {
+        func formatAmount(_ amount: Decimal, minimumFractionDigits: Int = 0, label: String) -> String {
             config.numberFormatter.minimumFractionDigits = minimumFractionDigits
             return String(
                 format: NSLocalizedString("rate_format", comment: ""),
                 config.numberFormatter.string(for: amount) ?? "\(amount)",
-                currency.code
+                label
             )
         }
+        let fromLocalizedDescription = NSLocalizedString(rate.pair.from.code, bundle: config.bundle, comment: "")
+        let toLocalizedDescription = NSLocalizedString(rate.pair.to.code, bundle: config.bundle, comment: "")
+
+        func accessibleFormat(rate: ExchangeRate) -> String {
+            String(
+                format: NSLocalizedString("accessible_excahnge_rate_format", comment: ""),
+                formatAmount(1, label: fromLocalizedDescription),
+                formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: toLocalizedDescription)
+            )
+        }
+
         return ExchangeRateRowViewComponent(
             designLibrary: self.config.designLibrary,
             from: (
-                amount: formatAmount(1, currency: rate.pair.from),
-                description: NSLocalizedString(rate.pair.from.code, bundle: config.bundle, comment: "")
+                amount: formatAmount(1, label: rate.pair.from.code),
+                description: fromLocalizedDescription
             ),
             to: (
-                amount: formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, currency: rate.pair.to),
-                description: NSLocalizedString(rate.pair.to.code, bundle: config.bundle, comment: "")
+                amount: formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: rate.pair.to.code),
+                description: toLocalizedDescription
             ),
+            accessibilityLabel: accessibleFormat(rate: rate),
             onDelete: { sendAction(.deletePair(rate.pair)) },
             onRateUpdate: { oldObserver, update in
                 let addObserver = state.observeUpdates(rate.pair)
                 return addObserver(oldObserver) { rate in
-                    update(formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, currency: rate.pair.to))
+                    update(
+                        formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: rate.pair.to.code),
+                        accessibleFormat(rate: rate)
+                    )
                 }
             }
         ).asAnyComponent()

@@ -2,6 +2,7 @@
 "add_currency_pair_button_subtitle" = "Choose a currency pair to compare their live rates";
 /*first parameter - amount, second parameter - currency code, i.e. 1 JPY*/
 "rate_format" = "%1$@ %2$@";
+"accessible_excahnge_rate_format" = "%1$@ is %2$@";
 
 /*Currency names based on https://www.iban.com/currency-codes */
 

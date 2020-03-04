@@ -109,6 +109,8 @@ public final class CurrencyView: UIView {
 
         codeLabel.textColor = designLibrary.colors.secondaryText
         nameLabel.textColor = designLibrary.colors.regularText
+
+        isAccessibilityElement = true
     }
 
     public func configure(image: UIImage?, code: String, name: String, isEnabled: Bool) {
@@ -119,9 +121,12 @@ public final class CurrencyView: UIView {
         if isEnabled {
             nameLabel.textColor = designLibrary.colors.regularText
             imageView.alpha = 1.0
+            accessibilityTraits = .button
         } else {
             nameLabel.textColor = designLibrary.colors.secondaryText
             imageView.alpha = 0.5
+            accessibilityTraits = .notEnabled
         }
+        accessibilityLabel = name
     }
 }

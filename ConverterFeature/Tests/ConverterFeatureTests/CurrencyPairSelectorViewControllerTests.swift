@@ -63,7 +63,7 @@ final class CurrencyPairSelectorViewControllerTests: XCTestCase {
         }
     }
 
-    func test_onDismiss() {
+    func test_fulfills_onDismissPromise() {
         let vc = CurrencyPairSelectorViewController(
             viewModel: viewModel,
             config: .init(

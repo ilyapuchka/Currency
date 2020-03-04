@@ -90,5 +90,9 @@ public final class AddCurrencyPairView: UIView {
         titleLabel.textColor = designLibrary.colors.cta
         titleLabel.text = NSLocalizedString("add_currency_pair_button_title", tableName: nil, bundle: bundle, comment: "")
         imageView.image = designLibrary.assets.plust
+
+        isAccessibilityElement = true
+        accessibilityTraits = .button
+        accessibilityLabel = titleLabel.text
     }
 }

@@ -4,20 +4,23 @@ public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
     let designLibrary: DesignLibrary
     let from: (amount: String, description: String)
     let to: (amount: String, description: String)
-    let onDelete: () -> Void
+    let accessibilityLabel: String
 
+    let onDelete: () -> Void
     let onRateUpdate: ExchangeRateView.OnRateUpdate
 
     public init(
         designLibrary: DesignLibrary,
         from: (amount: String, description: String),
         to: (amount: String, description: String),
+        accessibilityLabel: String,
         onDelete: @escaping () -> Void,
         onRateUpdate: @escaping ExchangeRateView.OnRateUpdate
     ) {
         self.designLibrary = designLibrary
         self.from = from
         self.to = to
+        self.accessibilityLabel = accessibilityLabel
         self.onDelete = onDelete
         self.onRateUpdate = onRateUpdate
     }
@@ -27,7 +30,12 @@ public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
     }
 
     public func render(in view: ExchangeRateView) {
-        view.configure(from: from, to: to, onRateUpdate: onRateUpdate)
+        view.configure(
+            from: from,
+            to: to,
+            accessibilityLabel: accessibilityLabel,
+            onRateUpdate: onRateUpdate
+        )
     }
 
     public func didDelete() {
@@ -129,14 +137,18 @@ public final class ExchangeRateView: UIView {
 
         fromNameLabel.textColor = designLibrary.colors.secondaryText
         toNameLabel.textColor = designLibrary.colors.secondaryText
+
+        isAccessibilityElement = true
+        accessibilityTraits = .updatesFrequently
     }
 
-    public typealias OnRateUpdate = (Any?, @escaping (String) -> Void) -> Any
+    public typealias OnRateUpdate = (Any?, @escaping (String, String) -> Void) -> Any
     private var rateObserver: Any?
 
     public func configure(
         from: (amount: String, description: String),
         to: (amount: String, description: String),
+        accessibilityLabel: String,
         onRateUpdate: OnRateUpdate
     ) {
         fromAmountLabel.text = from.amount
@@ -144,8 +156,11 @@ public final class ExchangeRateView: UIView {
         toAmountLabel.text = to.amount
         toNameLabel.text = to.description
 
-        rateObserver = onRateUpdate(rateObserver) { [weak self] rate in
+        rateObserver = onRateUpdate(rateObserver) { [weak self] rate, accessibilityLabel in
             self?.toAmountLabel.text = rate
+            self?.accessibilityLabel = accessibilityLabel
         }
+
+        self.accessibilityLabel = accessibilityLabel
     }
 }
