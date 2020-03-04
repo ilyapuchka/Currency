@@ -30,7 +30,7 @@ final class CurrencyPairSelectorViewController<ViewModel: CurrencyPairSelectorVi
             HostViewComponent(host: view, alignment: .fill) {
                 TableViewComponent(sections: [
                     state.supported.map { currency in
-                        CurrencyRowViewComponent(
+                        CurrencyViewComponent(
                             designLibrary: config.designLibrary,
                             image: UIImage(named: currency.code, in: config.bundle, compatibleWith: nil),
                             code: currency.code,

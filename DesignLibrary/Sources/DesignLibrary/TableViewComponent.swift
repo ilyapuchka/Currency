@@ -65,7 +65,7 @@ class ComponentCell: UITableViewCell {
 }
 
 public class TableViewAdapter: NSObject, UITableViewDataSource, UITableViewDelegate {
-    private var sections: [[AnyComponent]] = []
+    private(set) var sections: [[AnyComponent]] = []
 
     public func numberOfSections(in tableView: UITableView) -> Int {
         return sections.count

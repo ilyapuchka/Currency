@@ -17,9 +17,9 @@ public extension Component {
 }
 
 public struct AnyComponent: Component, SelectableComponent, DeletableComponent {
-    private let wrapped: AnyComponentBoxBase
-    public let componentType: Any.Type
-    public let viewType: Any.Type
+    let wrapped: AnyComponentBoxBase
+    let componentType: Any.Type
+    let viewType: Any.Type
 
     private let selectable: SelectableComponent?
     private let deletable: DeletableComponent?
@@ -57,12 +57,12 @@ public struct AnyComponent: Component, SelectableComponent, DeletableComponent {
     }
 }
 
-private protocol AnyComponentBoxBase {
+protocol AnyComponentBoxBase {
     func makeView() -> UIView
     func render(in view: UIView)
 }
 
-private struct AnyComponentBox<Wrapped: Component>: AnyComponentBoxBase {
+struct AnyComponentBox<Wrapped: Component>: AnyComponentBoxBase {
     let wrapped: Wrapped
 
     init(_ wrapped: Wrapped) {
