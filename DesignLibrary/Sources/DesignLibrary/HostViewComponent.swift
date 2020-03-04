@@ -1,20 +1,20 @@
 import UIKit
 
-public struct HostViewComponent: Component {
+public struct HostViewComponent<T: Component>: Component {
     public enum Alignment {
         case fill
         case center
     }
 
     let host: UIView
-    var contentView: UIView?
+    var contentView: T.View?
     let alignment: Alignment
-    let component: AnyComponent
+    let component: T
 
     public init(
         host: UIView,
         alignment: Alignment,
-        component: () -> AnyComponent
+        component: () -> T
     ) {
         self.host = host
         self.contentView = nil
@@ -22,8 +22,8 @@ public struct HostViewComponent: Component {
         self.component = component()
     }
 
-    public func makeView() -> UIView {
-        if let subview = host.subviews.first, component.viewType == type(of: subview) {
+    public func makeView() -> T.View {
+        if let subview = host.subviews.first as? T.View {
             return subview
         }
         host.subviews.first?.removeFromSuperview()
@@ -32,9 +32,9 @@ public struct HostViewComponent: Component {
         return contentView
     }
 
-    public func render(in view: UIView) {
-        if let subview = host.subviews.first, component.viewType == type(of: subview) {
-            component.render(in: view)
+    public func render(in view: T.View) {
+        if let subview = host.subviews.first as? T.View {
+            component.render(in: subview)
             return
         }
 

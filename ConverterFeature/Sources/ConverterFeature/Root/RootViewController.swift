@@ -24,49 +24,53 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
         switch state.status {
         case .loading:
             return []
-        case .addingPair:
-            return state.rates.isEmpty
-                ? renderEmpty(state: state, sendAction: sendAction)
-                : renderRates(state: state, sendAction: sendAction)
-        case .isLoaded:
-            return state.rates.isEmpty
-                ? renderEmpty(state: state, sendAction: sendAction)
-                : renderRates(state: state, sendAction: sendAction)
+        case .addingPair, .isLoaded:
+            return [
+                state.rates.isEmpty
+                    ? renderEmpty(state: state, sendAction: sendAction).asAnyComponent()
+                    : renderRates(state: state, sendAction: sendAction).asAnyComponent()
+            ]
         }
     }
 
-    private func renderEmpty(state: RootState, sendAction: @escaping (RootEvent.UserAction) -> Void) -> [AnyComponent] {
-        return [
-            HostViewComponent(host: view, alignment: .center) {
-                EmptyStateViewComponent(
-                    bundle: config.bundle,
-                    designLibrary: config.designLibrary,
-                    action: { sendAction(.addPair) }
-                ).asAnyComponent()
-            }.asAnyComponent()
-        ]
+    private func renderEmpty(
+        state: RootState,
+        sendAction: @escaping (RootEvent.UserAction) -> Void
+    ) -> HostViewComponent<EmptyStateViewComponent> {
+        HostViewComponent(host: view, alignment: .center) {
+            EmptyStateViewComponent(
+                bundle: config.bundle,
+                designLibrary: config.designLibrary,
+                action: { sendAction(.addPair) }
+            )
+        }
     }
 
-    private func renderRates(state: RootState, sendAction: @escaping (RootEvent.UserAction) -> Void) -> [AnyComponent] {
-        return [
-            HostViewComponent(host: view, alignment: .fill) {
-                TableViewComponent(sections: [
-                    [
-                        AddCurrencyPairButtonComponent(
-                            bundle: self.config.bundle,
-                            designLibrary: self.config.designLibrary,
-                            isSelected: { if case .addingPair = state.status { return true } else { return false }}(),
-                            action: { sendAction(.addPair) }
-                        ).asAnyComponent()
+    private func renderRates(
+        state: RootState,
+        sendAction: @escaping (RootEvent.UserAction) -> Void
+    ) -> HostViewComponent<TableViewComponent> {
+        HostViewComponent(host: view, alignment: .fill) {
+            TableViewComponent(sections: [
+                [
+                    AddCurrencyPairButtonComponent(
+                        bundle: self.config.bundle,
+                        designLibrary: self.config.designLibrary,
+                        isSelected: { if case .addingPair = state.status { return true } else { return false }}(),
+                        action: { sendAction(.addPair) }
+                    ).asAnyComponent()
                     ] + state.rates.map { rate in
                         renderExchangeRateRow(state: state, rate: rate, sendAction: sendAction)
-                    }
-                ]).asAnyComponent()
-            }.asAnyComponent()
-        ]
+                }
+            ])
+        }
     }
 
-    func renderExchangeRateRow(state: RootState, rate: ExchangeRate, sendAction: @escaping (RootEvent.UserAction) -> Void) -> AnyComponent {
+    func renderExchangeRateRow(
+        state: RootState,
+        rate: ExchangeRate,
+        sendAction: @escaping (RootEvent.UserAction) -> Void
+    ) -> AnyComponent {
         func formatAmount(_ amount: Decimal, currency: Currency) -> String {
             "\(amount) \(currency.code)"
         }
