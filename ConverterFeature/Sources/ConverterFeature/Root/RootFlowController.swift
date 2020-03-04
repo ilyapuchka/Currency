@@ -4,17 +4,19 @@ import Domain
 
 struct RootFlowController {
     let modal: UIViewController
-    let addPair: ([Currency], Promise<CurrencyPair?, Never>) -> UIViewController
+
+    typealias MakeAddCurrencyPair = (_ disabled: [CurrencyPair], _ selected: Promise<CurrencyPair?, Never>) -> UIViewController
+    let addPair: MakeAddCurrencyPair
 
     init(
         modal: UIViewController,
-        addPair: @escaping ([Currency], Promise<CurrencyPair?, Never>) -> UIViewController
+        addPair: @escaping MakeAddCurrencyPair
     ) {
         self.modal = modal
         self.addPair = addPair
     }
 
-    func addPair(disabled: [Currency], promise: Promise<CurrencyPair?, Never>) {
+    func addPair(disabled: [CurrencyPair], promise: Promise<CurrencyPair?, Never>) {
         modal.present(addPair(disabled, promise), animated: true, completion: nil)
 
         Future(promise: promise).observe(on: .mainQueue()).on { [modal] (_) in

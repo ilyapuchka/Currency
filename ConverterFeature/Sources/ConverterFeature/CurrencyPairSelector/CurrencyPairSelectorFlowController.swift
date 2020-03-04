@@ -4,17 +4,18 @@ import Domain
 
 struct CurrencyPairSelectorFlowController {
     weak var navigation: UINavigationController?
-    let makeSecond: (Currency, [Currency], Promise<CurrencyPair?, Never>) -> UIViewController
 
+    typealias MakeSecondCurrencySelector = (_ first: Currency, _ disabled: [CurrencyPair], _ selected: Promise<CurrencyPair?, Never>) -> UIViewController
+    let makeSecond: MakeSecondCurrencySelector
     init(
         navigation: UINavigationController,
-        makeSecond: @escaping (Currency, [Currency], Promise<CurrencyPair?, Never>) -> UIViewController
+        makeSecond: @escaping MakeSecondCurrencySelector
     ) {
         self.navigation = navigation
         self.makeSecond = makeSecond
     }
 
-    func selectSecond(first: Currency, disabled: [Currency], selected: Promise<CurrencyPair?, Never>) -> Void {
+    func selectSecond(first: Currency, disabled: [CurrencyPair], selected: Promise<CurrencyPair?, Never>) -> Void {
         navigation?.pushViewController(makeSecond(first, disabled, selected), animated: true)
     }
 }

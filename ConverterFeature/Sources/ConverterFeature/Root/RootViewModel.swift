@@ -138,11 +138,10 @@ struct RootViewModel: RootViewModelProtocol {
         state.observeState(observer)
     }
 
-    func addPair(_ observer: @escaping ([Currency], Promise<CurrencyPair?, Never>) -> Void) {
+    func addPair(_ observer: @escaping ([CurrencyPair], Promise<CurrencyPair?, Never>) -> Void) {
         state.observeState { (state) in
             if case let .addingPair(addedPair) = state.status {
-                let disabled = state.pairs.reduce(into: [Currency](), { $0.append($1.from); $0.append($1.to) })
-                observer(disabled, addedPair)
+                observer(state.pairs, addedPair)
             }
         }
     }

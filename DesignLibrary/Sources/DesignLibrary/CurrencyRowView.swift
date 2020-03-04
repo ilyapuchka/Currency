@@ -118,8 +118,10 @@ public final class CurrencyRowView: UIView {
 
         if isEnabled {
             nameLabel.textColor = designLibrary.colors.regularText
+            imageView.alpha = 1.0
         } else {
             nameLabel.textColor = designLibrary.colors.secondaryText
+            imageView.alpha = 0.5
         }
     }
 }

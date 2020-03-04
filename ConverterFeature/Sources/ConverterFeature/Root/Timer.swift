@@ -6,7 +6,7 @@ final class Timer {
 
     init(repeatInterval: Double) {
         source = DispatchSource.makeTimerSource(queue: .main)
-        let deadline: DispatchTime = DispatchTime.now() + 1
+        let deadline: DispatchTime = .now() + repeatInterval
         source.schedule(deadline: deadline, repeating: repeatInterval)
     }
 

@@ -61,6 +61,7 @@ public final class ExchangeRateRowView: UIView {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textAlignment = ExchangeRateRowView.fromLabelTextAlignment
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -77,6 +78,7 @@ public final class ExchangeRateRowView: UIView {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textAlignment = ExchangeRateRowView.toLabelTextAlignment
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -84,10 +86,11 @@ public final class ExchangeRateRowView: UIView {
     let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.alignment = .center
-        stackView.distribution = .fill
+        stackView.alignment = .leading
+        stackView.distribution = .fillEqually
         stackView.axis = .horizontal
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.spacing = 8
         return stackView
     }()
 

@@ -14,15 +14,15 @@ struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
 
     init(
         supportedCurrenciesService: SupportedCurrenciesService,
-        disabled: [Currency],
+        disabled: [CurrencyPair],
         selected: Promise<CurrencyPair?, Never>
     ) {
         state = StateMachine(
             initial: .init(
                 supported: [],
                 disabled: disabled,
-                status: .selectingFirst,
-                selected: selected
+                selected: selected,
+                status: .selectingFirst
             ),
             reduce: Self.reduce(supportedCurrenciesService: supportedCurrenciesService)
         )
@@ -31,15 +31,15 @@ struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
 
     init(
         from: Currency,
-        disabled: [Currency],
+        disabled: [CurrencyPair],
         supportedCurrenciesService: SupportedCurrenciesService,
         selected: Promise<CurrencyPair?, Never>
     ) {
         state = StateMachine(
             initial: .init(
                 disabled: disabled,
-                status: .selectingSecond(first: from),
-                selected: selected
+                selected: selected,
+                status: .selectingSecond(first: from)
             ),
             reduce: Self.reduce(supportedCurrenciesService: supportedCurrenciesService)
         )
@@ -79,7 +79,7 @@ struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
         state.observeState(observer)
     }
 
-    func selectSecond(_ observer: @escaping (Currency, [Currency], Promise<CurrencyPair?, Never>) -> Void) {
+    func selectSecond(_ observer: @escaping (Currency, [CurrencyPair], Promise<CurrencyPair?, Never>) -> Void) {
         state.observeState { (state) in
             if let first = state.first {
                 observer(first, state.disabled, state.selected)
@@ -91,15 +91,27 @@ struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
 
 struct CurrencyPairSelectorState {
     var supported: [Currency] = []
-    let disabled: [Currency]
-    var status: Status
+    let disabled: [CurrencyPair]
     let selected: Promise<CurrencyPair?, Never>
+
+    var status: Status
 
     var first: Currency? {
         guard case let .selectingSecond(first) = status else {
             return nil
         }
         return first
+    }
+
+    func isEnabled(currency: Currency) -> Bool {
+        guard let first = first else {
+            return true
+        }
+        guard currency != first else {
+            return false
+        }
+        let pair = CurrencyPair(from: first, to: currency)
+        return !disabled.contains(pair)
     }
 
     enum Status {
