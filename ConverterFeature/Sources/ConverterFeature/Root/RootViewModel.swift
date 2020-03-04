@@ -21,7 +21,7 @@ struct RootViewModel: RootViewModelProtocol {
         state = StateMachine(
             initial: .init(
                 status: .isLoaded,
-                observeUpdates: RatesUpdateObserving.observeUpdates
+                observeUpdates: ratesObserving.observeUpdates
             ),
             reduce: Self.reduce(
                 selectedCurrencyPairsService: selectedCurrencyPairsService,
@@ -29,10 +29,8 @@ struct RootViewModel: RootViewModelProtocol {
                 ratesObserving: ratesObserving
             )
         )
-        ratesObserving.observe { [state] in
-            ratesService
-                .exchangeRates(pairs: state.state.pairs)
-                .on(success: RatesUpdateObserving.post)
+        ratesObserving.update { [state] in
+            ratesService.exchangeRates(pairs: state.state.pairs)
         }
         state.sink(event: .initialised)
     }
@@ -119,13 +117,6 @@ struct RootViewModel: RootViewModelProtocol {
                 state.status = .isLoaded
 
                 return []
-            case .updateRates:
-                return [
-                    ratesService
-                        .exchangeRates(pairs: state.pairs)
-                        .map(RootEvent.updatedRates)
-                        .flatMapError { _ in .just(.updatedRates([])) }
-                ]
             }
         }
     }
@@ -138,6 +129,7 @@ struct RootViewModel: RootViewModelProtocol {
         state.observeState(observer)
     }
 
+    /// Adds observer for when user wants to add a new pair
     func addPair(_ observer: @escaping ([CurrencyPair], Promise<CurrencyPair?, Never>) -> Void) {
         state.observeState { (state) in
             if case let .addingPair(addedPair) = state.status {
@@ -148,9 +140,12 @@ struct RootViewModel: RootViewModelProtocol {
 }
 
 struct RootState {
+    /// Current exchange rates
     var rates: [ExchangeRate] = []
+    /// Currently selected pairs
     var pairs: [CurrencyPair] = []
     var status: Status
+    /// Closure to add observer for provided currency pair exchange rate
     let observeUpdates: (CurrencyPair) -> RatesUpdateObserving.AddObserver
 
     enum Status {
@@ -162,9 +157,11 @@ struct RootState {
 
 enum RootEvent {
     case initialised
+    /// Got rates for previously selected pairs
     case loadedRates([ExchangeRate])
+    /// Added a pair or canceled selection if nil
     case added(CurrencyPair?)
-    case updateRates
+    /// Updated exchange rates
     case updatedRates([ExchangeRate])
     case ui(UserAction)
 

@@ -12,34 +12,49 @@ protocol CurrencyPairSelectorViewModelProtocol: ViewModelProtocol where
 struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
     private let state: StateMachine<CurrencyPairSelectorState, CurrencyPairSelectorEvent>
 
+    /**
+     Creates a view model for selecting first currency
+     - parameters:
+        - disabled: currency pairs already selected by user
+        - selected: a promise to fulfill when currency pair is selected
+        - supportedCurrenciesService: a service to get supported currencies
+     */
     init(
-        supportedCurrenciesService: SupportedCurrenciesService,
         disabled: [CurrencyPair],
-        selected: Promise<CurrencyPair?, Never>
+        selected: Promise<CurrencyPair?, Never>,
+        supportedCurrenciesService: SupportedCurrenciesService
     ) {
         state = StateMachine(
             initial: .init(
                 supported: [],
                 disabled: disabled,
                 selected: selected,
-                status: .selectingFirst
+                status: .selectingFirstCurrency
             ),
             reduce: Self.reduce(supportedCurrenciesService: supportedCurrenciesService)
         )
         state.sink(event: .initialised)
     }
 
+    /**
+     Creates a view model for selecting a second currency in a pair
+     - parameters:
+        - from: first selected currency
+        - disabled: currency pairs already selected by user
+        - selected: a promise to fulfill when currency pair is selected
+        - supportedCurrenciesService: a service to get supported currencies
+     */
     init(
-        from: Currency,
+        first: Currency,
         disabled: [CurrencyPair],
-        supportedCurrenciesService: SupportedCurrenciesService,
-        selected: Promise<CurrencyPair?, Never>
+        selected: Promise<CurrencyPair?, Never>,
+        supportedCurrenciesService: SupportedCurrenciesService
     ) {
         state = StateMachine(
             initial: .init(
                 disabled: disabled,
                 selected: selected,
-                status: .selectingSecond(first: from)
+                status: .selectingSecondCurrency(first: first)
             ),
             reduce: Self.reduce(supportedCurrenciesService: supportedCurrenciesService)
         )
@@ -64,7 +79,7 @@ struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
                 if let first = state.first {
                     state.selected.fulfill(.success(CurrencyPair(from: first, to: currency)))
                 } else {
-                    state.status = .selectingSecond(first: currency)
+                    state.status = .selectingSecondCurrency(first: currency)
                 }
                 return []
             }
@@ -79,7 +94,8 @@ struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
         state.observeState(observer)
     }
 
-    func selectSecond(_ observer: @escaping (Currency, [CurrencyPair], Promise<CurrencyPair?, Never>) -> Void) {
+    /// Adds observer for when user selects first currency in a pair
+    func selectedFirst(_ observer: @escaping (Currency, [CurrencyPair], Promise<CurrencyPair?, Never>) -> Void) {
         state.observeState { (state) in
             if let first = state.first {
                 observer(first, state.disabled, state.selected)
@@ -90,19 +106,24 @@ struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
 
 
 struct CurrencyPairSelectorState {
+    /// List of all supported currencies
     var supported: [Currency] = []
+    /// List of already selected currency pairs that user should not be able to select again
     let disabled: [CurrencyPair]
+    /// a promise that should be fulfilled with selected currency pair or with nil if selection is canceled
     let selected: Promise<CurrencyPair?, Never>
 
     var status: Status
 
+    /// Already selected currency in a pair
     var first: Currency? {
-        guard case let .selectingSecond(first) = status else {
+        guard case let .selectingSecondCurrency(first) = status else {
             return nil
         }
         return first
     }
 
+    /// Returns true if user should be able to select the currency
     func isEnabled(currency: Currency) -> Bool {
         guard let first = first else {
             return true
@@ -115,8 +136,8 @@ struct CurrencyPairSelectorState {
     }
 
     enum Status {
-        case selectingFirst
-        case selectingSecond(first: Currency)
+        case selectingFirstCurrency
+        case selectingSecondCurrency(first: Currency)
     }
 }
 
