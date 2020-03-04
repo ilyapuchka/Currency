@@ -3,10 +3,10 @@ import Future
 import Domain
 
 struct RootFlowController {
-    let modal: UIViewController
+    private weak var modal: UIViewController?
 
     typealias MakeAddCurrencyPair = (_ disabled: [CurrencyPair], _ selected: Promise<CurrencyPair?, Never>) -> UIViewController
-    let addPair: MakeAddCurrencyPair
+    private let addPair: MakeAddCurrencyPair
 
     init(
         modal: UIViewController,
@@ -16,11 +16,11 @@ struct RootFlowController {
         self.addPair = addPair
     }
 
-    func addPair(disabled: [CurrencyPair], promise: Promise<CurrencyPair?, Never>) {
-        modal.present(addPair(disabled, promise), animated: true, completion: nil)
+    func addPair(disabled: [CurrencyPair], selected: Promise<CurrencyPair?, Never>) {
+        modal?.present(addPair(disabled, selected), animated: true, completion: nil)
 
-        Future(promise: promise).observe(on: .mainQueue()).on { [modal] (_) in
-            modal.dismiss(animated: true, completion: nil)
+        Future(promise: selected).observe(on: .mainQueue()).on { [modal] (_) in
+            modal?.dismiss(animated: true, completion: nil)
         }
     }
 }
