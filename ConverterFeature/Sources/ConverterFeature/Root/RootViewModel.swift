@@ -29,7 +29,7 @@ struct RootViewModel: RootViewModelProtocol {
                 ratesObserving: ratesObserving
             )
         )
-        ratesObserving.update { [state] in
+        ratesObserving.update { [unowned state] in
             ratesService.exchangeRates(pairs: state.state.pairs)
         }
         state.sink(event: .initialised)
@@ -60,6 +60,7 @@ struct RootViewModel: RootViewModelProtocol {
                 state.status = .isLoaded
 
                 guard let pair = pair else {
+                    ratesObserving.start()
                     return []
                 }
 
