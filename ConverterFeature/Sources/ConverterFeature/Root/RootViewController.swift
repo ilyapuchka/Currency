@@ -9,11 +9,19 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
     struct Config {
         let bundle: Bundle
         let designLibrary: DesignLibrary
+        let locale: Locale = Locale.current
+        let numberFormatter: NumberFormatter = {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = NumberFormatter.Style.decimal
+            formatter.maximumFractionDigits = 4
+            return formatter
+        }()
     }
 
     init(viewModel: ViewModel, config: Config) {
         self.config = config
         super.init(viewModel: viewModel)
+        config.numberFormatter.locale = config.locale
     }
 
     required init?(coder: NSCoder) {
@@ -71,18 +79,29 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
         rate: ExchangeRate,
         sendAction: @escaping (RootEvent.UserAction) -> Void
     ) -> AnyComponent {
-        func formatAmount(_ amount: Decimal, currency: Currency) -> String {
-            "\(amount) \(currency.code)"
+        func formatAmount(_ amount: Decimal, minimumFractionDigits: Int = 0, currency: Currency) -> String {
+            config.numberFormatter.minimumFractionDigits = minimumFractionDigits
+            return String(
+                format: NSLocalizedString("rate_format", comment: ""),
+                config.numberFormatter.string(for: amount) ?? "\(amount)",
+                currency.code
+            )
         }
         return ExchangeRateRowViewComponent(
             designLibrary: self.config.designLibrary,
-            from: (amount: formatAmount(1, currency: rate.pair.from), description: rate.pair.from.code),
-            to: (amount: formatAmount(rate.convert(amount: 1), currency: rate.pair.to), description: rate.pair.to.code),
+            from: (
+                amount: formatAmount(1, currency: rate.pair.from),
+                description: NSLocalizedString(rate.pair.from.code, bundle: config.bundle, comment: "")
+            ),
+            to: (
+                amount: formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, currency: rate.pair.to),
+                description: NSLocalizedString(rate.pair.to.code, bundle: config.bundle, comment: "")
+            ),
             onDelete: { sendAction(.deletePair(rate.pair)) },
             onRateUpdate: { oldObserver, update in
                 let addObserver = state.observeUpdates(rate.pair)
                 return addObserver(oldObserver) { rate in
-                    update(formatAmount(rate.convert(amount: 1), currency: rate.pair.to))
+                    update(formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, currency: rate.pair.to))
                 }
             }
         ).asAnyComponent()

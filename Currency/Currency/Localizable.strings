@@ -1,2 +1,39 @@
 "add_currency_pair_button_title" = "Add currency pair";
 "add_currency_pair_button_subtitle" = "Choose a currency pair to compare their live rates";
+/*first parameter - amount, second parameter - currency code, i.e. 1 JPY*/
+"rate_format" = "%1$@ %2$@";
+
+/*Currency names based on https://www.iban.com/currency-codes */
+
+"AUD"="Australian Dollar";
+"BGN"="Bulgarian Lev";
+"BRL"="Brazilian Real";
+"CAD"="Canadian Dollar";
+"CHF"="Swiss Franc";
+"CNY"="Yuan Renminbi";
+"CZK"="Czech Koruna";
+"DKK"="Danish Krone";
+"EUR"="Euro";
+"GBP"="Pound Sterling";
+"HKD"="Hong Kong Dollar";
+"HRK"="Kuna";
+"HUF"="Forint";
+"IDR"="Rupiah";
+"ILS"="New Israeli Sheqel";
+"INR"="Indian Rupee";
+"ISK"="Iceland Krona";
+"JPY"="Yen";
+"KRW"="Won";
+"MXN"="Mexican Peso";
+"MYR"="Malaysian Ringgit";
+"NOK"="Norwegian Krone";
+"NZD"="New Zealand Dollar";
+"PHP"="Philippine Peso";
+"PLN"="Zloty";
+"RON"="Romanian Leu";
+"RUB"="Russian Ruble";
+"SEK"="Swedish Krona";
+"SGD"="Singapore Dollar";
+"THB"="Baht";
+"USD"="US Dollar";
+"ZAR"="Rand";
