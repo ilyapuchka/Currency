@@ -81,8 +81,8 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
     ) -> AnyComponent {
         func formatAmount(_ amount: Decimal, minimumFractionDigits: Int = 0, label: String) -> String {
             config.numberFormatter.minimumFractionDigits = minimumFractionDigits
-            return String(
-                format: NSLocalizedString("rate_format", comment: ""),
+            return String.nonLeakingString(
+                format: "rate_format",
                 config.numberFormatter.string(for: amount) ?? "\(amount)",
                 label
             )
@@ -91,8 +91,8 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
         let toLocalizedDescription = NSLocalizedString(rate.pair.to.code, bundle: config.bundle, comment: "")
 
         func accessibleFormat(rate: ExchangeRate) -> String {
-            String(
-                format: NSLocalizedString("accessible_excahnge_rate_format", comment: ""),
+            return String.nonLeakingString(
+                format: "accessible_excahnge_rate_format",
                 formatAmount(1, label: fromLocalizedDescription),
                 formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: toLocalizedDescription)
             )
@@ -122,3 +122,15 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
     }
 }
 
+extension String {
+    // There seem to be a bug related to leaking CFString when using String(format:args:)
+    // At least memory graph debugger shows strings leaking
+    // Workaround that by using NSString directly, this makes memory graph debugger happy
+    // Might be also related to https://bugs.swift.org/browse/SR-4036
+    static func nonLeakingString(format: String, _ args: CVarArg...) -> String {
+        let result = withVaList(args) {
+            NSString(format: NSLocalizedString(format as String, comment: ""), arguments: $0)
+        }
+        return "\(result)"
+    }
+}
