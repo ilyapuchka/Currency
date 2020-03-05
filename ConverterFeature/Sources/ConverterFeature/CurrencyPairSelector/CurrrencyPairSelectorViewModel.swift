@@ -4,12 +4,7 @@ import Domain
 import Future
 import DesignLibrary
 
-protocol CurrencyPairSelectorViewModelProtocol: ViewModelProtocol where
-    State == CurrencyPairSelectorState,
-    UserAction == CurrencyPairSelectorEvent.UserAction {
-}
-
-struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
+struct CurrencyPairSelectorViewModel: ViewModelProtocol {
     private let state: StateMachine<CurrencyPairSelectorState, CurrencyPairSelectorEvent>
 
     /**

@@ -3,7 +3,13 @@ import DesignLibrary
 import Future
 import Domain
 
-final class CurrencyPairSelectorViewController<ViewModel: CurrencyPairSelectorViewModelProtocol>: ViewModelViewController<ViewModel>, UIAdaptivePresentationControllerDelegate {
+final class CurrencyPairSelectorViewController<ViewModel: ViewModelProtocol>:
+    ViewModelViewController<ViewModel>,
+    UIAdaptivePresentationControllerDelegate
+    where
+    ViewModel.State == CurrencyPairSelectorState,
+    ViewModel.UserAction == CurrencyPairSelectorEvent.UserAction {
+
     let config: Config
 
     struct Config {

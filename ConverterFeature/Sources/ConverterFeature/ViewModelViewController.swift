@@ -1,5 +1,6 @@
 import UIKit
 import DesignLibrary
+import Future
 
 public protocol ViewModelProtocol {
     associatedtype State

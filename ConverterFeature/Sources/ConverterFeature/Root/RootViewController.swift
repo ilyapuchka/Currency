@@ -3,7 +3,11 @@ import DesignLibrary
 import Future
 import Domain
 
-final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewController<ViewModel> {
+final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewController<ViewModel>
+    where
+    ViewModel.State == RootState,
+    ViewModel.UserAction == RootEvent.UserAction {
+
     let config: Config
 
     struct Config {
@@ -42,8 +46,8 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
     }
 
     private func renderEmpty(
-        state: RootState,
-        sendAction: @escaping (RootEvent.UserAction) -> Void
+        state: ViewModel.State,
+        sendAction: @escaping (ViewModel.UserAction) -> Void
     ) -> HostViewComponent<EmptyStateViewComponent> {
         HostViewComponent(host: view, alignment: .center) {
             EmptyStateViewComponent(
@@ -55,8 +59,8 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
     }
 
     private func renderRates(
-        state: RootState,
-        sendAction: @escaping (RootEvent.UserAction) -> Void
+        state: ViewModel.State,
+        sendAction: @escaping (ViewModel.UserAction) -> Void
     ) -> HostViewComponent<TableViewComponent> {
         HostViewComponent(host: view, alignment: .fill) {
             TableViewComponent(sections: [
@@ -75,9 +79,9 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
     }
 
     func renderExchangeRateRow(
-        state: RootState,
+        state: ViewModel.State,
         rate: ExchangeRate,
-        sendAction: @escaping (RootEvent.UserAction) -> Void
+        sendAction: @escaping (ViewModel.UserAction) -> Void
     ) -> AnyComponent {
         func formatAmount(_ amount: Decimal, minimumFractionDigits: Int = 0, label: String) -> String {
             config.numberFormatter.minimumFractionDigits = minimumFractionDigits

@@ -93,11 +93,3 @@ class StubViewModel<State, UserAction>: ViewModelProtocol {
 
     }
 }
-
-extension StubViewModel: CurrencyPairSelectorViewModelProtocol
-    where
-    State == CurrencyPairSelectorState,
-    UserAction == CurrencyPairSelectorEvent.UserAction
-{
-
-}

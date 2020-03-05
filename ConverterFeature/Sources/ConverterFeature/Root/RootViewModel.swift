@@ -4,12 +4,7 @@ import Domain
 import Future
 import DesignLibrary
 
-protocol RootViewModelProtocol: ViewModelProtocol where
-    State == RootState,
-    UserAction == RootEvent.UserAction {
-}
-
-struct RootViewModel: RootViewModelProtocol {
+struct RootViewModel: ViewModelProtocol {
     let state: StateMachine<RootState, RootEvent>
 
     init(
