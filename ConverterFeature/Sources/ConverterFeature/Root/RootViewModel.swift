@@ -147,7 +147,7 @@ struct RootState {
     var pairs: [CurrencyPair] = []
     var status: Status
     /// Closure to add observer for provided currency pair exchange rate
-    let observeUpdates: (CurrencyPair) -> RatesUpdateObserving.AddObserver
+    let observeUpdates: RatesUpdateObserving.AddObserver
 
     enum Status {
         case loading

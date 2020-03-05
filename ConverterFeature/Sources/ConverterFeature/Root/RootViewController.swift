@@ -110,9 +110,8 @@ final class RootViewController<ViewModel: RootViewModelProtocol>: ViewModelViewC
             ),
             accessibilityLabel: accessibleFormat(rate: rate),
             onDelete: { sendAction(.deletePair(rate.pair)) },
-            onRateUpdate: { oldObserver, update in
-                let addObserver = state.observeUpdates(rate.pair)
-                return addObserver(oldObserver) { rate in
+            onRateUpdate: { update in
+                state.observeUpdates(rate.pair) { rate in
                     update(
                         formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: rate.pair.to.code),
                         accessibleFormat(rate: rate)

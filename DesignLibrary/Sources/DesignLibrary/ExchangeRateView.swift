@@ -142,8 +142,7 @@ public final class ExchangeRateView: UIView {
         accessibilityTraits = .updatesFrequently
     }
 
-    public typealias OnRateUpdate = (Any?, @escaping (String, String) -> Void) -> Any
-    private var rateObserver: Any?
+    public typealias OnRateUpdate = (@escaping (String, String) -> Void) -> Void
 
     public func configure(
         from: (amount: String, description: String),
@@ -156,7 +155,7 @@ public final class ExchangeRateView: UIView {
         toAmountLabel.text = to.amount
         toNameLabel.text = to.description
 
-        rateObserver = onRateUpdate(rateObserver) { [weak self] rate, accessibilityLabel in
+        onRateUpdate { [weak self] rate, accessibilityLabel in
             self?.toAmountLabel.text = rate
             self?.accessibilityLabel = accessibilityLabel
         }
