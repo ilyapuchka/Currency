@@ -10,7 +10,7 @@ class ExchangeRateRowView_Preview: PreviewProvider {
         let designLibrary = DesignLibrary(bundle: bundle)
 
         let component = TableViewComponent(sections: [[
-            AddCurrencyPairRowComponent(
+            AddCurrencyPairViewComponent(
                 bundle: bundle,
                 designLibrary: designLibrary,
                 action: {}
@@ -19,22 +19,25 @@ class ExchangeRateRowView_Preview: PreviewProvider {
                 designLibrary: designLibrary,
                 from: (amount: "1 GBP", description: "Pounds"),
                 to: (amount: "1.23456 EUR", description: "Euro"),
+                accessibilityLabel: "",
                 onDelete: {},
-                onRateUpdate: { _, _ in }
+                onRateUpdate: { _ in }
             ).asAnyComponent(),
             ExchangeRateRowViewComponent(
                 designLibrary: designLibrary,
                 from: (amount: "1 GBP", description: "Pounds"),
                 to: (amount: "1.23456 EUR", description: "Euro"),
+                accessibilityLabel: "",
                 onDelete: {},
-                onRateUpdate: { _, _ in }
+                onRateUpdate: { _ in }
             ).asAnyComponent(),
             ExchangeRateRowViewComponent(
                 designLibrary: designLibrary,
                 from: (amount: "1 GBP", description: "Pounds"),
                 to: (amount: "1.23456 EUR", description: "Euro"),
+                accessibilityLabel: "",
                 onDelete: {},
-                onRateUpdate: { _, _ in }
+                onRateUpdate: { _ in }
             ).asAnyComponent()
         ]])
 

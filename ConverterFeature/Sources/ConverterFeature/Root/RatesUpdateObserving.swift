@@ -2,22 +2,25 @@ import Foundation
 import Domain
 import Future
 
-/// Periodically updates of exchange rates and notifies observers
+/// Periodically updates exchange rates and notifies observers
 final class RatesUpdateObserving {
-    static let notificationName = NSNotification.Name("ratesUpdated")
-
     private var observers: [CurrencyPair: (ExchangeRate) -> Void] = [:]
-    /**
-     Register observer for rate updates notifications
 
+    /**
      - returns: An observer object
      - parameters:
-         - oldObserver: an observer to unregister from notifications
+         - pair: a currency pair to observe for changes
          - update:a block to register as a notification handler
      */
     typealias AddObserver = (_ pair: CurrencyPair, _ update: @escaping (ExchangeRate) -> Void) -> Void
 
-    /// Creates a function to register observer for updates to provided currency pair
+    /**
+     Registers an observer for updates to provided currency pair exchange rates
+
+     - parameters:
+        - pair: a currency pair to observe for changes
+        - update:a block to register as a notification handler
+     */
     func observeUpdates(pair: CurrencyPair, update: @escaping (ExchangeRate) -> Void) -> Void {
         observers[pair] = update
     }

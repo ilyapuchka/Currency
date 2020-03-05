@@ -65,7 +65,7 @@ public final class ExchangeRateView: UIView {
         return label
     }()
 
-    let fromNameLabel: UILabel = {
+    let fromDescriptionLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textAlignment = ExchangeRateView.fromLabelTextAlignment
@@ -82,7 +82,7 @@ public final class ExchangeRateView: UIView {
         return label
     }()
 
-    let toNameLabel: UILabel = {
+    let toDescriptionLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textAlignment = ExchangeRateView.toLabelTextAlignment
@@ -110,12 +110,12 @@ public final class ExchangeRateView: UIView {
         super.init(frame: .zero)
 
         let fromStackView = UIStackView(arrangedSubviews: [
-            fromAmountLabel, fromNameLabel
+            fromAmountLabel, fromDescriptionLabel
         ])
         fromStackView.axis = .vertical
 
         let toStackView = UIStackView(arrangedSubviews: [
-            toAmountLabel, toNameLabel
+            toAmountLabel, toDescriptionLabel
         ])
         toStackView.axis = .vertical
 
@@ -135,8 +135,8 @@ public final class ExchangeRateView: UIView {
         fromAmountLabel.textColor = designLibrary.colors.regularText
         toAmountLabel.textColor = designLibrary.colors.regularText
 
-        fromNameLabel.textColor = designLibrary.colors.secondaryText
-        toNameLabel.textColor = designLibrary.colors.secondaryText
+        fromDescriptionLabel.textColor = designLibrary.colors.secondaryText
+        toDescriptionLabel.textColor = designLibrary.colors.secondaryText
 
         isAccessibilityElement = true
         accessibilityTraits = .updatesFrequently
@@ -151,15 +151,14 @@ public final class ExchangeRateView: UIView {
         onRateUpdate: OnRateUpdate
     ) {
         fromAmountLabel.text = from.amount
-        fromNameLabel.text = from.description
+        fromDescriptionLabel.text = from.description
         toAmountLabel.text = to.amount
-        toNameLabel.text = to.description
+        toDescriptionLabel.text = to.description
+        self.accessibilityLabel = accessibilityLabel
 
         onRateUpdate { [weak self] rate, accessibilityLabel in
             self?.toAmountLabel.text = rate
             self?.accessibilityLabel = accessibilityLabel
         }
-
-        self.accessibilityLabel = accessibilityLabel
     }
 }
