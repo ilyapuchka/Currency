@@ -63,7 +63,7 @@ struct CurrencyPairSelectorViewModel: CurrencyPairSelectorViewModelProtocol {
 
     static func reduce(
         supportedCurrenciesService: SupportedCurrenciesService
-    ) -> (inout CurrencyPairSelectorState, CurrencyPairSelectorEvent) -> [Future<CurrencyPairSelectorEvent, Never>] {
+    ) -> Reducer<CurrencyPairSelectorEvent> {
         return { state, event in
             switch event {
             case .initialised:

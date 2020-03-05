@@ -5,6 +5,8 @@ public protocol ViewModelProtocol {
     associatedtype State
     associatedtype UserAction
 
+    typealias Reducer<Event> = (inout State, Event) -> [Future<Event, Never>]
+
     func sendAction(_ action: UserAction)
     func observeState(_ observer: @escaping (State) -> Void)
 }

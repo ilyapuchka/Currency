@@ -39,7 +39,7 @@ struct RootViewModel: RootViewModelProtocol {
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService,
         ratesObserving: RatesUpdateObserving
-    ) -> (inout RootState, RootEvent) -> [Future<RootEvent, Never>] {
+    ) -> Reducer<RootEvent> {
         return { state, event in
             switch event {
             case .initialised:
