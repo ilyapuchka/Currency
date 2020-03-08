@@ -3,11 +3,24 @@ import UIKit
 public struct EmptyStateViewComponent: Component {
     let bundle: Bundle
     let designLibrary: DesignLibrary
+    let actionImage: UIImage?
+    let actionTitle: String
+    let description: String
     let action: () -> Void
 
-    public init(bundle: Bundle, designLibrary: DesignLibrary, action: @escaping () -> Void) {
+    public init(
+        bundle: Bundle,
+        designLibrary: DesignLibrary,
+        actionImage: UIImage?,
+        actionTitle: String,
+        description: String,
+        action: @escaping () -> Void
+    ) {
         self.bundle = bundle
         self.designLibrary = designLibrary
+        self.actionImage = actionImage
+        self.actionTitle = actionTitle
+        self.description = description
         self.action = action
     }
     
@@ -16,7 +29,12 @@ public struct EmptyStateViewComponent: Component {
     }
 
     public func render(in view: EmptyStateView) {
-        view.action = action
+        view.configure(
+            actionImage: actionImage,
+            actionTitle: actionTitle,
+            description: description,
+            action: action
+        )
     }
 }
 
@@ -75,21 +93,24 @@ public final class EmptyStateView: UIView {
         ])
 
         button.button.titleLabel?.textColor = designLibrary.colors.cta
-        button.button.setTitle(NSLocalizedString("add_currency_pair_button_title", tableName: nil, bundle: bundle, comment: ""), for: .normal)
         button.button.setTitleColor(designLibrary.colors.cta, for: .normal)
         button.button.setTitleColor(designLibrary.colors.cta.withAlphaComponent(0.5), for: .highlighted)
         button.button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 
-        button.imageView.image = designLibrary.assets.plust
-
-        subtitleLabel.text = NSLocalizedString("add_currency_pair_button_subtitle", tableName: nil, bundle: bundle, comment: "")
         subtitleLabel.textColor = designLibrary.colors.secondaryText
     }
 
-    var action: () -> Void = {}
+    private var action: () -> Void = {}
 
     @objc func buttonTapped() {
         action()
+    }
+
+    func configure(actionImage: UIImage?, actionTitle: String, description: String, action: @escaping () -> Void) {
+        button.imageView.image = actionImage
+        button.button.setTitle(actionTitle, for: .normal)
+        subtitleLabel.text = description
+        self.action = action
     }
 }
 

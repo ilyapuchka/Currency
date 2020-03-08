@@ -33,8 +33,12 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
     }
 
     override func render(state: ViewModel.State, sendAction: @escaping (ViewModel.UserAction) -> Void) -> [AnyComponent] {
+        if state.error != nil {
+            return [renderError(sendAction: sendAction).asAnyComponent()]
+        }
+
         switch state.status {
-        case .loading:
+        case .isLoading:
             return []
         case .addingPair, .isLoaded:
             return [
@@ -53,7 +57,25 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
             EmptyStateViewComponent(
                 bundle: config.bundle,
                 designLibrary: config.designLibrary,
+                actionImage: config.designLibrary.assets.plus,
+                actionTitle: NSLocalizedString("add_currency_pair_button_title", bundle: config.bundle, comment: ""),
+                description: NSLocalizedString("add_currency_pair_button_subtitle", bundle: config.bundle, comment: ""),
                 action: { sendAction(.addPair) }
+            )
+        }
+    }
+
+    private func renderError(
+        sendAction: @escaping (ViewModel.UserAction) -> Void
+    ) -> HostViewComponent<EmptyStateViewComponent> {
+        HostViewComponent(host: view, alignment: .center) {
+            EmptyStateViewComponent(
+                bundle: config.bundle,
+                designLibrary: config.designLibrary,
+                actionImage: nil,
+                actionTitle: NSLocalizedString("retry", bundle: config.bundle, comment: ""),
+                description: NSLocalizedString("failed_to_update", bundle: config.bundle, comment: ""),
+                action: { sendAction(.retry) }
             )
         }
     }

@@ -22,7 +22,7 @@ public struct DesignLibrary {
     public struct Assets {
         let bundle: Bundle
 
-        public var plust: UIImage {
+        public var plus: UIImage {
             UIImage(named: "plus", in: bundle, compatibleWith: nil)!
         }
     }

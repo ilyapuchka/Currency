@@ -3,6 +3,9 @@
 /*first parameter - amount, second parameter - currency code, i.e. 1 JPY*/
 "rate_format" = "%1$@ %2$@";
 "accessible_excahnge_rate_format" = "%1$@ is %2$@";
+"retry" = "Retry";
+"failed_to_update" = "Failed to update exchange rates";
+"failed_to_get_currency_list" = "Failed to get list of supported currencies";
 
 /*Currency names based on https://www.iban.com/currency-codes */
 

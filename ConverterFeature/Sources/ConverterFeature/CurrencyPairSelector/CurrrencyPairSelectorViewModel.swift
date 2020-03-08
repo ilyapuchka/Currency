@@ -65,10 +65,14 @@ struct CurrencyPairSelectorViewModel: ViewModelProtocol {
                 return [
                     supportedCurrenciesService.supportedCurrencies()
                         .map(CurrencyPairSelectorEvent.loadedSupportedCurrencies)
-                        .flatMapError { _ in .empty }
+                        .flatMapError { error in .just(.failed(error)) }
                 ]
             case let .loadedSupportedCurrencies(currencies):
                 state.supported = currencies
+                state.error = nil
+                return []
+            case let .failed(error):
+                state.error = error
                 return []
             case let .ui(.selected(currency)):
                 if let first = state.first {
@@ -77,6 +81,12 @@ struct CurrencyPairSelectorViewModel: ViewModelProtocol {
                     state.status = .selectingSecondCurrency(first: currency)
                 }
                 return []
+            case .ui(.retry):
+                return [
+                    supportedCurrenciesService.supportedCurrencies()
+                        .map(CurrencyPairSelectorEvent.loadedSupportedCurrencies)
+                        .flatMapError { error in .just(.failed(error)) }
+                ]
             }
         }
     }
@@ -107,6 +117,8 @@ struct CurrencyPairSelectorState {
     let disabled: [CurrencyPair]
     /// a promise that should be fulfilled with selected currency pair or with nil if selection is canceled
     let selected: Promise<CurrencyPair?, Never>
+
+    var error: Error?
 
     var status: Status
 
@@ -139,9 +151,11 @@ struct CurrencyPairSelectorState {
 enum CurrencyPairSelectorEvent {
     case initialised
     case loadedSupportedCurrencies([Currency])
+    case failed(Error)
     case ui(UserAction)
 
     enum UserAction {
         case selected(Currency)
+        case retry
     }
 }
