@@ -11,7 +11,14 @@ class EmptyStateView_Preview: PreviewProvider {
 
         let host = UIView()
         let component = HostViewComponent.init(host: host, alignment: .center) {
-            EmptyStateViewComponent(bundle: bundle, designLibrary: designLibrary, action: {})
+            EmptyStateViewComponent(
+                bundle: bundle,
+                designLibrary: designLibrary,
+                actionImage: \DesignLibrary.assets.plus,
+                actionTitle: "Action",
+                description: "Description",
+                action: {}
+            )
         }
         component.render(in: component.makeView())
         return host

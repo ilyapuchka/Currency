@@ -38,7 +38,7 @@ struct LocalizedExchangeRateFormatter: ExchangeRateFormatter {
     private func formatAmount(_ amount: Decimal, minimumFractionDigits: Int = 0, label: String) -> String {
         numberFormatter.minimumFractionDigits = minimumFractionDigits
         return String.nonLeakingString(
-            format: "exchange_rate_format",
+            format: NSLocalizedString("exchange_rate_format", bundle: bundle, comment: ""),
             numberFormatter.string(for: amount) ?? "\(amount)",
             label
         )
@@ -49,7 +49,7 @@ struct LocalizedExchangeRateFormatter: ExchangeRateFormatter {
         let toLocalizedDescription = NSLocalizedString(rate.pair.to.code, bundle: bundle, comment: "")
 
         return String.nonLeakingString(
-            format: "accessible_exchange_rate_format",
+            format: NSLocalizedString("accessible_exchange_rate_format", bundle: bundle, comment: ""),
             formatAmount(1, label: fromLocalizedDescription),
             formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: toLocalizedDescription)
         )
@@ -63,7 +63,7 @@ extension String {
     // Might be also related to https://bugs.swift.org/browse/SR-4036
     static func nonLeakingString(format: String, _ args: CVarArg...) -> String {
         let result = withVaList(args) {
-            NSString(format: NSLocalizedString(format as String, comment: ""), arguments: $0)
+            NSString(format: format, arguments: $0)
         }
         return "\(result)"
     }
