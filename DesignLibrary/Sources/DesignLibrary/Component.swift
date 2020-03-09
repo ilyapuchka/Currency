@@ -55,6 +55,14 @@ public struct AnyComponent: Component, SelectableComponent, DeletableComponent {
     public func didDelete() {
         deletable?.didDelete()
     }
+
+    public static var empty: AnyComponent {
+        return ViewComponent().asAnyComponent()
+    }
+}
+
+struct ViewComponent: Component {
+    func render(in view: UIView) {}
 }
 
 protocol AnyComponentBoxBase {

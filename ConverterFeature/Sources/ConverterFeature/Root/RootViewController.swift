@@ -25,20 +25,18 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func render(state: ViewModel.State, sendAction: @escaping (ViewModel.UserAction) -> Void) -> [AnyComponent] {
+    override func render(state: ViewModel.State, sendAction: @escaping (ViewModel.UserAction) -> Void) -> AnyComponent {
         if state.error != nil {
-            return [renderError(sendAction: sendAction).asAnyComponent()]
+            return renderError(sendAction: sendAction).asAnyComponent()
         }
 
         switch state.status {
         case .isLoading:
-            return []
+            return .empty
         case .addingPair, .isLoaded:
-            return [
-                state.rates.isEmpty
-                    ? renderEmpty(state: state, sendAction: sendAction).asAnyComponent()
-                    : renderRates(state: state, sendAction: sendAction).asAnyComponent()
-            ]
+            return state.rates.isEmpty
+                ? renderEmpty(state: state, sendAction: sendAction).asAnyComponent()
+                : renderRates(state: state, sendAction: sendAction).asAnyComponent()
         }
     }
 

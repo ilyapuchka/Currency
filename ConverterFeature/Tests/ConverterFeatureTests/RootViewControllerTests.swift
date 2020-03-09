@@ -20,11 +20,8 @@ final class RootViewControllerTests: XCTestCase {
 
     func test_renders_emptyState() throws {
         let state = RootState(status: .isLoaded, observeUpdates: { (_, _) in })
-        let components = sut.render(state: state, sendAction: viewModel.sendAction)
-
-        XCTAssertEqual(components.count, 1)
-
-        let host: HostViewComponent<EmptyStateViewComponent> = try components[0].unwrap()
+        let component = sut.render(state: state, sendAction: viewModel.sendAction)
+        let host: HostViewComponent<EmptyStateViewComponent> = try component.unwrap()
 
         XCTAssertEqual(host.component.actionImage, \DesignLibrary.assets.plus)
         XCTAssertEqual(host.component.actionTitle, "add_currency_pair_button_title")
@@ -43,11 +40,8 @@ final class RootViewControllerTests: XCTestCase {
             observeUpdates: { (_, _) in },
             error: NSError(domain: "", code: 0, userInfo: nil)
         )
-        let components = sut.render(state: state, sendAction: viewModel.sendAction)
-
-        XCTAssertEqual(components.count, 1)
-
-        let host: HostViewComponent<EmptyStateViewComponent> = try components[0].unwrap()
+        let component = sut.render(state: state, sendAction: viewModel.sendAction)
+        let host: HostViewComponent<EmptyStateViewComponent> = try component.unwrap()
 
         XCTAssertNil(host.component.actionImage)
         XCTAssertEqual(host.component.actionTitle, "retry")
@@ -85,12 +79,8 @@ final class RootViewControllerTests: XCTestCase {
                 update(updatedRate)
             }
         )
-        let components = sut.render(state: state, sendAction: viewModel.sendAction)
-
-        XCTAssertEqual(components.count, 1)
-
-        let host: HostViewComponent<TableViewComponent> = try components[0].unwrap()
-
+        let component = sut.render(state: state, sendAction: viewModel.sendAction)
+        let host: HostViewComponent<TableViewComponent> = try component.unwrap()
         let sections = host.component.adapter.sections
 
         XCTAssertEqual(sections.count, 1)

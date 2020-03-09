@@ -14,11 +14,11 @@ public protocol ViewModelProtocol {
 
 open class ViewModelViewController<ViewModel: ViewModelProtocol>: UIViewController {
     let viewModel: ViewModel
-    private var components: [AnyComponent]
+    private var component: AnyComponent
 
     public init(viewModel: ViewModel) {
         self.viewModel = viewModel
-        self.components = []
+        self.component = .empty
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -26,8 +26,8 @@ open class ViewModelViewController<ViewModel: ViewModelProtocol>: UIViewControll
         fatalError("init(coder:) has not been implemented")
     }
 
-    open func render(state: ViewModel.State, sendAction: @escaping (ViewModel.UserAction) -> Void) -> [AnyComponent] {
-        return []
+    open func render(state: ViewModel.State, sendAction: @escaping (ViewModel.UserAction) -> Void) -> AnyComponent {
+        return .empty
     }
 
     override open func viewDidLoad() {
@@ -35,11 +35,9 @@ open class ViewModelViewController<ViewModel: ViewModelProtocol>: UIViewControll
         view.backgroundColor = .white
 
         viewModel.observeState(sendInitial: true) { [unowned self] state in
-            let components = self.render(state: state, sendAction: self.viewModel.sendAction)
-            components.forEach {
-                $0.render(in: $0.makeView())
-            }
-            self.components = components
+            let component = self.render(state: state, sendAction: self.viewModel.sendAction)
+            component.render(in: component.makeView())
+            self.component = component
         }
     }
 }
