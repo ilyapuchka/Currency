@@ -1,7 +1,8 @@
 import XCTest
-import ConverterFeature
+@testable import ConverterFeature
 @testable import DesignLibrary
 import Future
+import Domain
 
 class StubViewModel<State, UserAction>: ViewModelProtocol {
     var receivedActions: [UserAction] = []
@@ -92,5 +93,50 @@ extension ViewModelTest {
                 }
             }
         }
+    }
+}
+
+class MockSupportedCurrenciesService: SupportedCurrenciesService {
+    var stubSupportedCurrencies: Future<[Currency], Error>!
+    func supportedCurrencies() -> Future<[Currency], Error> {
+        stubSupportedCurrencies
+    }
+}
+
+class MockSelectedCurrencyPairsService: SelectedCurrencyPairsService {
+    var stubSelectedCurrencyPairs: Future<[CurrencyPair], Error>!
+    func selectedCurrencyPairs() -> Future<[CurrencyPair], Error> {
+        stubSelectedCurrencyPairs
+    }
+
+    var stubSave: (([CurrencyPair]) -> Future<Void, Error>)!
+    func save(selectedPairs: [CurrencyPair]) -> Future<Void, Error> {
+        stubSave(selectedPairs)
+    }
+}
+
+class MockRatesService: ExchangeRateService {
+    var stubExchangeRates: (([CurrencyPair]) -> Future<[ExchangeRate], Error>)!
+    func exchangeRates(pairs: [CurrencyPair]) -> Future<[ExchangeRate], Error> {
+        stubExchangeRates(pairs)
+    }
+}
+
+class MockRatesObserving: RatesUpdateObserving {
+    var startCalled = false
+    func start() {
+        startCalled = true
+    }
+    var pauseCalled = false
+    func pause() {
+        pauseCalled = true
+    }
+
+    func observeUpdates(pair: CurrencyPair, update: @escaping (ExchangeRate) -> Void) {
+
+    }
+
+    func update(_ future: @escaping () -> Future<[ExchangeRate], Error>) {
+
     }
 }

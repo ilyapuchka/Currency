@@ -1,6 +1,6 @@
 import XCTest
 @testable import ConverterFeature
-@testable import DesignLibrary
+import DesignLibrary
 import Future
 import Domain
 
@@ -11,44 +11,6 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
     var state: RootState! = nil
     var effects: [Future<Event, Never>] = []
     var expectedEffects: [Future<Event, Never>] = []
-
-    class MockSelectedCurrencyPairsService: SelectedCurrencyPairsService {
-        var stubSelectedCurrencyPairs: Future<[CurrencyPair], Error>!
-        func selectedCurrencyPairs() -> Future<[CurrencyPair], Error> {
-            stubSelectedCurrencyPairs
-        }
-
-        var stubSave: (([CurrencyPair]) -> Future<Void, Error>)!
-        func save(selectedPairs: [CurrencyPair]) -> Future<Void, Error> {
-            stubSave(selectedPairs)
-        }
-    }
-
-    class MockRatesService: ExchangeRateService {
-        var stubExchangeRates: (([CurrencyPair]) -> Future<[ExchangeRate], Error>)!
-        func exchangeRates(pairs: [CurrencyPair]) -> Future<[ExchangeRate], Error> {
-            stubExchangeRates(pairs)
-        }
-    }
-
-    class MockRatesObserving: RatesUpdateObserving {
-        var startCalled = false
-        func start() {
-            startCalled = true
-        }
-        var pauseCalled = false
-        func pause() {
-            pauseCalled = true
-        }
-
-        func observeUpdates(pair: CurrencyPair, update: @escaping (ExchangeRate) -> Void) {
-
-        }
-
-        func update(_ future: @escaping () -> Future<[ExchangeRate], Error>) {
-
-        }
-    }
 
     let selectedCurrencyPairsService = MockSelectedCurrencyPairsService()
     let ratesService = MockRatesService()

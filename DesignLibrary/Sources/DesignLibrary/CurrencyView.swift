@@ -127,6 +127,13 @@ public final class CurrencyView: UIView {
             imageView.alpha = 0.5
             accessibilityTraits = .notEnabled
         }
-        accessibilityLabel = name
+        self.accessibilityLabel = name
+        self.accessibilityIdentifier = code
+    }
+}
+
+public extension CurrencyView {
+    enum Accessibility {
+        public static let currencyList = "currency_list"
     }
 }

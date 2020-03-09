@@ -12,14 +12,7 @@ final class CurrencyPairSelectorViewModelTests: XCTestCase, ViewModelTest {
     var effects: [Future<Event, Never>] = []
     var expectedEffects: [Future<Event, Never>] = []
 
-    class MockService: SupportedCurrenciesService {
-        var stubSupportedCurrencies: Future<[Currency], Error>!
-        func supportedCurrencies() -> Future<[Currency], Error> {
-            stubSupportedCurrencies
-        }
-    }
-
-    let service = MockService()
+    let service = MockSupportedCurrenciesService()
 
     func makeReducer() -> ViewModel.Reducer<Event> {
         CurrencyPairSelectorViewModel.reduce(supportedCurrenciesService: service)

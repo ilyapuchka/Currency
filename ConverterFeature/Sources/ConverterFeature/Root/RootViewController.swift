@@ -44,12 +44,14 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
         state: ViewModel.State,
         sendAction: @escaping (ViewModel.UserAction) -> Void
     ) -> HostViewComponent<EmptyStateViewComponent> {
-        HostViewComponent(host: view, alignment: .center) {
+        HostViewComponent(host: view, alignment: .center,
+                          accessibilityIdentifier: EmptyStateView.Accessibility.emptyView) {
             EmptyStateViewComponent(
                 bundle: config.bundle,
                 designLibrary: config.designLibrary,
                 actionImage: \DesignLibrary.assets.plus,
                 actionTitle: NSLocalizedString("add_currency_pair_button_title", bundle: config.bundle, comment: ""),
+                actionAccessibilityIdentifier: EmptyStateView.Accessibility.addCurrencyPair,
                 description: NSLocalizedString("add_currency_pair_button_subtitle", bundle: config.bundle, comment: ""),
                 action: { sendAction(.addPair) }
             )
@@ -65,6 +67,7 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
                 designLibrary: config.designLibrary,
                 actionImage: nil,
                 actionTitle: NSLocalizedString("retry", bundle: config.bundle, comment: ""),
+                actionAccessibilityIdentifier: EmptyStateView.Accessibility.retry,
                 description: NSLocalizedString("failed_to_update", bundle: config.bundle, comment: ""),
                 action: { sendAction(.retry) }
             )
@@ -82,7 +85,8 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
             addPairSelected = false
         }
 
-        return HostViewComponent(host: view, alignment: .fill) {
+        return HostViewComponent(host: view, alignment: .fill,
+                                 accessibilityIdentifier: AddCurrencyPairView.Accessibility.exchangeRatesList) {
             TableViewComponent(sections: [
                 [
                     AddCurrencyPairViewComponent(
@@ -117,6 +121,7 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
                 description: toLocalizedDescription
             ),
             accessibilityLabel: config.formatter.accessibleFormat(rate: rate),
+            accessibilityIdentifier: "\(rate.pair.from.code)\(rate.pair.to.code)",
             onDelete: { sendAction(.deletePair(rate.pair)) },
             onRateUpdate: { [formatter = config.formatter] update in
                 state.observeUpdates(rate.pair) { rate in

@@ -93,6 +93,14 @@ public final class AddCurrencyPairView: UIView {
 
         isAccessibilityElement = true
         accessibilityTraits = .button
+        accessibilityIdentifier = AddCurrencyPairView.Accessibility.addCurrencyPair
         accessibilityLabel = titleLabel.text
+    }
+}
+
+public extension AddCurrencyPairView {
+    enum Accessibility {
+        public static let addCurrencyPair = "add_currency_pair"
+        public static let exchangeRatesList = "exchange_rates_list"
     }
 }

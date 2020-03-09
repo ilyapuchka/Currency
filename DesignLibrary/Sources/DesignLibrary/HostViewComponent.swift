@@ -10,16 +10,19 @@ public struct HostViewComponent<T: Component>: Component {
     var contentView: T.View?
     let alignment: Alignment
     let component: T
+    let accessibilityIdentifier: String?
 
     public init(
         host: UIView,
         alignment: Alignment,
+        accessibilityIdentifier: String? = nil,
         component: () -> T
     ) {
         self.host = host
         self.contentView = nil
         self.alignment = alignment
         self.component = component()
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     public func makeView() -> T.View {
@@ -28,6 +31,7 @@ public struct HostViewComponent<T: Component>: Component {
         }
         let contentView = component.makeView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.accessibilityIdentifier = accessibilityIdentifier
         return contentView
     }
 

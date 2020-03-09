@@ -5,6 +5,7 @@ public struct ExchangeRateViewComponent: Component, DeletableComponent {
     let from: (amount: String, description: String)
     let to: (amount: String, description: String)
     let accessibilityLabel: String
+    let accessibilityIdentifier: String
 
     let onDelete: () -> Void
     let onRateUpdate: ExchangeRateView.OnRateUpdate
@@ -14,6 +15,7 @@ public struct ExchangeRateViewComponent: Component, DeletableComponent {
         from: (amount: String, description: String),
         to: (amount: String, description: String),
         accessibilityLabel: String,
+        accessibilityIdentifier: String,
         onDelete: @escaping () -> Void,
         onRateUpdate: @escaping ExchangeRateView.OnRateUpdate
     ) {
@@ -21,6 +23,7 @@ public struct ExchangeRateViewComponent: Component, DeletableComponent {
         self.from = from
         self.to = to
         self.accessibilityLabel = accessibilityLabel
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.onDelete = onDelete
         self.onRateUpdate = onRateUpdate
     }
@@ -34,6 +37,7 @@ public struct ExchangeRateViewComponent: Component, DeletableComponent {
             from: from,
             to: to,
             accessibilityLabel: accessibilityLabel,
+            accessibilityIdentifier: accessibilityIdentifier,
             onRateUpdate: onRateUpdate
         )
     }
@@ -148,6 +152,7 @@ public final class ExchangeRateView: UIView {
         from: (amount: String, description: String),
         to: (amount: String, description: String),
         accessibilityLabel: String,
+        accessibilityIdentifier: String,
         onRateUpdate: OnRateUpdate
     ) {
         fromAmountLabel.text = from.amount
@@ -155,6 +160,7 @@ public final class ExchangeRateView: UIView {
         toAmountLabel.text = to.amount
         toDescriptionLabel.text = to.description
         self.accessibilityLabel = accessibilityLabel
+        self.accessibilityIdentifier = accessibilityIdentifier
 
         onRateUpdate { [weak self] rate, accessibilityLabel in
             self?.toAmountLabel.text = rate

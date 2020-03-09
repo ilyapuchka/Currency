@@ -14,10 +14,10 @@ public struct CurrencyPairCodingKey: CodingKey {
     }
 
     // for simplicity assume that currency codes are always 3 characters long and pair is 6 characters
-    var from: String { String(stringValue.prefix(3)) }
-    var to: String { String(stringValue.suffix(3)) }
+    public var from: String { String(stringValue.prefix(3)) }
+    public var to: String { String(stringValue.suffix(3)) }
 
-    init(_ pair: CurrencyPair) {
+    public init(_ pair: CurrencyPair) {
         self.stringValue = "\(pair.from.code)\(pair.to.code)"
     }
 }

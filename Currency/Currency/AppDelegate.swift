@@ -2,6 +2,8 @@ import UIKit
 import ConverterFeature
 import DesignLibrary
 import DataAccess
+import Future
+import Domain
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -12,10 +14,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let bundle = Bundle(for: Self.self)
         let designLibrary = DesignLibrary(bundle: bundle)
 
-        let selectedCurrencyPairsService = DatafileSelectedCurrencyPairsService(
+        var selectedCurrencyPairsService: SelectedCurrencyPairsService = DatafileSelectedCurrencyPairsService(
             url: FileManager.default.documentsDir.appendingPathComponent("selected.json"),
             queue: DispatchQueue(label: "selected currency pair service queue", qos: .background)
         )
+
+        #if DEBUG
+        if ProcessInfo().arguments.contains("-\(UserDefaultsSelectedCurrencyPairsService.userDefaultsKey)") {
+            selectedCurrencyPairsService = UserDefaultsSelectedCurrencyPairsService()
+        }
+        #endif
 
         let supportedCurrenciesService = DatafileSupportedCurrenciesService(
             url: Bundle.main.url(forResource: "currencies", withExtension: "json")!,
@@ -38,4 +46,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 }
-
