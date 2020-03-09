@@ -13,26 +13,26 @@ final class CurrencyPairSelectorViewControllerTests: XCTestCase {
     let bundle = Bundle.main
     let designLibrary = DesignLibrary(bundle: .main)
 
-    func test_renders_currencies_selectingFirst() throws {
-        let vc = CurrencyPairSelectorViewController(
-            viewModel: viewModel,
-            config: .init(
-                bundle: bundle,
-                designLibrary: designLibrary,
-                onDismiss: onDismiss
-            )
+    lazy var sut = CurrencyPairSelectorViewController(
+        viewModel: viewModel,
+        config: .init(
+            bundle: bundle,
+            designLibrary: designLibrary,
+            onDismiss: onDismiss
         )
+    )
 
+    func test_renders_currencies_list() throws {
         let state = CurrencyPairSelectorState(
             supported: supported,
             disabled: disabled,
             selected: selected,
             status: .selectingSecondCurrency(first: supported[1])
         )
-        let components = vc.render(state: state, sendAction: viewModel.sendAction)
+        let components = sut.render(state: state, sendAction: viewModel.sendAction)
         XCTAssertEqual(components.count, 1)
 
-        let host = try XCTUnwrap(components[0].wrapped as? AnyComponentBox<HostViewComponent<TableViewComponent>>).wrapped
+        let host: HostViewComponent<TableViewComponent> = try components[0].unwrap()
         let sections = host.component.adapter.sections
 
         XCTAssertEqual(sections.count, 1)
@@ -40,56 +40,30 @@ final class CurrencyPairSelectorViewControllerTests: XCTestCase {
         let rows = sections[0]
         XCTAssertEqual(rows.count, 2)
 
-        let row1 = try XCTUnwrap(rows[0].wrapped as? AnyComponentBox<CurrencyViewComponent>).wrapped
-        XCTAssertEqual(row1.code, supported[0].code)
-        XCTAssertEqual(row1.isEnabled, true)
+        func assertRowConfigured(index: Int, isEnabled: Bool, line: UInt = #line) throws {
+            let row: CurrencyViewComponent = try rows[index].unwrap()
+            XCTAssertEqual(row.code, supported[index].code, line: line)
+            XCTAssertEqual(row.isEnabled, isEnabled, line: line)
 
-        row1.action()
-        if case let .selected(selected)? = viewModel.receivedActions.last {
-            XCTAssertEqual(selected, supported[0])
-        } else {
-            XCTFail()
+            row.action()
+            if case let .selected(selected)? = viewModel.receivedActions.last {
+                XCTAssertEqual(selected, supported[index], line: line)
+            } else {
+                XCTFail("Action not configured", line: line)
+            }
         }
 
-        let row2 = try XCTUnwrap(rows[1].wrapped as? AnyComponentBox<CurrencyViewComponent>).wrapped
-        XCTAssertEqual(row2.code, supported[1].code)
-        XCTAssertEqual(row2.isEnabled, false)
-
-        row2.action()
-        if case let .selected(selected)? = viewModel.receivedActions.last {
-            XCTAssertEqual(selected, supported[1])
-        } else {
-            XCTFail()
-        }
+        try assertRowConfigured(index: 0, isEnabled: true)
+        try assertRowConfigured(index: 1, isEnabled: false)
     }
 
     func test_fulfills_onDismissPromise() {
-        let vc = CurrencyPairSelectorViewController(
-            viewModel: viewModel,
-            config: .init(
-                bundle: bundle,
-                designLibrary: designLibrary,
-                onDismiss: onDismiss
-            )
-        )
         var onDismissCalled = false
         onDismiss.observe { _ in
             onDismissCalled = true
         }
-        vc.presentationControllerDidDismiss(UIPresentationController(presentedViewController: vc, presenting: nil))
+        sut.presentationControllerDidDismiss(UIPresentationController(presentedViewController: sut, presenting: nil))
 
         XCTAssertTrue(onDismissCalled)
-    }
-}
-
-class StubViewModel<State, UserAction>: ViewModelProtocol {
-    var receivedActions: [UserAction] = []
-
-    func sendAction(_ action: UserAction) {
-        receivedActions.append(action)
-    }
-
-    func observeState(_ observer: @escaping (State) -> Void) {
-
     }
 }

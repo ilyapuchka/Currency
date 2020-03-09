@@ -15,7 +15,7 @@ class ExchangeRateRowView_Preview: PreviewProvider {
                 designLibrary: designLibrary,
                 action: {}
             ).asAnyComponent(),
-            ExchangeRateRowViewComponent(
+            ExchangeRateViewComponent(
                 designLibrary: designLibrary,
                 from: (amount: "1 GBP", description: "Pounds"),
                 to: (amount: "1.23456 EUR", description: "Euro"),
@@ -23,7 +23,7 @@ class ExchangeRateRowView_Preview: PreviewProvider {
                 onDelete: {},
                 onRateUpdate: { _ in }
             ).asAnyComponent(),
-            ExchangeRateRowViewComponent(
+            ExchangeRateViewComponent(
                 designLibrary: designLibrary,
                 from: (amount: "1 GBP", description: "Pounds"),
                 to: (amount: "1.23456 EUR", description: "Euro"),
@@ -31,7 +31,7 @@ class ExchangeRateRowView_Preview: PreviewProvider {
                 onDelete: {},
                 onRateUpdate: { _ in }
             ).asAnyComponent(),
-            ExchangeRateRowViewComponent(
+            ExchangeRateViewComponent(
                 designLibrary: designLibrary,
                 from: (amount: "1 GBP", description: "Pounds"),
                 to: (amount: "1.23456 EUR", description: "Euro"),

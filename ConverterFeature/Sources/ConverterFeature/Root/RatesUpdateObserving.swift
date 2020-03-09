@@ -2,10 +2,12 @@ import Foundation
 import Domain
 import Future
 
-/// Periodically updates exchange rates and notifies observers
-final class RatesUpdateObserving {
-    private var observers: [CurrencyPair: (ExchangeRate) -> Void] = [:]
-
+protocol RatesUpdateObserving {
+    func start()
+    func pause()
+    func observeUpdates(pair: CurrencyPair, update: @escaping (ExchangeRate) -> Void) -> Void
+    func update(_ future: @escaping () -> Future<[ExchangeRate], Error>)
+    
     /**
      - returns: An observer object
      - parameters:
@@ -13,6 +15,11 @@ final class RatesUpdateObserving {
          - update:a block to register as a notification handler
      */
     typealias AddObserver = (_ pair: CurrencyPair, _ update: @escaping (ExchangeRate) -> Void) -> Void
+}
+
+/// Periodically updates exchange rates and notifies observers
+final class TimerRatesUpdateObserving: RatesUpdateObserving {
+    private var observers: [CurrencyPair: (ExchangeRate) -> Void] = [:]
 
     /**
      Registers an observer for updates to provided currency pair exchange rates
@@ -25,11 +32,19 @@ final class RatesUpdateObserving {
         observers[pair] = update
     }
 
-    private let updateTimer = Timer(repeatInterval: 1)
+    private let updateTimer: Timer
+
+    init(timer: Timer = Timer(repeatInterval: 1)) {
+        updateTimer = timer
+    }
 
     /// Pauses periodic updates
     func pause() {
         updateTimer.pause()
+    }
+
+    var isRunning: Bool {
+        updateTimer.isRunning
     }
 
     /// Starts periodic updates

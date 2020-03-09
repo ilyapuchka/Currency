@@ -27,14 +27,16 @@ public struct ConverterFactory {
         let ratesService = RevolutExchangeRateService.init(session: URLSession.shared)
         let viewModel = RootViewModel(
             selectedCurrencyPairsService: selectedCurrencyPairsService,
-            ratesService: ratesService
+            ratesService: ratesService,
+            ratesObserving: TimerRatesUpdateObserving()
         )
 
         let viewController = RootViewController(
             viewModel: viewModel,
             config: .init(
                 bundle: bundle,
-                designLibrary: designLibrary
+                designLibrary: designLibrary,
+                formatter: LocalizedExchangeRateFormatter(bundle: bundle)
             )
         )
 

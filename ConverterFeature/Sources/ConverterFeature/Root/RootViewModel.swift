@@ -9,10 +9,9 @@ struct RootViewModel: ViewModelProtocol {
 
     init(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
-        ratesService: ExchangeRateService
+        ratesService: ExchangeRateService,
+        ratesObserving: RatesUpdateObserving
     ) {
-        let ratesObserving = RatesUpdateObserving()
-
         state = StateMachine(
             initial: .init(
                 status: .isLoaded,
@@ -84,8 +83,8 @@ struct RootViewModel: ViewModelProtocol {
         state.sink(event: .ui(action))
     }
 
-    func observeState(_ observer: @escaping (RootState) -> Void) {
-        state.observeState(observer)
+    func observeState(sendInitial: Bool = false, _ observer: @escaping (RootState) -> Void) {
+        state.observeState(sendInitial: sendInitial, observer)
     }
 
     /// Adds observer for when user wants to add a new pair
@@ -148,6 +147,7 @@ private extension RootViewModel {
 
         state.rates = rates
         state.pairs = rates.map { $0.pair }
+        state.error = nil
         ratesObserving.start()
         state.status = .isLoaded
 
@@ -192,7 +192,9 @@ private extension RootViewModel {
             ratesService
                 .exchangeRates(pairs: pairs)
                 .map(RootEvent.updatedRates)
-                .flatMapError { error in .just(.failedToGetRates(pairs, error)) }
+                // We could display alert when update fails, for now just ignore errors here,
+                // they will be recovered on restart
+                .ignoreError()
         ]
     }
 
@@ -263,11 +265,12 @@ enum RootEvent {
     case initialised
     /// Got rates for previously selected pairs
     case loadedRates([ExchangeRate])
+    /// Failed to get exchange rates for previously selected pairs
+    case failedToGetRates([CurrencyPair], Error)
     /// Added a pair or canceled selection if nil
     case added(CurrencyPair?)
     /// Updated exchange rates
     case updatedRates([ExchangeRate])
-    case failedToGetRates([CurrencyPair], Error)
     case ui(UserAction)
 
     enum UserAction {

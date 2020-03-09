@@ -95,8 +95,8 @@ struct CurrencyPairSelectorViewModel: ViewModelProtocol {
         state.sink(event: .ui(action))
     }
 
-    func observeState(_ observer: @escaping (CurrencyPairSelectorState) -> Void) {
-        state.observeState(observer)
+    func observeState(sendInitial: Bool = false, _ observer: @escaping (CurrencyPairSelectorState) -> Void) {
+        state.observeState(sendInitial: sendInitial, observer)
     }
 
     /// Adds observer for when user selects first currency in a pair

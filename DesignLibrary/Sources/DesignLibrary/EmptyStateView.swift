@@ -3,7 +3,7 @@ import UIKit
 public struct EmptyStateViewComponent: Component {
     let bundle: Bundle
     let designLibrary: DesignLibrary
-    let actionImage: UIImage?
+    let actionImage: KeyPath<DesignLibrary, UIImage>?
     let actionTitle: String
     let description: String
     let action: () -> Void
@@ -11,7 +11,7 @@ public struct EmptyStateViewComponent: Component {
     public init(
         bundle: Bundle,
         designLibrary: DesignLibrary,
-        actionImage: UIImage?,
+        actionImage: KeyPath<DesignLibrary, UIImage>?,
         actionTitle: String,
         description: String,
         action: @escaping () -> Void
@@ -30,7 +30,7 @@ public struct EmptyStateViewComponent: Component {
 
     public func render(in view: EmptyStateView) {
         view.configure(
-            actionImage: actionImage,
+            actionImage: actionImage.map { designLibrary[keyPath: $0] },
             actionTitle: actionTitle,
             description: description,
             action: action

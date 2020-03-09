@@ -104,6 +104,12 @@ public struct Future<Value, Error: Swift.Error> {
         }
     }
 
+    public static func just(_ error: Error) -> Future {
+        Future { promise in
+            promise.fulfill(.failure(error))
+        }
+    }
+
     public static var empty: Future {
         return Future { _ in }
     }

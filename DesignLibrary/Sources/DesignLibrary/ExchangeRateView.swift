@@ -1,6 +1,6 @@
 import UIKit
 
-public struct ExchangeRateRowViewComponent: Component, DeletableComponent {
+public struct ExchangeRateViewComponent: Component, DeletableComponent {
     let designLibrary: DesignLibrary
     let from: (amount: String, description: String)
     let to: (amount: String, description: String)

@@ -13,19 +13,12 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
     struct Config {
         let bundle: Bundle
         let designLibrary: DesignLibrary
-        let locale: Locale = Locale.current
-        let numberFormatter: NumberFormatter = {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = NumberFormatter.Style.decimal
-            formatter.maximumFractionDigits = 4
-            return formatter
-        }()
+        var formatter: ExchangeRateFormatter
     }
 
     init(viewModel: ViewModel, config: Config) {
         self.config = config
         super.init(viewModel: viewModel)
-        config.numberFormatter.locale = config.locale
     }
 
     required init?(coder: NSCoder) {
@@ -57,7 +50,7 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
             EmptyStateViewComponent(
                 bundle: config.bundle,
                 designLibrary: config.designLibrary,
-                actionImage: config.designLibrary.assets.plus,
+                actionImage: \DesignLibrary.assets.plus,
                 actionTitle: NSLocalizedString("add_currency_pair_button_title", bundle: config.bundle, comment: ""),
                 description: NSLocalizedString("add_currency_pair_button_subtitle", bundle: config.bundle, comment: ""),
                 action: { sendAction(.addPair) }
@@ -84,17 +77,24 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
         state: ViewModel.State,
         sendAction: @escaping (ViewModel.UserAction) -> Void
     ) -> HostViewComponent<TableViewComponent> {
-        HostViewComponent(host: view, alignment: .fill) {
+        var addPairSelected: Bool
+        if case .addingPair = state.status {
+            addPairSelected = true
+        } else {
+            addPairSelected = false
+        }
+
+        return HostViewComponent(host: view, alignment: .fill) {
             TableViewComponent(sections: [
                 [
                     AddCurrencyPairViewComponent(
                         bundle: self.config.bundle,
                         designLibrary: self.config.designLibrary,
-                        isSelected: { if case .addingPair = state.status { return true } else { return false }}(),
+                        isSelected: addPairSelected,
                         action: { sendAction(.addPair) }
                     ).asAnyComponent()
-                    ] + state.rates.map { rate in
-                        renderExchangeRateRow(state: state, rate: rate, sendAction: sendAction)
+                ] + state.rates.map { rate in
+                    renderExchangeRateRow(state: state, rate: rate, sendAction: sendAction)
                 }
             ])
         }
@@ -105,58 +105,29 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
         rate: ExchangeRate,
         sendAction: @escaping (ViewModel.UserAction) -> Void
     ) -> AnyComponent {
-        func formatAmount(_ amount: Decimal, minimumFractionDigits: Int = 0, label: String) -> String {
-            config.numberFormatter.minimumFractionDigits = minimumFractionDigits
-            return String.nonLeakingString(
-                format: "rate_format",
-                config.numberFormatter.string(for: amount) ?? "\(amount)",
-                label
-            )
-        }
         let fromLocalizedDescription = NSLocalizedString(rate.pair.from.code, bundle: config.bundle, comment: "")
         let toLocalizedDescription = NSLocalizedString(rate.pair.to.code, bundle: config.bundle, comment: "")
 
-        func accessibleFormat(rate: ExchangeRate) -> String {
-            return String.nonLeakingString(
-                format: "accessible_excahnge_rate_format",
-                formatAmount(1, label: fromLocalizedDescription),
-                formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: toLocalizedDescription)
-            )
-        }
-
-        return ExchangeRateRowViewComponent(
+        return ExchangeRateViewComponent(
             designLibrary: self.config.designLibrary,
             from: (
-                amount: formatAmount(1, label: rate.pair.from.code),
+                amount: config.formatter.formatFrom(rate: rate),
                 description: fromLocalizedDescription
             ),
             to: (
-                amount: formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: rate.pair.to.code),
+                amount: config.formatter.formatTo(rate: rate),
                 description: toLocalizedDescription
             ),
-            accessibilityLabel: accessibleFormat(rate: rate),
+            accessibilityLabel: config.formatter.accessibleFormat(rate: rate),
             onDelete: { sendAction(.deletePair(rate.pair)) },
-            onRateUpdate: { update in
+            onRateUpdate: { [formatter = config.formatter] update in
                 state.observeUpdates(rate.pair) { rate in
                     update(
-                        formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: rate.pair.to.code),
-                        accessibleFormat(rate: rate)
+                        formatter.formatTo(rate: rate),
+                        formatter.accessibleFormat(rate: rate)
                     )
                 }
             }
         ).asAnyComponent()
-    }
-}
-
-extension String {
-    // There seem to be a bug related to leaking CFString when using String(format:args:)
-    // At least memory graph debugger shows strings leaking
-    // Workaround that by using NSString directly, this makes memory graph debugger happy
-    // Might be also related to https://bugs.swift.org/browse/SR-4036
-    static func nonLeakingString(format: String, _ args: CVarArg...) -> String {
-        let result = withVaList(args) {
-            NSString(format: NSLocalizedString(format as String, comment: ""), arguments: $0)
-        }
-        return "\(result)"
     }
 }

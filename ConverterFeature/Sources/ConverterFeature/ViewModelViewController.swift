@@ -9,7 +9,7 @@ public protocol ViewModelProtocol {
     typealias Reducer<Event> = (inout State, Event) -> [Future<Event, Never>]
 
     func sendAction(_ action: UserAction)
-    func observeState(_ observer: @escaping (State) -> Void)
+    func observeState(sendInitial: Bool, _ observer: @escaping (State) -> Void)
 }
 
 open class ViewModelViewController<ViewModel: ViewModelProtocol>: UIViewController {
@@ -34,7 +34,7 @@ open class ViewModelViewController<ViewModel: ViewModelProtocol>: UIViewControll
         super.viewDidLoad()
         view.backgroundColor = .white
 
-        viewModel.observeState { [unowned self] state in
+        viewModel.observeState(sendInitial: true) { [unowned self] state in
             let components = self.render(state: state, sendAction: self.viewModel.sendAction)
             components.forEach {
                 $0.render(in: $0.makeView())

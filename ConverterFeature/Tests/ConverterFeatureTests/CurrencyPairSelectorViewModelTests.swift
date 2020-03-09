@@ -1,91 +1,110 @@
 import XCTest
 @testable import ConverterFeature
 @testable import DesignLibrary
-import Future
+@testable import Future
 import Domain
 
-final class CurrencyPairSelectorViewModelTests: XCTestCase {
-    class Service: SupportedCurrenciesService {
-        var stubSupportedCurrencies: Future<[Currency], Error>!
+final class CurrencyPairSelectorViewModelTests: XCTestCase, ViewModelTest {
+    typealias ViewModel = CurrencyPairSelectorViewModel
+    typealias Event = CurrencyPairSelectorEvent
 
+    var state: CurrencyPairSelectorState! = nil
+    var effects: [Future<Event, Never>] = []
+    var expectedEffects: [Future<Event, Never>] = []
+
+    class MockService: SupportedCurrenciesService {
+        var stubSupportedCurrencies: Future<[Currency], Error>!
         func supportedCurrencies() -> Future<[Currency], Error> {
-            return stubSupportedCurrencies
+            stubSupportedCurrencies
         }
     }
 
-    func test_canSelectPair() {
-        let selected = Promise<CurrencyPair?, Never>()
+    let service = MockService()
+
+    func makeReducer() -> ViewModel.Reducer<Event> {
+        CurrencyPairSelectorViewModel.reduce(supportedCurrenciesService: service)
+    }
+
+    func test_loadsSupportedCurrencies_whenInitialized() throws {
+        var supportedCurrenciesCalled = false
+        service.stubSupportedCurrencies = Future { (promise) in
+            supportedCurrenciesCalled = true
+            promise.fulfill(.success(["EUR", "USD"]))
+        }
+
+        state = CurrencyPairSelectorState(
+            supported: [],
+            disabled: [], selected: Promise<CurrencyPair?, Never>(),
+            error: nil,
+            status: .selectingFirstCurrency
+        )
+
+        try AssertSteps {
+            try AssertEvent(.send(.initialised), expectedEffects: [
+                Future<[Currency], Error>.just(["EUR", "USD"])
+                    .map(CurrencyPairSelectorEvent.loadedSupportedCurrencies)
+                    .ignoreError()
+            ], expectedState: { _ in })
+
+            XCTAssertTrue(supportedCurrenciesCalled)
+
+            try AssertEvent(.receive(.loadedSupportedCurrencies(["EUR", "USD"]))) { state in
+                state.supported = ["EUR", "USD"]
+            }
+        }
+    }
+
+    func test_canSelectPair() throws {
         var selectedCurrency: CurrencyPair!
+        let selected = Promise<CurrencyPair?, Never>()
         selected.observe { (result) in
             selectedCurrency = try? result.get()
         }
 
-        var state = CurrencyPairSelectorState(
+        state = CurrencyPairSelectorState(
             supported: [],
             disabled: [],
             selected: selected,
             status: .selectingFirstCurrency
         )
 
-        assertEvent(state: &state, event: .loadedSupportedCurrencies(["EUR", "USD"])) { (state) in
-            state.supported = ["EUR", "USD"]
+        try AssertSteps {
+            try AssertEvent(.send(.loadedSupportedCurrencies(["EUR", "USD"]))) { (state) in
+                state.supported = ["EUR", "USD"]
+            }
+
+            try AssertEvent(.send(.ui(.selected("EUR")))) { (state) in
+                state.status = .selectingSecondCurrency(first: "EUR")
+            }
+
+            XCTAssertNil(selectedCurrency)
+
+            try AssertEvent(.send(.ui(.selected("USD")))) { _ in }
+
+            XCTAssertEqual(selectedCurrency, CurrencyPair(from: "EUR", to: "USD"))
         }
-        assertEvent(state: &state, event: .ui(.selected("EUR"))) { (state) in
-            state.status = .selectingSecondCurrency(first: "EUR")
-        }
-
-        XCTAssertNil(selectedCurrency)
-
-        assertEvent(state: &state, event: .ui(.selected("USD"))) { _ in }
-
-        XCTAssertEqual(selectedCurrency, CurrencyPair(from: "EUR", to: "USD"))
     }
 
-    func test_loadsSupportedCurrencies_whenInitialized() {
-        var state = CurrencyPairSelectorState(
-            supported: [],
-            disabled: [],
-            selected: Promise<CurrencyPair?, Never>(),
+    func test_disablesAlreadySelectedPairs() {
+        state = CurrencyPairSelectorState(
+            supported: ["EUR", "USD"],
+            disabled: [CurrencyPair(from: "EUR", to: "USD")],
+            selected: .init(),
             status: .selectingFirstCurrency
         )
 
-        let service = Service()
-        var supportedCurrenciesCalled = false
-        service.stubSupportedCurrencies = Future { (promise) in
-            supportedCurrenciesCalled = true
-            promise.fulfill(.success(["EUR", "USD"]))
-        }
-        let reducer = CurrencyPairSelectorViewModel.reduce(supportedCurrenciesService: service)
+        XCTAssertTrue(state.isEnabled(currency: "EUR"))
+        XCTAssertTrue(state.isEnabled(currency: "USD"))
 
-        reducer(&state, .initialised).forEach { effect in
-            effect.on(success: { (event) in
-                _ = reducer(&state, event)
-            })
-        }
+        state.status = .selectingSecondCurrency(first: "EUR")
 
-        XCTAssertTrue(supportedCurrenciesCalled)
+        XCTAssertFalse(state.isEnabled(currency: "EUR"))
+        XCTAssertFalse(state.isEnabled(currency: "USD"))
 
-        let expectedState = state
-        state.supported = ["EUR", "USD"]
+        state.status = .selectingSecondCurrency(first: "USD")
 
-        XCTAssertEqual(String(describing: state), String(describing: expectedState))
-    }
-
-    private func assertEvent(
-        state: inout CurrencyPairSelectorState,
-        event: CurrencyPairSelectorEvent,
-        file: StaticString = #file,
-        line: UInt = #line,
-        expectedState: (inout CurrencyPairSelectorState) -> Void
-    ) {
-        let reducer = CurrencyPairSelectorViewModel.reduce(supportedCurrenciesService: Service())
-
-        _ = reducer(&state, event)
-
-        var expectState = state
-        expectedState(&expectState)
-
-        XCTAssertEqual(String(describing: state), String(describing: expectState), file: file, line: line)
+        XCTAssertFalse(state.isEnabled(currency: "USD"))
+        XCTAssertTrue(state.isEnabled(currency: "EUR"))
     }
 
 }

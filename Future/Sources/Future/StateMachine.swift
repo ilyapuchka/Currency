@@ -19,8 +19,11 @@ public class StateMachine<State, Event> {
         performEffects(effects: reduce(&state, event))
     }
 
-    public func observeState(_ observer: @escaping (State) -> Void) {
+    public func observeState(sendInitial: Bool = false, _ observer: @escaping (State) -> Void) {
         observers.append(observer)
+        if sendInitial {
+            observer(state)
+        }
     }
 
     private func performEffects(effects: [Future<Event, Never>]) {

@@ -2,7 +2,7 @@ import Foundation
 
 final class Timer {
     private let source: DispatchSourceTimer
-    private var isRunning: Bool = false
+    private(set) var isRunning: Bool = false
 
     init(repeatInterval: Double) {
         source = DispatchSource.makeTimerSource(queue: .main)
@@ -28,5 +28,7 @@ final class Timer {
 
     deinit {
         source.cancel()
+        // to avoid crash on deallocating canceled source
+        source.resume()
     }
 }

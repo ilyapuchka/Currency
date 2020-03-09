@@ -45,6 +45,7 @@ final class CurrencyPairSelectorViewController<ViewModel: ViewModelProtocol>:
                 }.asAnyComponent()
             ]
         }
+
         return [
             HostViewComponent(host: view, alignment: .fill) {
                 TableViewComponent(sections: [
