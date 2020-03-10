@@ -19,7 +19,6 @@ class ExchangeRateRowView_Preview: PreviewProvider {
                 designLibrary: designLibrary,
                 from: (amount: "1 GBP", description: "Pounds"),
                 to: (amount: "1.23456 EUR", description: "Euro"),
-                accessibilityLabel: "",
                 onDelete: {},
                 onRateUpdate: { _ in }
             ).asAnyComponent(),
@@ -27,7 +26,6 @@ class ExchangeRateRowView_Preview: PreviewProvider {
                 designLibrary: designLibrary,
                 from: (amount: "1 GBP", description: "Pounds"),
                 to: (amount: "1.23456 EUR", description: "Euro"),
-                accessibilityLabel: "",
                 onDelete: {},
                 onRateUpdate: { _ in }
             ).asAnyComponent(),
@@ -35,7 +33,6 @@ class ExchangeRateRowView_Preview: PreviewProvider {
                 designLibrary: designLibrary,
                 from: (amount: "1 GBP", description: "Pounds"),
                 to: (amount: "1.23456 EUR", description: "Euro"),
-                accessibilityLabel: "",
                 onDelete: {},
                 onRateUpdate: { _ in }
             ).asAnyComponent()
