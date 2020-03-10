@@ -33,14 +33,16 @@ final class CurrencyPairSelectorViewModelTests: XCTestCase, ViewModelTest {
         )
 
         try AssertSteps {
+            // when initialised
             try AssertEvent(.send(.initialised), expectedEffects: [
                 Future<[Currency], Error>.just(["EUR", "USD"])
                     .map(CurrencyPairSelectorEvent.loadedSupportedCurrencies)
                     .ignoreError()
             ], expectedState: { _ in })
 
-            XCTAssertTrue(supportedCurrenciesCalled)
+            XCTAssertTrue(supportedCurrenciesCalled, "Should get supported currencies when initialised")
 
+            // then receives supported currencies
             try AssertEvent(.receive(.loadedSupportedCurrencies(["EUR", "USD"]))) { state in
                 state.supported = ["EUR", "USD"]
             }
@@ -62,19 +64,22 @@ final class CurrencyPairSelectorViewModelTests: XCTestCase, ViewModelTest {
         )
 
         try AssertSteps {
+            // when have supported currencies
             try AssertEvent(.send(.loadedSupportedCurrencies(["EUR", "USD"]))) { (state) in
                 state.supported = ["EUR", "USD"]
             }
 
+            // and user selects first currency
             try AssertEvent(.send(.ui(.selected("EUR")))) { (state) in
                 state.status = .selectingSecondCurrency(first: "EUR")
             }
 
-            XCTAssertNil(selectedCurrency)
+            XCTAssertNil(selectedCurrency, "Should not complete selection with only one currency")
 
+            // and user selects second currency
             try AssertEvent(.send(.ui(.selected("USD")))) { _ in }
 
-            XCTAssertEqual(selectedCurrency, CurrencyPair(from: "EUR", to: "USD"))
+            XCTAssertEqual(selectedCurrency, CurrencyPair(from: "EUR", to: "USD"), "Should complete selection with selected currencies")
         }
     }
 

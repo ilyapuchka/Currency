@@ -11,11 +11,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "../DesignLibrary", from: "1.0.0"),
-        .package(url: "../DataAccess", from: "1.0.0"),
         .package(url: "../Domain", from: "1.0.0"),
     ],
     targets: [
-        .target(name: "ConverterFeature", dependencies: ["DesignLibrary", "DataAccess", "Domain"]),
+        .target(name: "ConverterFeature", dependencies: ["DesignLibrary", "Domain"]),
         .testTarget(name: "ConverterFeatureTests", dependencies: ["ConverterFeature"]),
     ]
 )

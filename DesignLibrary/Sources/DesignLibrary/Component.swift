@@ -81,6 +81,7 @@ protocol AnyComponentBoxBase {
     func render(in view: UIView)
 
     #if DEBUG
+    /// Method used for testing to unwrap underlying component from a box
     func unwrap<T: Component>() -> T?
     #endif
 }

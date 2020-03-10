@@ -32,21 +32,27 @@ final class CurrencyPairSelectorViewController<ViewModel: ViewModelProtocol>:
     }
 
     override func render(state: ViewModel.State, sendAction: @escaping (ViewModel.UserAction) -> Void) -> AnyComponent {
-        guard state.error == nil else {
-            return HostViewComponent(host: view, alignment: .center) {
-                EmptyStateViewComponent(
-                    bundle: config.bundle,
-                    designLibrary: config.designLibrary,
-                    actionImage: nil,
-                    actionTitle: NSLocalizedString("retry", bundle: config.bundle, comment: ""),
-                    description: NSLocalizedString("failed_to_get_currency_list", bundle: config.bundle, comment: ""),
-                    action: { sendAction(.retry) }
-                )
-            }
-            .asAnyComponent()
-        }
+        state.error == nil
+            ? renderCurrencyList(state: state, sendAction: sendAction)
+            : renderError(sendAction: sendAction)
+    }
 
-        return HostViewComponent(host: view, alignment: .fill) {
+    private func renderError(sendAction: @escaping (ViewModel.UserAction) -> Void) -> AnyComponent {
+        HostViewComponent(host: view, alignment: .center) {
+            EmptyStateViewComponent(
+                bundle: config.bundle,
+                designLibrary: config.designLibrary,
+                actionImage: nil,
+                actionTitle: NSLocalizedString("retry", bundle: config.bundle, comment: ""),
+                description: NSLocalizedString("failed_to_get_currency_list", bundle: config.bundle, comment: ""),
+                action: { sendAction(.retry) }
+            )
+        }
+        .asAnyComponent()
+    }
+
+    private func renderCurrencyList(state: ViewModel.State, sendAction: @escaping (ViewModel.UserAction) -> Void) -> AnyComponent {
+        HostViewComponent(host: view, alignment: .fill) {
             TableViewComponent(sections: [
                 state.supported.map { currency in
                     CurrencyViewComponent(

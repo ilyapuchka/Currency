@@ -5,7 +5,17 @@ import Future
 protocol RatesUpdateObserving {
     func start()
     func pause()
+
+    /**
+     Registers an observer for updates to provided currency pair exchange rates
+
+     - parameters:
+        - pair: a currency pair to observe for changes
+        - update:a block to register as a notification handler
+     */
     func observeUpdates(pair: CurrencyPair, update: @escaping (ExchangeRate) -> Void) -> Void
+
+    /// Sets a closure to run to update exchange rates. The closure should create a future value of updated exchange rates
     func update(_ future: @escaping () -> Future<[ExchangeRate], Error>)
     
     /**
@@ -21,13 +31,6 @@ protocol RatesUpdateObserving {
 final class TimerRatesUpdateObserving: RatesUpdateObserving {
     private var observers: [CurrencyPair: (ExchangeRate) -> Void] = [:]
 
-    /**
-     Registers an observer for updates to provided currency pair exchange rates
-
-     - parameters:
-        - pair: a currency pair to observe for changes
-        - update:a block to register as a notification handler
-     */
     func observeUpdates(pair: CurrencyPair, update: @escaping (ExchangeRate) -> Void) -> Void {
         observers[pair] = update
     }
@@ -52,7 +55,6 @@ final class TimerRatesUpdateObserving: RatesUpdateObserving {
         updateTimer.start()
     }
 
-    /// Sets a closure to run to update exchange rates. The closure should create a future value of updated exchange rates
     func update(_ future: @escaping () -> Future<[ExchangeRate], Error>) {
         updateTimer.observe { [unowned self] in
             future().on(success: { rates in

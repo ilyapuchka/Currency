@@ -16,6 +16,7 @@
 		B54C0A932417034F00D5B691 /* PageObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54C0A922417034F00D5B691 /* PageObjects.swift */; };
 		B54C0A95241707E100D5B691 /* DesignLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = B54C0A94241707E100D5B691 /* DesignLibrary */; };
 		B54C0A9724170F9A00D5B691 /* UserDefaultsSelectedCurrencyPairsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54C0A9624170F9A00D5B691 /* UserDefaultsSelectedCurrencyPairsService.swift */; };
+		B54C0A9A2417F5F800D5B691 /* DataAccess in Frameworks */ = {isa = PBXBuildFile; productRef = B54C0A992417F5F800D5B691 /* DataAccess */; };
 		B56423C3240AAFB000915DE1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56423C2240AAFB000915DE1 /* AppDelegate.swift */; };
 		B56423CF240AAFB400915DE1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B56423CD240AAFB400915DE1 /* LaunchScreen.storyboard */; };
 		B5D07D95240B12AC001F3A98 /* currencies.json in Resources */ = {isa = PBXBuildFile; fileRef = B5D07D94240B12AC001F3A98 /* currencies.json */; };
@@ -73,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B54C0A9A2417F5F800D5B691 /* DataAccess in Frameworks */,
 				B5358895240BC62000A0A713 /* ConverterFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -189,6 +191,7 @@
 			name = Currency;
 			packageProductDependencies = (
 				B5358894240BC62000A0A713 /* ConverterFeature */,
+				B54C0A992417F5F800D5B691 /* DataAccess */,
 			);
 			productName = Currency;
 			productReference = B56423BF240AAFB000915DE1 /* Currency.app */;
@@ -657,6 +660,10 @@
 		B54C0A94241707E100D5B691 /* DesignLibrary */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DesignLibrary;
+		};
+		B54C0A992417F5F800D5B691 /* DataAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DataAccess;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

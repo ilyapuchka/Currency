@@ -30,11 +30,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             queue: DispatchQueue(label: "supported currencies service queue", qos: .background)
         )
 
+        let exchangeRatesService = RevolutExchangeRateService(session: URLSession.shared)
+
         let root = ConverterFactory(
             bundle: bundle,
             designLibrary: designLibrary,
             selectedCurrencyPairsService: selectedCurrencyPairsService,
-            supportedCurrenciesService: supportedCurrenciesService
+            supportedCurrenciesService: supportedCurrenciesService,
+            exchangeRatesService: exchangeRatesService
         ).makeRoot()
 
         let window = UIWindow(frame: UIScreen.main.bounds)

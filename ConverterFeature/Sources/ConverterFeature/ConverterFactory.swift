@@ -1,6 +1,5 @@
 import UIKit
 import DesignLibrary
-import DataAccess
 import Future
 import Domain
 import Foundation
@@ -10,24 +9,26 @@ public struct ConverterFactory {
     let designLibrary: DesignLibrary
     let selectedCurrencyPairsService: SelectedCurrencyPairsService
     let supportedCurrenciesService: SupportedCurrenciesService
+    let exchangeRatesService: ExchangeRateService
 
     public init(
         bundle: Bundle,
         designLibrary: DesignLibrary,
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
-        supportedCurrenciesService: SupportedCurrenciesService
+        supportedCurrenciesService: SupportedCurrenciesService,
+        exchangeRatesService: ExchangeRateService
     ) {
         self.bundle = bundle
         self.designLibrary = designLibrary
         self.selectedCurrencyPairsService = selectedCurrencyPairsService
         self.supportedCurrenciesService = supportedCurrenciesService
+        self.exchangeRatesService = exchangeRatesService
     }
 
     public func makeRoot() -> UIViewController {
-        let ratesService = RevolutExchangeRateService.init(session: URLSession.shared)
         let viewModel = RootViewModel(
             selectedCurrencyPairsService: selectedCurrencyPairsService,
-            ratesService: ratesService,
+            ratesService: exchangeRatesService,
             ratesObserving: TimerRatesUpdateObserving()
         )
 

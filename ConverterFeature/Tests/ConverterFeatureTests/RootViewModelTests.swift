@@ -48,6 +48,7 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
         state = RootState(status: .isLoading, observeUpdates: { _, _ in })
 
         try AssertSteps {
+            // when initialised
             try AssertEvent(.send(.initialised), expectedEffects: [
                 Future<[CurrencyPair], Error>.just([selectedPair])
                     .flatMap { _ in .just([exchangeRate]) }
@@ -55,16 +56,17 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
                     .ignoreError()
             ], expectedState: { _ in })
 
-            XCTAssertTrue(selectedCurrenciesCalled)
-            XCTAssertTrue(ratesServiceCalled)
+            XCTAssertTrue(selectedCurrenciesCalled, "Should call selected currencies service when initialised")
+            XCTAssertTrue(ratesServiceCalled, "Should call exchange rates service when initialised")
 
+            // then receives loaded rates
             try AssertEvent(.receive(.loadedRates([exchangeRate]))) { (state) in
                 state.rates = [exchangeRate]
                 state.pairs = [selectedPair]
                 state.status = .isLoaded
             }
 
-            XCTAssertTrue(ratesObserving.startCalled)
+            XCTAssertTrue(ratesObserving.startCalled, "Should start observing rates when they are loaded")
         }
     }
 
@@ -95,6 +97,7 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
         state = RootState(status: .isLoading, observeUpdates: { _, _ in })
 
         try AssertSteps {
+            // when initialised
             try AssertEvent(.send(.initialised), expectedEffects: [
                 Future.just([selectedPair])
                     .flatMap { _ in .just(error) }
@@ -102,10 +105,10 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
                     .flatMapError { error in .just(.failedToGetRates([selectedPair], error)) }
             ], expectedState: { _ in })
 
-            XCTAssertTrue(selectedCurrenciesCalled)
-            XCTAssertTrue(ratesServiceCalled)
-            XCTAssertFalse(ratesServiceRetried)
+            XCTAssertTrue(selectedCurrenciesCalled, "Should call selected currencies service when initialised")
+            XCTAssertTrue(ratesServiceCalled, "Should call exchange rates service when initialised")
 
+            // then receives failure event
             try AssertEvent(.receive(.failedToGetRates([selectedPair], error))) { (state) in
                 state.status = .isLoaded
                 state.pairs = [selectedPair]
@@ -114,6 +117,7 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
 
             XCTAssertFalse(ratesServiceRetried)
 
+            // when retrying
             try AssertEvent(.send(.ui(.retry)), expectedEffects: [
                 Future.just([selectedPair])
                     .flatMap { _ in .just([exchangeRate]) }
@@ -123,15 +127,16 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
                 state.status = .isLoading
             }
 
-            XCTAssertTrue(ratesServiceRetried)
+            XCTAssertTrue(ratesServiceRetried, "Should call exchange rates service when retrying")
 
+            // then receives loaded rates
             try AssertEvent(.receive(.loadedRates([exchangeRate])), expectedEffects: []) { (state) in
                 state.status = .isLoaded
                 state.rates = [exchangeRate]
                 state.error = nil
             }
 
-            XCTAssertTrue(ratesObserving.startCalled)
+            XCTAssertTrue(ratesObserving.startCalled, "Should start observing rates when they are loaded")
         }
     }
 
@@ -167,6 +172,7 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
             func AssertAddPair(_ addedPair: CurrencyPair?, expectedEffects: [Future<Event, Never>], line: UInt = #line) throws {
                 let promise = Promise<CurrencyPair?, Never>()
 
+                // when starts adding new pair
                 try AssertEvent(line: line, .send(.ui(.addPair)), expectedEffects: [
                     Future(promise: promise).map(RootEvent.added)
                 ]) { (state) in
@@ -176,8 +182,10 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
                 XCTAssertTrue(ratesObserving.pauseCalled, "Should pause updates while adding new pair", line: line)
                 ratesObserving.pauseCalled = false
 
+                // when adding new pair completed
                 promise.fulfill(.success(addedPair))
 
+                // then receives added pair
                 try AssertEvent(line: line, .receive(.added(addedPair)), expectedEffects: expectedEffects) { (state) in
                     state.status = .isLoaded
                     if let addedPair = addedPair {
@@ -189,21 +197,22 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
                 ratesObserving.startCalled = false
             }
 
-            // when adding started and canceled
+            // when adding new currency pair started and canceled
             try AssertAddPair(nil, expectedEffects: [])
 
-            // when adding started and completed
+            // when adding new currency pair started and completed
             try AssertAddPair(addedPair, expectedEffects: [
                 Future<Void, Never>.just(()).ignoreError().flatMap { .empty }, // save updated pairs
                 Future.just([addedExchangeRate, exchangeRate]).map(RootEvent.updatedRates) // update rate for added pair
             ])
 
-            XCTAssertTrue(saveCalled)
-            XCTAssertTrue(ratesServiceCalled)
+            XCTAssertTrue(saveCalled, "Should save selected currencies")
+            XCTAssertTrue(ratesServiceCalled, "Should updated exchange rates")
 
-            // save results are ignored
+            // then save is done and results are ignored
             try AssertEvent(.receive(nil), expectedState: { _ in })
 
+            // and receives updated rates
             try AssertEvent(.receive(.updatedRates([addedExchangeRate, exchangeRate])), expectedEffects: []) { (state) in
                 state.rates = [addedExchangeRate, exchangeRate]
             }
@@ -232,6 +241,7 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
         )
 
         try AssertSteps {
+            // when deleting currency pair
             try AssertEvent(.send(.ui(.deletePair(selectedPair))), expectedEffects: [
                 Future<Void, Never>.just(()).ignoreError().flatMap { .empty } // save updated pairs
             ]) { (state) in
@@ -239,9 +249,9 @@ final class RootViewModelTests: XCTestCase, ViewModelTest {
                 state.pairs.removeAll(where: { $0 == selectedPair })
             }
 
-            XCTAssertTrue(saveCalled)
+            XCTAssertTrue(saveCalled, "Should save currency pairs when deleting")
 
-            // save results are ignored
+            // then save is done and results are ignored
             try AssertEvent(.receive(nil), expectedState: { _ in })
         }
     }
