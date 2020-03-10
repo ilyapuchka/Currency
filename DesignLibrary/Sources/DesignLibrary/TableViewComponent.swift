@@ -42,8 +42,8 @@ class ComponentCell: UITableViewCell {
     }
 
     func mount(component: AnyComponent) -> UIView {
-        if let componentView = contentView.subviews.first, type(of: componentView) == component.viewType {
-            return componentView
+        if let reused = contentView.reuseComponentView(component: component) {
+            return reused
         }
 
         contentView.subviews.first?.removeFromSuperview()

@@ -27,7 +27,7 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
 
     override func render(state: ViewModel.State, sendAction: @escaping (ViewModel.UserAction) -> Void) -> AnyComponent {
         if state.error != nil {
-            return renderError(sendAction: sendAction).asAnyComponent()
+            return renderError(sendAction: sendAction)
         }
 
         switch state.status {
@@ -35,49 +35,48 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
             return .empty
         case .addingPair, .isLoaded:
             return state.rates.isEmpty
-                ? renderEmpty(state: state, sendAction: sendAction).asAnyComponent()
-                : renderRates(state: state, sendAction: sendAction).asAnyComponent()
+                ? renderEmpty(state: state, sendAction: sendAction)
+                : renderRates(state: state, sendAction: sendAction)
         }
     }
 
     private func renderEmpty(
         state: ViewModel.State,
         sendAction: @escaping (ViewModel.UserAction) -> Void
-    ) -> HostViewComponent<EmptyStateViewComponent> {
-        HostViewComponent(host: view, alignment: .center,
-                          accessibilityIdentifier: EmptyStateView.Accessibility.emptyView) {
+    ) -> AnyComponent {
+        HostViewComponent(host: view, alignment: .center) {
             EmptyStateViewComponent(
                 bundle: config.bundle,
                 designLibrary: config.designLibrary,
                 actionImage: \DesignLibrary.assets.plus,
                 actionTitle: NSLocalizedString("add_currency_pair_button_title", bundle: config.bundle, comment: ""),
-                actionAccessibilityIdentifier: EmptyStateView.Accessibility.addCurrencyPair,
                 description: NSLocalizedString("add_currency_pair_button_subtitle", bundle: config.bundle, comment: ""),
                 action: { sendAction(.addPair) }
-            )
+            ).accessibility(identifier: EmptyStateView.Accessibility.emptyView)
         }
+        .asAnyComponent()
     }
 
     private func renderError(
         sendAction: @escaping (ViewModel.UserAction) -> Void
-    ) -> HostViewComponent<EmptyStateViewComponent> {
+    ) -> AnyComponent {
         HostViewComponent(host: view, alignment: .center) {
             EmptyStateViewComponent(
                 bundle: config.bundle,
                 designLibrary: config.designLibrary,
                 actionImage: nil,
                 actionTitle: NSLocalizedString("retry", bundle: config.bundle, comment: ""),
-                actionAccessibilityIdentifier: EmptyStateView.Accessibility.retry,
                 description: NSLocalizedString("failed_to_update", bundle: config.bundle, comment: ""),
                 action: { sendAction(.retry) }
-            )
+            ).accessibility(identifier: EmptyStateView.Accessibility.retry)
         }
+        .asAnyComponent()
     }
 
     private func renderRates(
         state: ViewModel.State,
         sendAction: @escaping (ViewModel.UserAction) -> Void
-    ) -> HostViewComponent<TableViewComponent> {
+    ) -> AnyComponent {
         var addPairSelected: Bool
         if case .addingPair = state.status {
             addPairSelected = true
@@ -85,8 +84,7 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
             addPairSelected = false
         }
 
-        return HostViewComponent(host: view, alignment: .fill,
-                                 accessibilityIdentifier: AddCurrencyPairView.Accessibility.exchangeRatesList) {
+        return HostViewComponent(host: view, alignment: .fill) {
             TableViewComponent(sections: [
                 [
                     AddCurrencyPairViewComponent(
@@ -94,12 +92,15 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
                         designLibrary: self.config.designLibrary,
                         isSelected: addPairSelected,
                         action: { sendAction(.addPair) }
-                    ).asAnyComponent()
+                    )
+                    .accessibility(identifier: AddCurrencyPairView.Accessibility.addCurrencyPair)
+                    .asAnyComponent()
                 ] + state.rates.map { rate in
                     renderExchangeRateRow(state: state, rate: rate, sendAction: sendAction)
                 }
-            ])
+            ]).accessibility(identifier: AddCurrencyPairView.Accessibility.exchangeRatesList)
         }
+        .asAnyComponent()
     }
 
     func renderExchangeRateRow(
@@ -120,8 +121,6 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
                 amount: config.formatter.formatTo(rate: rate),
                 description: toLocalizedDescription
             ),
-            accessibilityLabel: config.formatter.accessibleFormat(rate: rate),
-            accessibilityIdentifier: "\(rate.pair.from.code)\(rate.pair.to.code)",
             onDelete: { sendAction(.deletePair(rate.pair)) },
             onRateUpdate: { [formatter = config.formatter] update in
                 state.observeUpdates(rate.pair) { rate in
@@ -131,6 +130,11 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
                     )
                 }
             }
-        ).asAnyComponent()
+        )
+        .accessibility(
+            label: config.formatter.accessibleFormat(rate: rate),
+            identifier: "\(rate.pair.from.code)\(rate.pair.to.code)"
+        )
+        .asAnyComponent()
     }
 }

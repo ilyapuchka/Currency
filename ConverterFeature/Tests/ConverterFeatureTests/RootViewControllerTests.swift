@@ -21,13 +21,14 @@ final class RootViewControllerTests: XCTestCase {
     func test_renders_emptyState() throws {
         let state = RootState(status: .isLoaded, observeUpdates: { (_, _) in })
         let component = sut.render(state: state, sendAction: viewModel.sendAction)
-        let host: HostViewComponent<EmptyStateViewComponent> = try component.unwrap()
+        let host: HostViewComponent<ModifiedComponent> = try component.unwrap()
+        let hosted: EmptyStateViewComponent = try XCTUnwrap(host.component.unwrap())
 
-        XCTAssertEqual(host.component.actionImage, \DesignLibrary.assets.plus)
-        XCTAssertEqual(host.component.actionTitle, "add_currency_pair_button_title")
-        XCTAssertEqual(host.component.description, "add_currency_pair_button_subtitle")
+        XCTAssertEqual(hosted.actionImage, \DesignLibrary.assets.plus)
+        XCTAssertEqual(hosted.actionTitle, "add_currency_pair_button_title")
+        XCTAssertEqual(hosted.description, "add_currency_pair_button_subtitle")
 
-        host.component.action()
+        hosted.action()
 
         guard case .addPair? = viewModel.receivedActions.last else {
             return XCTFail()
@@ -41,13 +42,14 @@ final class RootViewControllerTests: XCTestCase {
             error: NSError(domain: "", code: 0, userInfo: nil)
         )
         let component = sut.render(state: state, sendAction: viewModel.sendAction)
-        let host: HostViewComponent<EmptyStateViewComponent> = try component.unwrap()
+        let host: HostViewComponent<ModifiedComponent> = try component.unwrap()
+        let hosted: EmptyStateViewComponent = try XCTUnwrap(host.component.unwrap())
 
-        XCTAssertNil(host.component.actionImage)
-        XCTAssertEqual(host.component.actionTitle, "retry")
-        XCTAssertEqual(host.component.description, "failed_to_update")
+        XCTAssertNil(hosted.actionImage)
+        XCTAssertEqual(hosted.actionTitle, "retry")
+        XCTAssertEqual(hosted.description, "failed_to_update")
 
-        host.component.action()
+        hosted.action()
 
         guard case .retry? = viewModel.receivedActions.last else {
             return XCTFail()
@@ -80,8 +82,9 @@ final class RootViewControllerTests: XCTestCase {
             }
         )
         let component = sut.render(state: state, sendAction: viewModel.sendAction)
-        let host: HostViewComponent<TableViewComponent> = try component.unwrap()
-        let sections = host.component.adapter.sections
+        let host: HostViewComponent<ModifiedComponent> = try component.unwrap()
+        let hosted: TableViewComponent = try XCTUnwrap(host.component.unwrap())
+        let sections = hosted.adapter.sections
 
         XCTAssertEqual(sections.count, 1)
 
@@ -103,7 +106,6 @@ final class RootViewControllerTests: XCTestCase {
         XCTAssertEqual(rateView.from.description, "EUR")
         XCTAssertEqual(rateView.to.amount, "format to for \(rate)")
         XCTAssertEqual(rateView.to.description, "USD")
-        XCTAssertEqual(rateView.accessibilityLabel, "accessible format for \(rate)")
 
         rateView.onDelete()
 

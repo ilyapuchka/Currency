@@ -93,7 +93,6 @@ public final class AddCurrencyPairView: UIView {
 
         isAccessibilityElement = true
         accessibilityTraits = .button
-        accessibilityIdentifier = AddCurrencyPairView.Accessibility.addCurrencyPair
         accessibilityLabel = titleLabel.text
     }
 }

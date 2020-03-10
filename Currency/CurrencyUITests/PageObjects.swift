@@ -38,7 +38,11 @@ struct RootView {
     }
 
     func tapAddCurrencyButton() -> CurrencyList {
-        app.buttons[AddCurrencyPairView.Accessibility.addCurrencyPair].waitToExist().tap()
+        [
+            app.otherElements[EmptyStateView.Accessibility.emptyView].buttons.firstMatch,
+            app.tables[AddCurrencyPairView.Accessibility.exchangeRatesList].buttons[AddCurrencyPairView.Accessibility.addCurrencyPair]
+        ].waitToExist().tap()
+
         return CurrencyList(app: app)
     }
 
@@ -121,5 +125,32 @@ extension XCUIElement {
         if exists.evaluate(with: self) { return true }
         let rateViewExists = XCTNSPredicateExpectation(predicate: exists, object: self)
         return XCTWaiter().wait(for: [rateViewExists], timeout: 5) == .completed
+    }
+}
+
+extension Array where Element == XCUIElement {
+    /// Waits for any of the elements to exist and returns first found element
+    func waitToExist(timeout: TimeInterval = 5) -> XCUIElement {
+        if let existingElement = self.first(where: { $0.exists }) {
+            return existingElement
+        }
+
+        let predicate = NSPredicate(format: "exists == true")
+        var expectations: [XCTNSPredicateExpectation]!
+        var existingElement: XCUIElement?
+
+        expectations = self.map { element -> XCTNSPredicateExpectation in
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+            expectation.handler = {
+                if existingElement != nil { return true }
+                existingElement = element
+                expectations.forEach { $0.fulfill() }
+                return true
+            }
+            return expectation
+        }
+
+        XCTAssertTrue(XCTWaiter().wait(for: expectations, timeout: timeout, enforceOrder: false) == .completed)
+        return existingElement!
     }
 }

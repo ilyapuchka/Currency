@@ -10,35 +10,30 @@ public struct HostViewComponent<T: Component>: Component {
     var contentView: T.View?
     let alignment: Alignment
     let component: T
-    let accessibilityIdentifier: String?
 
     public init(
         host: UIView,
         alignment: Alignment,
-        accessibilityIdentifier: String? = nil,
         component: () -> T
     ) {
         self.host = host
         self.contentView = nil
         self.alignment = alignment
         self.component = component()
-        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     public func makeView() -> T.View {
-        if let subview = host.subviews.first as? T.View {
-            return subview
+        if let reused = host.reuseComponentView(component: component) {
+            return reused
         }
         let contentView = component.makeView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.accessibilityIdentifier = accessibilityIdentifier
         return contentView
     }
 
     public func render(in view: T.View) {
-        if let subview = host.subviews.first as? T.View {
-            component.render(in: subview)
-            return
+        if let reused = host.reuseComponentView(component: component) {
+            return component.render(in: reused)
         }
 
         host.subviews.first?.removeFromSuperview()
@@ -60,5 +55,35 @@ public struct HostViewComponent<T: Component>: Component {
             ])
         }
         component.render(in: view)
+    }
+}
+
+extension UIView {
+    func reuseComponentView<T: Component>(component: T) -> T.View? {
+        guard let subview = self.subviews.first else { return nil }
+
+        if let modified = component as? ModifiedComponent {
+            if type(of: subview) == modified.component.viewType {
+                return subview as? T.View
+            }
+        } else if type(of: subview) == T.View.self {
+            return subview as? T.View
+        }
+
+        return nil
+    }
+
+    func reuseComponentView(component: AnyComponent) -> UIView? {
+        guard let subview = self.subviews.first else { return nil }
+
+        if let modified = component.wrapped as? ModifiedComponent {
+            if type(of: subview) == modified.component.viewType {
+                return subview
+            }
+        } else if type(of: subview) == component.viewType {
+            return subview
+        }
+
+        return nil
     }
 }

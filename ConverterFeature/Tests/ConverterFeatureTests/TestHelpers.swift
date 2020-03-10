@@ -17,8 +17,8 @@ class StubViewModel<State, UserAction>: ViewModelProtocol {
 }
 
 extension AnyComponent {
-    func unwrap<T: Component>(line: UInt = #line) throws -> T {
-        try XCTUnwrap(wrapped as? AnyComponentBox<T>, line: line).wrapped
+    func unwrap<T: Component>(file: StaticString = #file, line: UInt = #line) throws -> T {
+        try XCTUnwrap(wrappedBox.unwrap(), file: file, line: line)
     }
 }
 

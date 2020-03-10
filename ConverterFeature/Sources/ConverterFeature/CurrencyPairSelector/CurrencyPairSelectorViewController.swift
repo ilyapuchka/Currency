@@ -39,13 +39,14 @@ final class CurrencyPairSelectorViewController<ViewModel: ViewModelProtocol>:
                     designLibrary: config.designLibrary,
                     actionImage: nil,
                     actionTitle: NSLocalizedString("retry", bundle: config.bundle, comment: ""),
-                    actionAccessibilityIdentifier: "retry",
                     description: NSLocalizedString("failed_to_get_currency_list", bundle: config.bundle, comment: ""),
-                    action: { sendAction(.retry) })
-            }.asAnyComponent()
+                    action: { sendAction(.retry) }
+                )
+            }
+            .asAnyComponent()
         }
 
-        return HostViewComponent(host: view, alignment: .fill, accessibilityIdentifier: CurrencyView.Accessibility.currencyList) {
+        return HostViewComponent(host: view, alignment: .fill) {
             TableViewComponent(sections: [
                 state.supported.map { currency in
                     CurrencyViewComponent(
@@ -55,9 +56,16 @@ final class CurrencyPairSelectorViewController<ViewModel: ViewModelProtocol>:
                         name: NSLocalizedString(currency.code, bundle: config.bundle, comment: ""),
                         isEnabled: state.isEnabled(currency: currency),
                         action: { sendAction(.selected(currency)) }
-                    ).asAnyComponent()
+                    )
+                    .accessibility(
+                        label: NSLocalizedString(currency.code, bundle: config.bundle, comment: ""),
+                        identifier: currency.code
+                    )
+                    .asAnyComponent()
                 }
             ])
-        }.asAnyComponent()
+            .accessibility(identifier: CurrencyView.Accessibility.currencyList)
+        }
+        .asAnyComponent()
     }
 }

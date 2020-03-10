@@ -4,8 +4,6 @@ public struct ExchangeRateViewComponent: Component, DeletableComponent {
     let designLibrary: DesignLibrary
     let from: (amount: String, description: String)
     let to: (amount: String, description: String)
-    let accessibilityLabel: String
-    let accessibilityIdentifier: String
 
     let onDelete: () -> Void
     let onRateUpdate: ExchangeRateView.OnRateUpdate
@@ -14,16 +12,12 @@ public struct ExchangeRateViewComponent: Component, DeletableComponent {
         designLibrary: DesignLibrary,
         from: (amount: String, description: String),
         to: (amount: String, description: String),
-        accessibilityLabel: String,
-        accessibilityIdentifier: String,
         onDelete: @escaping () -> Void,
         onRateUpdate: @escaping ExchangeRateView.OnRateUpdate
     ) {
         self.designLibrary = designLibrary
         self.from = from
         self.to = to
-        self.accessibilityLabel = accessibilityLabel
-        self.accessibilityIdentifier = accessibilityIdentifier
         self.onDelete = onDelete
         self.onRateUpdate = onRateUpdate
     }
@@ -36,8 +30,6 @@ public struct ExchangeRateViewComponent: Component, DeletableComponent {
         view.configure(
             from: from,
             to: to,
-            accessibilityLabel: accessibilityLabel,
-            accessibilityIdentifier: accessibilityIdentifier,
             onRateUpdate: onRateUpdate
         )
     }
@@ -151,16 +143,12 @@ public final class ExchangeRateView: UIView {
     public func configure(
         from: (amount: String, description: String),
         to: (amount: String, description: String),
-        accessibilityLabel: String,
-        accessibilityIdentifier: String,
         onRateUpdate: OnRateUpdate
     ) {
         fromAmountLabel.text = from.amount
         fromDescriptionLabel.text = from.description
         toAmountLabel.text = to.amount
         toDescriptionLabel.text = to.description
-        self.accessibilityLabel = accessibilityLabel
-        self.accessibilityIdentifier = accessibilityIdentifier
 
         onRateUpdate { [weak self] rate, accessibilityLabel in
             self?.toAmountLabel.text = rate

@@ -5,7 +5,6 @@ public struct EmptyStateViewComponent: Component {
     let designLibrary: DesignLibrary
     let actionImage: KeyPath<DesignLibrary, UIImage>?
     let actionTitle: String
-    let actionAccessibilityIdentifier: String
     let description: String
     let action: () -> Void
 
@@ -14,7 +13,6 @@ public struct EmptyStateViewComponent: Component {
         designLibrary: DesignLibrary,
         actionImage: KeyPath<DesignLibrary, UIImage>?,
         actionTitle: String,
-        actionAccessibilityIdentifier: String,
         description: String,
         action: @escaping () -> Void
     ) {
@@ -22,7 +20,6 @@ public struct EmptyStateViewComponent: Component {
         self.designLibrary = designLibrary
         self.actionImage = actionImage
         self.actionTitle = actionTitle
-        self.actionAccessibilityIdentifier = actionAccessibilityIdentifier
         self.description = description
         self.action = action
     }
@@ -35,7 +32,6 @@ public struct EmptyStateViewComponent: Component {
         view.configure(
             actionImage: actionImage.map { designLibrary[keyPath: $0] },
             actionTitle: actionTitle,
-            actionAccessibilityIdentifier: actionAccessibilityIdentifier,
             description: description,
             action: action
         )
@@ -113,13 +109,11 @@ public final class EmptyStateView: UIView {
     func configure(
         actionImage: UIImage?,
         actionTitle: String,
-        actionAccessibilityIdentifier: String,
         description: String,
         action: @escaping () -> Void
     ) {
         button.imageView.image = actionImage
         button.button.setTitle(actionTitle, for: .normal)
-        button.button.accessibilityIdentifier = actionAccessibilityIdentifier
         subtitleLabel.text = description
         self.action = action
     }
@@ -197,7 +191,6 @@ final class VerticalContentButton: UIView {
 public extension EmptyStateView {
     enum Accessibility {
         public static let emptyView = "empty_view"
-        public static let addCurrencyPair = "add_currency_pair"
         public static let retry = "retry"
     }
 }

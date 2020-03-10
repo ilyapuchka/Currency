@@ -49,7 +49,7 @@ final class ComponentTests: XCTestCase {
     func test_hostViewComponent_reusesSubview() {
         let host = UIView()
         let component1 = HostViewComponent(host: host, alignment: .center) {
-            ButtonComponent()
+            ButtonComponent().accessibility(identifier: "accessible")
         }
 
         let button1 = component1.makeView()
@@ -73,7 +73,7 @@ final class ComponentTests: XCTestCase {
 
     func test_tableViewAdapter() {
         let sections = [[
-            ButtonComponent().asAnyComponent(),
+            ButtonComponent().accessibility(identifier: "accessible").asAnyComponent(),
             LabelComponent().asAnyComponent()
         ]]
 

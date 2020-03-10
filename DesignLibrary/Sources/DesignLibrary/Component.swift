@@ -16,28 +16,36 @@ public extension Component {
     }
 }
 
-public struct AnyComponent: Component, SelectableComponent, DeletableComponent {
-    let wrapped: AnyComponentBoxBase
+public struct AnyComponent: Component {
+    let wrapped: Any
+    let wrappedBox: AnyComponentBoxBase
     let componentType: Any.Type
     let viewType: Any.Type
 
-    private let selectable: SelectableComponent?
-    private let deletable: DeletableComponent?
-
     init<Base: Component>(_ wrapped: Base) {
-        self.wrapped = AnyComponentBox(wrapped)
+        self.wrapped = wrapped
+        self.wrappedBox = AnyComponentBox(wrapped)
         self.componentType = Base.self
         self.viewType = Base.View.self
-        self.selectable = wrapped as? SelectableComponent
-        self.deletable = wrapped as? DeletableComponent
     }
 
     public func makeView() -> UIView {
-        wrapped.makeView()
+        wrappedBox.makeView()
     }
 
     public func render(in view: UIView) {
-        wrapped.render(in: view)
+        wrappedBox.render(in: view)
+    }
+
+    public static var empty: AnyComponent {
+        return ViewComponent().asAnyComponent()
+    }
+}
+
+extension AnyComponent: SelectableComponent {
+    var selectable: SelectableComponent? {
+        return (wrapped as? ModifiedComponent)?.component
+            ?? wrapped as? SelectableComponent
     }
 
     public func didSelect() {
@@ -51,13 +59,16 @@ public struct AnyComponent: Component, SelectableComponent, DeletableComponent {
     public func shouldPersistSelectionBetweenStateUpdates() -> Bool {
         selectable?.shouldPersistSelectionBetweenStateUpdates() ?? false
     }
+}
+
+extension AnyComponent: DeletableComponent {
+    var deletable: DeletableComponent? {
+        return (wrapped as? ModifiedComponent)?.component
+            ?? wrapped as? DeletableComponent
+    }
 
     public func didDelete() {
         deletable?.didDelete()
-    }
-
-    public static var empty: AnyComponent {
-        return ViewComponent().asAnyComponent()
     }
 }
 
@@ -68,6 +79,10 @@ struct ViewComponent: Component {
 protocol AnyComponentBoxBase {
     func makeView() -> UIView
     func render(in view: UIView)
+
+    #if DEBUG
+    func unwrap<T: Component>() -> T?
+    #endif
 }
 
 struct AnyComponentBox<Wrapped: Component>: AnyComponentBoxBase {
@@ -85,6 +100,22 @@ struct AnyComponentBox<Wrapped: Component>: AnyComponentBoxBase {
         wrapped.render(in: view as! Wrapped.View)
     }
 }
+
+#if DEBUG
+extension AnyComponentBox {
+    func unwrap<T: Component>() -> T? {
+        if let wrapped = wrapped as? T {
+            return wrapped
+        } else if let modified = wrapped as? ModifiedComponent {
+            return modified.unwrap()
+        } else if let boxed = wrapped as? AnyComponentBox {
+            return boxed.unwrap()
+        } else {
+            return nil
+        }
+    }
+}
+#endif
 
 public protocol SelectableComponent {
     func didSelect()

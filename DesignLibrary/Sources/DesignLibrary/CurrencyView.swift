@@ -127,8 +127,6 @@ public final class CurrencyView: UIView {
             imageView.alpha = 0.5
             accessibilityTraits = .notEnabled
         }
-        self.accessibilityLabel = name
-        self.accessibilityIdentifier = code
     }
 }
 
