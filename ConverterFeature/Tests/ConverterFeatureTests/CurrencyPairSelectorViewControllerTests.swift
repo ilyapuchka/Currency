@@ -30,8 +30,9 @@ final class CurrencyPairSelectorViewControllerTests: XCTestCase {
             status: .selectingSecondCurrency(first: supported[1])
         )
         let component = sut.render(state: state, sendAction: viewModel.sendAction)
-        let host: HostViewComponent<TableViewComponent> = try component.unwrap()
-        let sections = host.component.adapter.sections
+        let host: HostViewComponent<ModifiedComponent> = try component.unwrap()
+        let hosted: TableViewComponent = try XCTUnwrap(host.component.unwrap())
+        let sections = hosted.adapter.sections
 
         XCTAssertEqual(sections.count, 1)
 
