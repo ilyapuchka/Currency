@@ -53,7 +53,7 @@
 		B5358892240BC5E400A0A713 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B54C0A922417034F00D5B691 /* PageObjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageObjects.swift; sourceTree = "<group>"; };
 		B54C0A9624170F9A00D5B691 /* UserDefaultsSelectedCurrencyPairsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsSelectedCurrencyPairsService.swift; sourceTree = "<group>"; };
-		B54C0A982417EC3D00D5B691 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		B54C0A982417EC3D00D5B691 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		B56423BF240AAFB000915DE1 /* Currency.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Currency.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B56423C2240AAFB000915DE1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B56423CE240AAFB400915DE1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
