@@ -1,6 +1,6 @@
 import SwiftUI
 
-@available(iOS 13.0, *)
+
 public struct ExchangeRatesList: View {
     let bundle: Bundle
 
@@ -51,7 +51,7 @@ public struct ExchangeRatesList: View {
     }
 }
 
-@available(iOS 13.0, *)
+
 public struct ListSeparatorStyleModifier: ViewModifier {
     let separatorStyle: UITableViewCell.SeparatorStyle
 
@@ -68,7 +68,7 @@ public struct ListSeparatorStyleModifier: ViewModifier {
     }
 }
 
-@available(iOS 13.0, *)
+
 extension View {
     public func listSeparatorStyle(_ style: UITableViewCell.SeparatorStyle) -> some View {
         modifier(ListSeparatorStyleModifier(style))

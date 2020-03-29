@@ -1,6 +1,6 @@
 import SwiftUI
 
-@available(iOS 13.0, *)
+
 public struct CurrencyRow: View {
     public struct Value: Identifiable {
         public var id: String { code }
@@ -63,21 +63,41 @@ public struct CurrencyRow: View {
     }
 }
 
-@available(iOS 13.0, *)
-public struct CurrenciesList: View {
+
+public struct CurrenciesList<SecondView: View>: View {
 
     let items: [CurrencyRow.Value]
     let bundle: Bundle
+    let onSelect: ((Int) -> SecondView)?
 
-    public init(items: [CurrencyRow.Value], bundle: Bundle) {
+    public init(items: [CurrencyRow.Value], bundle: Bundle, onSelect: ((Int) -> SecondView)?) {
         self.items = items
         self.bundle = bundle
+        self.onSelect = onSelect
     }
 
     public var body: some View {
-        List(items) { item in
-            CurrencyRow(item, bundle: self.bundle)
+        List(items.indices) { index in
+            ZStack(alignment: .leading) {
+                CurrencyRow(self.items[index], bundle: self.bundle)
+
+                self.onSelect.map { onSelect in
+                    NavigationLink(destination: onSelect(index)) {
+                        SwiftUI.EmptyView()
+                    }
+                }
+            }
         }
         .listSeparatorStyle(.none)
+        .navigationBarHidden(true)
+        .navigationBarTitle("")
+    }
+}
+
+extension CurrenciesList where SecondView == Never {
+    public init(items: [CurrencyRow.Value], bundle: Bundle) {
+        self.items = items
+        self.bundle = bundle
+        self.onSelect = nil
     }
 }

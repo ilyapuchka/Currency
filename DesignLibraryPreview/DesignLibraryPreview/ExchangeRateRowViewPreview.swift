@@ -2,7 +2,7 @@
 import SwiftUI
 import DesignLibrary
 
-@available(iOS 13.0, *)
+
 class ExchangeRateRowView_Preview: PreviewProvider {
   static var previews: some View {
     UIViewPreview {
@@ -46,7 +46,7 @@ class ExchangeRateRowView_Preview: PreviewProvider {
   }
 }
 
-@available(iOS 13.0, *)
+
 class ExchangeRateRowViewSwiftUI_Preview: PreviewProvider {
     static var previews: some View {
         ExchangeRatesList(bundle: Bundle(for: Self.self), items: [

@@ -1,6 +1,6 @@
 import SwiftUI
 
-@available(iOS 13.0, *)
+
 public struct EmptyStateViewSwiftUI: View {
     let actionImage: KeyPath<DesignLibrary, UIImage>?
     let actionTitle: String

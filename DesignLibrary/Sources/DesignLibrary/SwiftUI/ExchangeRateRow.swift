@@ -1,6 +1,6 @@
 import SwiftUI
 
-@available(iOS 13.0, *)
+
 public struct ExchangeRateRow: View {
     let bundle: Bundle
 

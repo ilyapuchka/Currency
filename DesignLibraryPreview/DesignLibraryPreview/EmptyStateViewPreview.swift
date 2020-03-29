@@ -2,7 +2,7 @@
 import SwiftUI
 import DesignLibrary
 
-@available(iOS 13.0, *)
+
 class EmptyStateView_Preview: PreviewProvider {
   static var previews: some View {
     UIViewPreview {

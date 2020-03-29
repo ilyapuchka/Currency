@@ -2,7 +2,7 @@
 import SwiftUI
 import DesignLibrary
 
-@available(iOS 13.0, *)
+
 class CurrencyRowView_Preview: PreviewProvider {
   static var previews: some View {
     UIViewPreview {
@@ -35,7 +35,7 @@ class CurrencyRowView_Preview: PreviewProvider {
   }
 }
 
-@available(iOS 13.0, *)
+
 class CurrencyRow_Preview: PreviewProvider {
     static var previews: some View {
         CurrenciesList(
