@@ -45,4 +45,23 @@ class ExchangeRateRowView_Preview: PreviewProvider {
     .previewLayout(.sizeThatFits)
   }
 }
+
+@available(iOS 13.0, *)
+class ExchangeRateRowViewSwiftUI_Preview: PreviewProvider {
+    static var previews: some View {
+        ExchangeRatesList(bundle: Bundle(for: Self.self), items: [
+            ExchangeRatesList.Item(
+                id: "GBPUSD",
+                from: (amount: "1 GBP", description: "Pounds"),
+                to: (amount: "1.5 USD", description: "US Dollars")
+            ),
+            ExchangeRatesList.Item(
+                id: "USDGBP",
+                from: (amount: "1.5 USD", description: "US Dollars"),
+                to: (amount: "1 GBP", description: "Pounds")
+            )
+        ])
+            .previewLayout(.sizeThatFits)
+    }
+}
 #endif

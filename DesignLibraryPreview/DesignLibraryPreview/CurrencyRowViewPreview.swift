@@ -20,7 +20,7 @@ class CurrencyRowView_Preview: PreviewProvider {
             ).asAnyComponent(),
             CurrencyViewComponent(
                 designLibrary: designLibrary,
-                image: UIImage(named: "EUR", in: bundle, with: nil),
+                image: nil,
                 code: "ABC",
                 name: "Some country with very very very very very long name Some country with very very very very very long name",
                 action: {}
@@ -33,5 +33,27 @@ class CurrencyRowView_Preview: PreviewProvider {
     }
     .previewLayout(.sizeThatFits)
   }
+}
+
+@available(iOS 13.0, *)
+class CurrencyRow_Preview: PreviewProvider {
+    static var previews: some View {
+        CurrenciesList(
+            items: [
+                .init(
+                    code: "EUR",
+                    name: "Some country with very very very very very long name Some country with very very very very very long name",
+                    isEnabled: false
+                ),
+                .init(
+                    code: "USD",
+                    name: "Some country with very very very very very long name Some country with very very very very very long name",
+                    isEnabled: true
+                ),
+            ],
+            bundle: Bundle(for: Self.self)
+        )
+        .previewLayout(.sizeThatFits)
+    }
 }
 #endif
