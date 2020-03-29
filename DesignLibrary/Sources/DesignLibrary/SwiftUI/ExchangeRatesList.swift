@@ -25,9 +25,6 @@ public struct ExchangeRatesList: View {
     public init(bundle: Bundle, items: [Item]) {
         self.bundle = bundle
         self._items = State(initialValue: items)
-//        UITableView.appearance(whenContainedInInstancesOf:
-//            [UIHostingController<ExchangeRatesList>.self]
-//        ).separatorStyle = .none
     }
 
     public var body: some View {
@@ -46,31 +43,6 @@ public struct ExchangeRatesList: View {
                     self.items.remove(atOffsets: removed)
                 }
             }
-            .listSeparatorStyle(.none)
         }
-    }
-}
-
-
-public struct ListSeparatorStyleModifier: ViewModifier {
-    let separatorStyle: UITableViewCell.SeparatorStyle
-
-    public init(_ separatorStyle: UITableViewCell.SeparatorStyle) {
-        self.separatorStyle = separatorStyle
-    }
-
-    public func body(content: Content) -> some View {
-        content.onAppear {
-            UITableView.appearance().separatorStyle = self.separatorStyle
-        }.onDisappear {
-            UITableView.appearance().separatorStyle = .singleLine
-        }
-    }
-}
-
-
-extension View {
-    public func listSeparatorStyle(_ style: UITableViewCell.SeparatorStyle) -> some View {
-        modifier(ListSeparatorStyleModifier(style))
     }
 }

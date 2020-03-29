@@ -39,7 +39,7 @@ public struct CurrencyRow: View {
         HStack(spacing: 16) {
             ZStack {
                 Color(.lightGray)
-                Image(value.code, bundle: bundle)
+                Image(value.code, bundle: bundle).renderingMode(.original)
             }
             .clipShape(Circle())
             .frame(width: 24, height: 24)
@@ -64,40 +64,25 @@ public struct CurrencyRow: View {
 }
 
 
-public struct CurrenciesList<SecondView: View>: View {
+public struct CurrenciesList: View {
 
     let items: [CurrencyRow.Value]
     let bundle: Bundle
-    let onSelect: ((Int) -> SecondView)?
+    let action: (Int) -> Void
 
-    public init(items: [CurrencyRow.Value], bundle: Bundle, onSelect: ((Int) -> SecondView)?) {
+    public init(items: [CurrencyRow.Value], bundle: Bundle, action: @escaping (Int) -> Void) {
         self.items = items
         self.bundle = bundle
-        self.onSelect = onSelect
+        self.action = action
     }
 
     public var body: some View {
         List(items.indices) { index in
-            ZStack(alignment: .leading) {
+            Button(action: { self.action(index) }) {
                 CurrencyRow(self.items[index], bundle: self.bundle)
-
-                self.onSelect.map { onSelect in
-                    NavigationLink(destination: onSelect(index)) {
-                        SwiftUI.EmptyView()
-                    }
-                }
             }
         }
-        .listSeparatorStyle(.none)
         .navigationBarHidden(true)
         .navigationBarTitle("")
-    }
-}
-
-extension CurrenciesList where SecondView == Never {
-    public init(items: [CurrencyRow.Value], bundle: Bundle) {
-        self.items = items
-        self.bundle = bundle
-        self.onSelect = nil
     }
 }

@@ -11,30 +11,12 @@ public struct RootView: View {
 
         var status: Status
 
-        var route: Route?
-
-        var isAddingPair: Bool {
-            get {
-                switch route {
-                case .addPair:
-                    return true
-                default:
-                    return false
-                }
-            }
-            set {
-                route = newValue ? .addPair : nil
-            }
-        }
+        var isAddingPair: Bool = false
 
         enum Status {
             case isLoading
             case isLoaded
             case addingPair(Promise<CurrencyPair?, Never>)
-        }
-
-        enum Route {
-            case addPair
         }
     }
 
@@ -64,39 +46,23 @@ public struct RootView: View {
              else: {
                 When(state.rates.isEmpty,
                      then: {
-                            EmptyStateViewSwiftUI(
-                                actionImage: \.assets.plus,
-                                actionTitle: NSLocalizedString("add_currency_pair_button_title", bundle: bundle, comment: ""),
-                                description: NSLocalizedString("add_currency_pair_button_subtitle", bundle: bundle, comment: ""),
-                                action: { self.state.isAddingPair = true },
-                                bundle: bundle
-                            ).sheet(
-                                isPresented: self.$state.isAddingPair,
-                                onDismiss: { self.state.isAddingPair = false }) {
-                                    NavigationView {
-                                        CurrenciesList(
-                                            items: [Currency](["EUR", "USD"]).map { currency in
-                                                .init(
-                                                    code: currency.code,
-                                                    name: NSLocalizedString(currency.code, bundle: self.bundle, comment: ""),
-                                                    isEnabled: true
-                                                )
-                                            },
-                                            bundle: self.bundle
-                                        ) { _ in
-                                            CurrenciesList(
-                                                items: [Currency](["EUR", "USD"]).map { currency in
-                                                    .init(
-                                                        code: currency.code,
-                                                        name: NSLocalizedString(currency.code, bundle: self.bundle, comment: ""),
-                                                        isEnabled: true
-                                                    )
-                                                },
-                                                bundle: self.bundle
-                                            )
-                                        }
-                                    }
-                                }
+                        EmptyStateViewSwiftUI(
+                            actionImage: \.assets.plus,
+                            actionTitle: NSLocalizedString("add_currency_pair_button_title", bundle: bundle, comment: ""),
+                            description: NSLocalizedString("add_currency_pair_button_subtitle", bundle: bundle, comment: ""),
+                            action: { self.state.isAddingPair = true },
+                            bundle: bundle
+                        ).sheet(
+                            isPresented: self.$state.isAddingPair,
+                            onDismiss: { self.state.isAddingPair = false }
+                        ) {
+                            CurrencyPairSelectorView(
+                                bundle: self.bundle
+                            ) {
+                                print($0, $1)
+                                self.state.isAddingPair = false
+                            }
+                        }
                      },
                      else: {
                         Text("content")
