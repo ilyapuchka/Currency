@@ -21,7 +21,11 @@ public struct RevolutExchangeRateService: ExchangeRateService {
         }
         return url.url!
     }
-
+    #if canImport(Combine)
+    public func exchangeRates(pairs: [CurrencyPair]) -> AnyPublisher<[ExchangeRate], Swift.Error> {
+        fatalError()
+    }
+    #else
     public func exchangeRates(pairs: [CurrencyPair]) -> Future<[ExchangeRate], Swift.Error> {
         urlSession
             .get(url: makeURL(pairs: pairs))
@@ -45,4 +49,5 @@ public struct RevolutExchangeRateService: ExchangeRateService {
                 }
         }
     }
+    #endif
 }

@@ -2,6 +2,7 @@ import Foundation
 import Domain
 import Future
 
+#if !canImport(Combine)
 protocol RatesUpdateObserving {
     func start()
     func pause()
@@ -65,3 +66,4 @@ final class TimerRatesUpdateObserving: RatesUpdateObserving {
         }
     }
 }
+#endif

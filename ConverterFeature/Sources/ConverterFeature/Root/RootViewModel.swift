@@ -3,6 +3,7 @@ import Domain
 import Future
 import DesignLibrary
 
+#if !canImport(Combine)
 struct RootViewModel: ViewModelProtocol {
     let state: StateMachine<RootState, RootEvent>
 
@@ -80,10 +81,6 @@ struct RootViewModel: ViewModelProtocol {
 
     func sendAction(_ action: RootEvent.UserAction) {
         state.sink(event: .ui(action))
-    }
-
-    func observeState(sendInitial: Bool = false, _ observer: @escaping (RootState) -> Void) {
-        state.observeState(sendInitial: sendInitial, observer)
     }
 
     /// Adds observer for when user wants to add a new pair
@@ -278,3 +275,4 @@ enum RootEvent {
         case retry
     }
 }
+#endif

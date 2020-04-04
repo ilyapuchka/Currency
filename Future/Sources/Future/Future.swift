@@ -1,5 +1,12 @@
 import Foundation
+#if canImport(Combine)
+@_exported import Combine
 
+@available(iOS 13.0, *)
+public typealias Future = Combine.Future
+@available(iOS 13.0, *)
+public typealias Promise<T, E: Error> = Future<T, E>.Promise
+#else
 public struct Future<Value, Error: Swift.Error> {
     public typealias Completed = (Result<Value, Error>) -> Void
     public typealias Success = (Value) -> Void
@@ -128,6 +135,10 @@ public final class Promise<Value, Error: Swift.Error> {
 
     public init() {}
 
+    func callAsFunction(_ result: Result<Value, Error>) {
+        fulfill(result)
+    }
+
     /// Fulfills the promise with the result
     public func fulfill(_ result: Result<Value, Error>) {
         lock.lock()
@@ -175,3 +186,4 @@ public struct Scheduler {
         return Scheduler { $0() }
     }
 }
+#endif

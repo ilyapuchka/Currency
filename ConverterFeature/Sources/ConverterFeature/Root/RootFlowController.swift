@@ -2,6 +2,7 @@ import UIKit
 import Future
 import Domain
 
+#if !canImport(Combine)
 struct RootFlowController {
     private weak var modal: UIViewController?
 
@@ -41,3 +42,4 @@ struct RootFlowController {
         }
     }
 }
+#endif

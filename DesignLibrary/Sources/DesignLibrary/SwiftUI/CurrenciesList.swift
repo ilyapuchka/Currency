@@ -73,6 +73,6 @@ public struct CurrenciesList: View {
             }
         }
         .navigationBarHidden(true)
-        .navigationBarTitle("")
+        .navigationBarTitle(Text(verbatim: ""))
     }
 }

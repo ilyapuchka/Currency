@@ -8,11 +8,11 @@ public protocol HTTPSession {
 extension URLSession: HTTPSession {
     public func get(url: URL) -> Future<(Data?, URLResponse?), Error> {
         Future { promise in
-            dataTask(with: url, completionHandler: { (data, response, error) in
+            self.dataTask(with: url, completionHandler: { (data, response, error) in
                 if let error = error {
-                    promise.fulfill(.failure(error))
+                    promise(.failure(error))
                 } else {
-                    promise.fulfill(.success((data, response)))
+                    promise(.success((data, response)))
                 }
             }).resume()
         }

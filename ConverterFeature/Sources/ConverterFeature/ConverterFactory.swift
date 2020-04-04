@@ -4,6 +4,7 @@ import Future
 import Domain
 import Foundation
 
+#if !canImport(SwiftUI)
 public struct ConverterFactory {
     let bundle: Bundle
     let designLibrary: DesignLibrary
@@ -108,3 +109,4 @@ public struct ConverterFactory {
         return viewController
     }
 }
+#endif

@@ -18,6 +18,18 @@ public struct DatafileService<T> {
 
 }
 
+#if canImport(Combine)
+extension DatafileService where T: Decodable {
+    public func read() -> Future<T, Swift.Error> {
+        fatalError()
+    }
+}
+extension DatafileService where T: Encodable {
+    public func write(_ value: T) -> Future<Void, Swift.Error> {
+        fatalError()
+    }
+}
+#else
 extension DatafileService where T: Decodable {
     public func read() -> Future<T, Swift.Error> {
         Future(scheduler: self.queue.map(Scheduler.async(queue:))) { [url] (promise) in
@@ -47,3 +59,4 @@ extension DatafileService where T: Encodable {
         }
     }
 }
+#endif

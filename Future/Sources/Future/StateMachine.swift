@@ -1,3 +1,44 @@
+import Foundation
+
+#if canImport(Combine)
+import Combine
+
+@available(iOS 13.0, *)
+@dynamicMemberLookup
+public protocol StateMachine: ObservableObject {
+    associatedtype State
+    associatedtype UserAction
+    associatedtype Event
+
+    typealias Reducer = (inout State, Event) -> [AnyPublisher<Event, Never>]
+
+    var reduce: Reducer { get }
+    var state: State { get set }
+
+    func sendAction(_ action: UserAction)
+}
+
+@available(iOS 13.0, *)
+extension StateMachine {
+    public func sink(event: Event) {
+        performEffects(effects: reduce(&state, event))
+    }
+
+    private func performEffects(effects: [AnyPublisher<Event, Never>]) {
+        effects.forEach { [unowned self] effect in
+            _ = effect.receive(on: DispatchQueue.main).sink { (event) in
+                let effects = self.reduce(&self.state, event)
+                self.performEffects(effects: effects)
+            }
+        }
+    }
+
+    public subscript<T>(dynamicMember keyPath: KeyPath<State, T>) -> T {
+        get { state[keyPath: keyPath] }
+        set {}
+    }
+}
+#else
 public class StateMachine<State, Event> {
     public private(set) var state: State {
         didSet {
@@ -35,3 +76,4 @@ public class StateMachine<State, Event> {
         }
     }
 }
+#endif

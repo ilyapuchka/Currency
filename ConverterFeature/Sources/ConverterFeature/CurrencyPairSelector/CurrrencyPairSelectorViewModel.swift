@@ -3,6 +3,7 @@ import Domain
 import Future
 import DesignLibrary
 
+#if !canImport(Combine)
 struct CurrencyPairSelectorViewModel: ViewModelProtocol {
     private let state: StateMachine<CurrencyPairSelectorState, CurrencyPairSelectorEvent>
 
@@ -158,3 +159,4 @@ enum CurrencyPairSelectorEvent {
         case retry
     }
 }
+#endif

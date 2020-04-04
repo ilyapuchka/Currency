@@ -2,6 +2,8 @@ import UIKit
 import SwiftUI
 import ConverterFeature
 import DesignLibrary
+import Domain
+import DataAccess
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -10,15 +12,32 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         UITableView.appearance().separatorStyle = .none
 
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
+        var selectedCurrencyPairsService: SelectedCurrencyPairsService = DatafileSelectedCurrencyPairsService(
+            url: FileManager.default.documentsDir.appendingPathComponent("selected.json"),
+            queue: DispatchQueue(label: "selected currency pair service queue", qos: .background)
+        )
+
+        #if DEBUG
+//        if ProcessInfo().arguments.contains("-\(UserDefaultsSelectedCurrencyPairsService.userDefaultsKey)") {
+//            selectedCurrencyPairsService = UserDefaultsSelectedCurrencyPairsService()
+//        }
+        #endif
+
+        let supportedCurrenciesService = DatafileSupportedCurrenciesService(
+            url: Bundle.main.url(forResource: "currencies", withExtension: "json")!,
+            queue: DispatchQueue(label: "supported currencies service queue", qos: .background)
+        )
+
+        let exchangeRatesService = RevolutExchangeRateService(session: URLSession.shared)
 
         // Use a UIHostingController as window root view controller
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
             window.rootViewController = UIHostingController(
-                rootView: RootView()
+                rootView: RootView(
+                    selectedCurrencyPairsService: selectedCurrencyPairsService,
+                    ratesService: exchangeRatesService
+                )
             )
             self.window = window
             window.makeKeyAndVisible()

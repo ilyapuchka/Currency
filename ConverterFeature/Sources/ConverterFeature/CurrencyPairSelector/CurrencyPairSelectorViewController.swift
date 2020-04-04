@@ -3,6 +3,7 @@ import DesignLibrary
 import Future
 import Domain
 
+#if !canImport(Combine)
 final class CurrencyPairSelectorViewController<ViewModel: ViewModelProtocol>:
     ViewModelViewController<ViewModel>,
     UIAdaptivePresentationControllerDelegate
@@ -75,3 +76,4 @@ final class CurrencyPairSelectorViewController<ViewModel: ViewModelProtocol>:
         .asAnyComponent()
     }
 }
+#endif

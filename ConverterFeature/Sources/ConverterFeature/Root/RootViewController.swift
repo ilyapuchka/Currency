@@ -3,6 +3,7 @@ import DesignLibrary
 import Future
 import Domain
 
+#if !canImport(SwiftUI)
 final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewController<ViewModel>
     where
     ViewModel.State == RootState,
@@ -138,3 +139,4 @@ final class RootViewController<ViewModel: ViewModelProtocol>: ViewModelViewContr
         .asAnyComponent()
     }
 }
+#endif

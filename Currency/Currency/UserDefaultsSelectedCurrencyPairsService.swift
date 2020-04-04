@@ -4,6 +4,8 @@ import Domain
 import Future
 
 #if DEBUG
+#if canImport(Combine)
+#else
 /// Service to be used with automation tests only
 struct UserDefaultsSelectedCurrencyPairsService: SelectedCurrencyPairsService {
     static let userDefaultsKey = "selected_pairs"
@@ -32,4 +34,5 @@ struct UserDefaultsSelectedCurrencyPairsService: SelectedCurrencyPairsService {
         .just(())
     }
 }
+#endif
 #endif

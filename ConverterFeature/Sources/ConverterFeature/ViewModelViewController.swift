@@ -2,16 +2,27 @@ import UIKit
 import DesignLibrary
 import Future
 
+#if !canImport(Combine)
 public protocol ViewModelProtocol {
     associatedtype State
     associatedtype UserAction
+    associatedtype Event
 
-    typealias Reducer<Event> = (inout State, Event) -> [Future<Event, Never>]
+    typealias Reducer = (inout State, Event) -> [Future<Event, Never>]
+
+    var state: StateMachine<State, Event> { get }
 
     func sendAction(_ action: UserAction)
-    func observeState(sendInitial: Bool, _ observer: @escaping (State) -> Void)
 }
 
+extension ViewModelProtocol {
+    func observeState(sendInitial: Bool, _ observer: @escaping (State) -> Void) {
+        state.observeState(sendInitial: sendInitial, observer)
+    }
+}
+#endif
+
+#if !canImport(SwiftUI)
 open class ViewModelViewController<ViewModel: ViewModelProtocol>: UIViewController {
     let viewModel: ViewModel
     private var component: AnyComponent
@@ -41,3 +52,4 @@ open class ViewModelViewController<ViewModel: ViewModelProtocol>: UIViewControll
         }
     }
 }
+#endif
