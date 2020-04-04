@@ -27,14 +27,13 @@ class EmptyStateView_Preview: PreviewProvider {
   }
 }
 
-class EmptyStateViewSwiftUI_Preview: PreviewProvider {
+class EmptyState_Preview: PreviewProvider {
   static var previews: some View {
-    return EmptyStateViewSwiftUI(
+    return EmptyState(
         actionImage: \.assets.plus,
         actionTitle: "Action",
         description: "Description",
-        action: {},
-        bundle: Bundle(for: Self.self)
+        action: {}
     )
         .previewLayout(.sizeThatFits)
   }

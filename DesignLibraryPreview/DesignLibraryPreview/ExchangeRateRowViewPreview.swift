@@ -49,7 +49,7 @@ class ExchangeRateRowView_Preview: PreviewProvider {
 
 class ExchangeRateRowViewSwiftUI_Preview: PreviewProvider {
     static var previews: some View {
-        ExchangeRatesList(bundle: Bundle(for: Self.self), items: [
+        ExchangeRatesList(items: [
             ExchangeRatesList.Item(
                 id: "GBPUSD",
                 from: (amount: "1 GBP", description: "Pounds"),

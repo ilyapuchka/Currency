@@ -21,12 +21,8 @@ public struct RootView: View {
     }
 
     @SwiftUI.State var state: State
-    let bundle: Bundle
 
-    public init(
-        bundle: Bundle
-    ) {
-        self.bundle = bundle
+    public init() {
         self._state = SwiftUI.State(initialValue:
             State(status: .isLoading)
         )
@@ -35,30 +31,26 @@ public struct RootView: View {
     public var body: some View {
         When(state.error,
              then: { _ in
-                EmptyStateViewSwiftUI(
+                EmptyState(
                     actionImage: nil,
-                    actionTitle: NSLocalizedString("retry", bundle: bundle, comment: ""),
-                    description: NSLocalizedString("failed_to_update", bundle: bundle, comment: ""),
-                    action: {},
-                    bundle: bundle
+                    actionTitle: "retry",
+                    description: "failed_to_update",
+                    action: {}
                 )
              },
              else: {
                 When(state.rates.isEmpty,
                      then: {
-                        EmptyStateViewSwiftUI(
+                        EmptyState(
                             actionImage: \.assets.plus,
-                            actionTitle: NSLocalizedString("add_currency_pair_button_title", bundle: bundle, comment: ""),
-                            description: NSLocalizedString("add_currency_pair_button_subtitle", bundle: bundle, comment: ""),
-                            action: { self.state.isAddingPair = true },
-                            bundle: bundle
+                            actionTitle: "add_currency_pair_button_title",
+                            description: "add_currency_pair_button_subtitle",
+                            action: { self.state.isAddingPair = true }
                         ).sheet(
                             isPresented: self.$state.isAddingPair,
                             onDismiss: { self.state.isAddingPair = false }
                         ) {
-                            CurrencyPairSelectorView(
-                                bundle: self.bundle
-                            ) {
+                            CurrencyPairSelectorView() {
                                 print($0, $1)
                                 self.state.isAddingPair = false
                             }

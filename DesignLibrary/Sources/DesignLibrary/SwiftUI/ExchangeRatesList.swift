@@ -1,9 +1,6 @@
 import SwiftUI
 
-
 public struct ExchangeRatesList: View {
-    let bundle: Bundle
-
     public struct Item: Identifiable {
         public let id: String
         let from: ExchangeRateRow.Labels
@@ -20,20 +17,18 @@ public struct ExchangeRatesList: View {
         }
     }
 
-    @State var items: [Item]
+    @State private var items: [Item]
 
-    public init(bundle: Bundle, items: [Item]) {
-        self.bundle = bundle
+    public init(items: [Item]) {
         self._items = State(initialValue: items)
     }
 
     public var body: some View {
         VStack {
             List {
-                AddCurrencyPairRow(bundle: bundle)
+                AddCurrencyPairRow()
                 ForEach(items) { (item) in
                     ExchangeRateRow(
-                        bundle: self.bundle,
                         from: item.from,
                         to: item.to,
                         onRateUpdate: { _ in }

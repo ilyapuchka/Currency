@@ -1,30 +1,23 @@
 import SwiftUI
 
+public struct EmptyState: View {
+    @Environment(\.designLibrary) var designLibrary
 
-public struct EmptyStateViewSwiftUI: View {
     let actionImage: KeyPath<DesignLibrary, UIImage>?
-    let actionTitle: String
-    let description: String
+    let actionTitle: LocalizedStringKey
+    let description: LocalizedStringKey
     let action: () -> Void
-
-    let bundle: Bundle
-
-    var designLibrary: DesignLibrary {
-        DesignLibrary(bundle: bundle)
-    }
 
     public init(
         actionImage: KeyPath<DesignLibrary, UIImage>?,
-        actionTitle: String,
-        description: String,
-        action: @escaping () -> Void,
-        bundle: Bundle
+        actionTitle: LocalizedStringKey,
+        description: LocalizedStringKey,
+        action: @escaping () -> Void
     ) {
         self.actionImage = actionImage
         self.actionTitle = actionTitle
         self.description = description
         self.action = action
-        self.bundle = bundle
     }
 
     public var body: some View {

@@ -14,10 +14,8 @@ struct CurrencyPairSelectorView: View {
 
     @SwiftUI.State var state: State
     var selected: (Int, Int) -> Void
-    let bundle: Bundle
 
-    init(bundle: Bundle, selected: @escaping (Int, Int) -> Void) {
-        self.bundle = bundle
+    init(selected: @escaping (Int, Int) -> Void) {
         self.selected = selected
         self._state = SwiftUI.State(initialValue:
             State()
@@ -30,25 +28,22 @@ struct CurrencyPairSelectorView: View {
                 items: [Currency](["EUR", "USD"]).map { currency in
                     .init(
                         code: currency.code,
-                        name: NSLocalizedString(currency.code, bundle: self.bundle, comment: ""),
+                        name: LocalizedStringKey(currency.code),
                         isEnabled: true
                     )
-                },
-                bundle: self.bundle
+                }
             ) { index in
                 self.state.first = index
-                self.state.isSelectingSecond = true
             }
             .push(isActive: self.$state.isSelectingSecond) {
                 CurrenciesList(
                     items: [Currency](["EUR", "USD"]).map { currency in
                         .init(
                             code: currency.code,
-                            name: NSLocalizedString(currency.code, bundle: self.bundle, comment: ""),
+                            name: LocalizedStringKey(currency.code),
                             isEnabled: true
                         )
-                    },
-                    bundle: self.bundle
+                    }
                 ) { index in
                     self.selected(self.state.first!, index)
                 }

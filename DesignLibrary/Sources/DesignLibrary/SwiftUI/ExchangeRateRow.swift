@@ -2,7 +2,7 @@ import SwiftUI
 
 
 public struct ExchangeRateRow: View {
-    let bundle: Bundle
+    @Environment(\.designLibrary) var designLibrary
 
     public typealias Labels = (amount: String, description: String)
 
@@ -10,8 +10,6 @@ public struct ExchangeRateRow: View {
     let to: Labels
 
     let onRateUpdate: (@escaping (String, String) -> Void) -> Void
-
-    var designLibrary: DesignLibrary { DesignLibrary(bundle: bundle) }
 
     func label(amount: String, description: String, alignment: HorizontalAlignment) -> some View {
         VStack(alignment: alignment) {

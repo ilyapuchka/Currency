@@ -36,7 +36,7 @@ class CurrencyRowView_Preview: PreviewProvider {
 }
 
 
-class CurrencyRow_Preview: PreviewProvider {
+class CurrenciesList_Preview: PreviewProvider {
     static var previews: some View {
         CurrenciesList(
             items: [
@@ -51,7 +51,7 @@ class CurrencyRow_Preview: PreviewProvider {
                     isEnabled: true
                 ),
             ],
-            bundle: Bundle(for: Self.self)
+            onSelect: { _ in }
         )
         .previewLayout(.sizeThatFits)
     }

@@ -2,16 +2,18 @@ import SwiftUI
 
 
 public struct CurrencyRow: View {
+    @Environment(\.designLibrary) var designLibrary
+
     public struct Value: Identifiable {
         public var id: String { code }
 
         let code: String
-        let name: String
+        let name: LocalizedStringKey
         let isEnabled: Bool
 
         public init(
             code: String,
-            name: String,
+            name: LocalizedStringKey,
             isEnabled: Bool
         ) {
             self.code = code
@@ -22,24 +24,15 @@ public struct CurrencyRow: View {
 
     let value: Value
 
-    let bundle: Bundle
-    var designLibrary: DesignLibrary {
-        DesignLibrary(bundle: bundle)
-    }
-
-    public init(
-        _ value: Value,
-        bundle: Bundle
-    ) {
+    public init(_ value: Value) {
         self.value = value
-        self.bundle = bundle
     }
 
     public var body: some View {
         HStack(spacing: 16) {
             ZStack {
                 Color(.lightGray)
-                Image(value.code, bundle: bundle).renderingMode(.original)
+                Image(value.code, bundle: designLibrary.bundle).renderingMode(.original)
             }
             .clipShape(Circle())
             .frame(width: 24, height: 24)
@@ -65,21 +58,18 @@ public struct CurrencyRow: View {
 
 
 public struct CurrenciesList: View {
-
     let items: [CurrencyRow.Value]
-    let bundle: Bundle
-    let action: (Int) -> Void
+    let onSelect: (Int) -> Void
 
-    public init(items: [CurrencyRow.Value], bundle: Bundle, action: @escaping (Int) -> Void) {
+    public init(items: [CurrencyRow.Value], onSelect: @escaping (Int) -> Void) {
         self.items = items
-        self.bundle = bundle
-        self.action = action
+        self.onSelect = onSelect
     }
 
     public var body: some View {
         List(items.indices) { index in
-            Button(action: { self.action(index) }) {
-                CurrencyRow(self.items[index], bundle: self.bundle)
+            Button(action: { self.onSelect(index) }) {
+                CurrencyRow(self.items[index])
             }
         }
         .navigationBarHidden(true)

@@ -1,8 +1,33 @@
 import UIKit
 
-public struct DesignLibrary {
-    public let colors: Colors
+#if canImport(SwiftUI)
+import SwiftUI
 
+public class DesignLibraryKey: EnvironmentKey {
+    public static var defaultValue: DesignLibrary = DesignLibrary(bundle: Bundle(for: DesignLibraryKey.self))
+}
+
+extension EnvironmentValues {
+    public var designLibrary: DesignLibrary {
+        get { self[DesignLibraryKey.self] }
+        set { self[DesignLibraryKey.self] = newValue }
+    }
+}
+#endif
+
+public struct DesignLibrary {
+    public let bundle: Bundle
+    public let colors: Colors
+    public let assets: Assets
+
+    public init(bundle: Bundle!) {
+        self.bundle = bundle
+        self.colors = Colors(bundle: bundle)
+        self.assets = Assets(bundle: bundle)
+    }
+}
+
+extension DesignLibrary {
     public struct Colors {
         let bundle: Bundle
 
@@ -17,18 +42,11 @@ public struct DesignLibrary {
         }
     }
 
-    public let assets: Assets
-    
     public struct Assets {
         let bundle: Bundle
 
         public var plus: UIImage {
             UIImage(named: "plus", in: bundle, compatibleWith: nil)!
         }
-    }
-
-    public init(bundle: Bundle) {
-        self.colors = Colors(bundle: bundle)
-        self.assets = Assets(bundle: bundle)
     }
 }
