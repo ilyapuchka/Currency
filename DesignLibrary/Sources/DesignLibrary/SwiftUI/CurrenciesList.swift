@@ -59,17 +59,17 @@ public struct CurrencyRow: View {
 
 public struct CurrenciesList: View {
     let items: [CurrencyRow.Value]
-    let onSelect: (Int) -> Void
+    let onSelect: (CurrencyRow.Value) -> Void
 
-    public init(items: [CurrencyRow.Value], onSelect: @escaping (Int) -> Void) {
+    public init(items: [CurrencyRow.Value], onSelect: @escaping (CurrencyRow.Value) -> Void) {
         self.items = items
         self.onSelect = onSelect
     }
 
     public var body: some View {
-        List(items.indices) { index in
-            Button(action: { self.onSelect(index) }) {
-                CurrencyRow(self.items[index])
+        List(items, id: \.id) { item in
+            Button(action: { self.onSelect(item) }) {
+                CurrencyRow(item)
             }
         }
         .navigationBarHidden(true)

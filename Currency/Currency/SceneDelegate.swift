@@ -36,6 +36,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.rootViewController = UIHostingController(
                 rootView: RootView(
                     selectedCurrencyPairsService: selectedCurrencyPairsService,
+                    supportedCurrenciesService: supportedCurrenciesService,
                     ratesService: exchangeRatesService
                 )
             )

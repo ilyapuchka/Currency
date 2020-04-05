@@ -12,7 +12,9 @@ public struct DatafileSupportedCurrenciesService: SupportedCurrenciesService {
 
     #if canImport(Combine)
     public func supportedCurrencies() -> AnyPublisher<[Currency], Swift.Error> {
-        dataFileService.read().map { $0.map(Currency.init(code:)) }.eraseToAnyPublisher()
+        dataFileService.read()
+            .map { $0.map(Currency.init(code:)) }
+            .eraseToAnyPublisher()
     }
     #else
     public func supportedCurrencies() -> Future<[Currency], Swift.Error> {

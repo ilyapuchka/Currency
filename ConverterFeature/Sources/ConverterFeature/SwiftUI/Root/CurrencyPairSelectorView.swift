@@ -16,6 +16,7 @@ class CurrencyPairSelectorViewState: ObservableObject {
 
     init(
         initial: State,
+        supportedCurrenciesService: SupportedCurrenciesService,
         selected: @escaping (CurrencyPair) -> Void
     ) {
         state = initial
@@ -23,12 +24,18 @@ class CurrencyPairSelectorViewState: ObservableObject {
             assignTo: \.state,
             on: self,
             input: input.sink,
-            reduce: Self.reduce(selected: selected)
+            reduce: Self.reduce(
+                supportedCurrenciesService: supportedCurrenciesService,
+                selected: selected
+            )
         ).store(in: &bag)
+        input.send(.initialised)
     }
 
     struct State {
-        var first: Currency? = nil
+        var currencies: [Currency] = []
+        var first: Currency?
+        var error: Swift.Error?
 
         var isSelectingSecond: Bool {
             first != nil
@@ -36,10 +43,26 @@ class CurrencyPairSelectorViewState: ObservableObject {
     }
 
     static func reduce(
+        supportedCurrenciesService: SupportedCurrenciesService,
         selected: @escaping (CurrencyPair) -> Void
     ) -> Reducer<State, Event> {
         return { state, event in
             switch event {
+            case .initialised:
+                return [
+                    supportedCurrenciesService
+                        .supportedCurrencies()
+                        .map(Event.loadedSupportedCurrencies)
+                        .catch { error in Just(.failed(error)) }
+                        .eraseToAnyPublisher()
+                ]
+            case let .loadedSupportedCurrencies(currencies):
+                state.currencies = currencies
+                state.error = nil
+                return []
+            case let .failed(error):
+                state.error = error
+                return []
             case let .ui(.selected(currency)):
                 if let first = state.first {
                     selected(CurrencyPair(from: first, to: currency))
@@ -47,8 +70,13 @@ class CurrencyPairSelectorViewState: ObservableObject {
                     state.first = currency
                 }
                 return []
-            default:
-                return []
+            case .ui(.retry):
+                return [
+                    supportedCurrenciesService.supportedCurrencies()
+                        .map(Event.loadedSupportedCurrencies)
+                        .catch { error in Just(.failed(error)) }
+                        .eraseToAnyPublisher()
+                ]
             }
         }
     }
@@ -78,39 +106,56 @@ class CurrencyPairSelectorViewState: ObservableObject {
 struct CurrencyPairSelectorView: View {
     @ObservedObject private var state: CurrencyPairSelectorViewState
 
-    init(selected: @escaping (CurrencyPair) -> Void) {
+    init(
+        supportedCurrenciesService: SupportedCurrenciesService,
+        selected: @escaping (CurrencyPair) -> Void
+    ) {
         self.state = CurrencyPairSelectorViewState(
             initial: .init(),
+            supportedCurrenciesService: supportedCurrenciesService,
             selected: selected
         )
     }
 
     var body: some View {
         NavigationView {
-            CurrenciesList(
-                items: [Currency](["EUR", "USD"]).map { currency in
-                    .init(
-                        code: currency.code,
-                        name: LocalizedStringKey(currency.code),
-                        isEnabled: true
+            When(state.error,
+                 then: { _ in
+                    EmptyState(
+                        actionImage: nil,
+                        actionTitle: "retry",
+                        description: "failed_to_get_currency_list",
+                        action: {
+                            self.state.sendAction(.retry)
+                        }
                     )
-                }
-            ) { index in
-                self.state.sendAction(.selected("EUR"))
-            }
-            .push(isActive: self.$state.isSelectingSecond) {
-                CurrenciesList(
-                    items: [Currency](["EUR", "USD"]).map { currency in
-                        .init(
-                            code: currency.code,
-                            name: LocalizedStringKey(currency.code),
-                            isEnabled: true
-                        )
+            },
+                 else: {
+                    CurrenciesList(
+                        items: state.currencies.map { currency in
+                            .init(
+                                code: currency.code,
+                                name: LocalizedStringKey(currency.code),
+                                isEnabled: true
+                            )
+                        }
+                    ) { index in
+                        self.state.sendAction(.selected("EUR"))
                     }
-                ) { index in
-                    self.state.sendAction(.selected("USD"))
-                }
-            }
+                    .push(isActive: self.$state.isSelectingSecond) {
+                        CurrenciesList(
+                            items: state.currencies.map { currency in
+                                .init(
+                                    code: currency.code,
+                                    name: LocalizedStringKey(currency.code),
+                                    isEnabled: true
+                                )
+                            }
+                        ) { index in
+                            self.state.sendAction(.selected("USD"))
+                        }
+                    }
+            })
         }
     }
 }

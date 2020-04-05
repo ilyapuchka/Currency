@@ -10,12 +10,16 @@ class RootViewState: ObservableObject {
     private let input = PassthroughSubject<Event, Never>()
     @Published private(set) var state: State
 
+    let supportedCurrenciesService: SupportedCurrenciesService
+
     init(
         initial: State = .init(),
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
+        supportedCurrenciesService: SupportedCurrenciesService,
         ratesService: ExchangeRateService//,
         //ratesObserving: RatesUpdateObserving
     ) {
+        self.supportedCurrenciesService = supportedCurrenciesService
         state = initial
         StateMachine.make(
             assignTo: \.state,
@@ -101,16 +105,18 @@ public struct RootView: View {
 
     public init(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
+        supportedCurrenciesService: SupportedCurrenciesService,
         ratesService: ExchangeRateService
     ) {
         self.state = RootViewState(
             selectedCurrencyPairsService: selectedCurrencyPairsService,
+            supportedCurrenciesService: supportedCurrenciesService,
             ratesService: ratesService
         )
     }
 
     public var body: some View {
-        When(state.state.error,
+        When(state.error,
              then: { _ in
                 EmptyState(
                     actionImage: nil,
@@ -135,7 +141,9 @@ public struct RootView: View {
                                 self.state.sendAction(.added(nil))
                             }
                         ) {
-                            CurrencyPairSelectorView() {
+                            CurrencyPairSelectorView(
+                                supportedCurrenciesService: self.state.supportedCurrenciesService
+                            ) {
                                 self.state.sendAction(.added($0))
                             }
                         }

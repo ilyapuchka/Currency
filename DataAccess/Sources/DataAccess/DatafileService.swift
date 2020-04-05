@@ -20,12 +20,19 @@ public struct DatafileService<T> {
 
 #if canImport(Combine)
 extension DatafileService where T: Decodable {
-    public func read() -> Future<T, Swift.Error> {
-        fatalError()
+    public func read() -> AnyPublisher<T, Swift.Error> {
+        Future.async(on: queue) { [url] (promise) in
+            promise(
+                Result {
+                    let data = try Data(contentsOf: url)
+                    return try JSONDecoder().decode(T.self, from: data)
+                }
+            )
+        }
     }
 }
 extension DatafileService where T: Encodable {
-    public func write(_ value: T) -> Future<Void, Swift.Error> {
+    public func write(_ value: T) -> AnyPublisher<Void, Swift.Error> {
         fatalError()
     }
 }
