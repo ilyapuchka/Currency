@@ -7,7 +7,7 @@ public struct CurrencyRow: View {
     public struct Value: Identifiable {
         public var id: String { code }
 
-        let code: String
+        public let code: String
         let name: LocalizedStringKey
         let isEnabled: Bool
 
@@ -68,7 +68,7 @@ public struct CurrenciesList: View {
 
     public var body: some View {
         List(items, id: \.id) { item in
-            Button(action: { self.onSelect(item) }) {
+            Button(action: { item.isEnabled ? self.onSelect(item) : () }) {
                 CurrencyRow(item)
             }
         }

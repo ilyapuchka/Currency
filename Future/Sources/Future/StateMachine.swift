@@ -41,10 +41,10 @@ public class StateMachine<State, Event> {
 
     private func performEffects(effects: [AnyPublisher<Event, Never>]) {
         effects.forEach { [unowned self] effect in
-            _ = effect.receive(on: DispatchQueue.main).sink { (event) in
+            effect.receive(on: DispatchQueue.main).sink { (event) in
                 let effects = self.reduce(&self.state, event)
                 self.performEffects(effects: effects)
-            }
+            }.store(in: &bag)
         }
     }
 }

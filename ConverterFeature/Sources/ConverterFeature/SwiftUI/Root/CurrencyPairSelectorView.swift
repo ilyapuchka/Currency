@@ -15,11 +15,11 @@ class CurrencyPairSelectorViewState: ObservableObject {
     @Published private(set) var state: State
 
     init(
-        initial: State,
         supportedCurrenciesService: SupportedCurrenciesService,
-        selected: @escaping (CurrencyPair) -> Void
+        disabled: [CurrencyPair],
+        selected: @escaping Promise<CurrencyPair?, Never>
     ) {
-        state = initial
+        state = State(disabled: disabled)
         StateMachine.make(
             assignTo: \.state,
             on: self,
@@ -33,6 +33,7 @@ class CurrencyPairSelectorViewState: ObservableObject {
     }
 
     struct State {
+        let disabled: [CurrencyPair]
         var currencies: [Currency] = []
         var first: Currency?
         var error: Swift.Error?
@@ -42,9 +43,20 @@ class CurrencyPairSelectorViewState: ObservableObject {
         }
     }
 
+    func isEnabled(currency: Currency) -> Bool {
+        guard let first = state.first else {
+            return true
+        }
+        guard currency != state.first else {
+            return false
+        }
+        let pair = CurrencyPair(from: first, to: currency)
+        return !state.disabled.contains(pair)
+    }
+
     static func reduce(
         supportedCurrenciesService: SupportedCurrenciesService,
-        selected: @escaping (CurrencyPair) -> Void
+        selected: @escaping Promise<CurrencyPair?, Never>
     ) -> Reducer<State, Event> {
         return { state, event in
             switch event {
@@ -64,10 +76,14 @@ class CurrencyPairSelectorViewState: ObservableObject {
                 state.error = error
                 return []
             case let .ui(.selected(currency)):
-                if let first = state.first {
-                    selected(CurrencyPair(from: first, to: currency))
+                if let currency = currency {
+                    if let first = state.first {
+                        selected(.success(CurrencyPair(from: first, to: currency)))
+                    } else {
+                        state.first = currency
+                    }
                 } else {
-                    state.first = currency
+                    selected(.success(nil))
                 }
                 return []
             case .ui(.retry):
@@ -97,7 +113,7 @@ class CurrencyPairSelectorViewState: ObservableObject {
         case ui(UserAction)
 
         enum UserAction {
-            case selected(Currency)
+            case selected(Currency?)
             case retry
         }
     }
@@ -108,11 +124,12 @@ struct CurrencyPairSelectorView: View {
 
     init(
         supportedCurrenciesService: SupportedCurrenciesService,
-        selected: @escaping (CurrencyPair) -> Void
+        disabled: [CurrencyPair],
+        selected: @escaping Promise<CurrencyPair?, Never>
     ) {
         self.state = CurrencyPairSelectorViewState(
-            initial: .init(),
             supportedCurrenciesService: supportedCurrenciesService,
+            disabled: disabled,
             selected: selected
         )
     }
@@ -136,11 +153,12 @@ struct CurrencyPairSelectorView: View {
                             .init(
                                 code: currency.code,
                                 name: LocalizedStringKey(currency.code),
-                                isEnabled: true
+                                isEnabled: state.isEnabled(currency: currency)
                             )
                         }
-                    ) { index in
-                        self.state.sendAction(.selected("EUR"))
+                    ) { value in
+                        let selected = self.state.currencies.first { $0.code == value.code }
+                        self.state.sendAction(.selected(selected!))
                     }
                     .push(isActive: self.$state.isSelectingSecond) {
                         CurrenciesList(
@@ -148,14 +166,17 @@ struct CurrencyPairSelectorView: View {
                                 .init(
                                     code: currency.code,
                                     name: LocalizedStringKey(currency.code),
-                                    isEnabled: true
+                                    isEnabled: state.isEnabled(currency: currency)
                                 )
                             }
-                        ) { index in
-                            self.state.sendAction(.selected("USD"))
+                        ) { value in
+                            let selected = self.state.currencies.first { $0.code == value.code }
+                            self.state.sendAction(.selected(selected!))
                         }
                     }
             })
+        }.onDisappear {
+            self.state.sendAction(.selected(nil))
         }
     }
 }

@@ -2,7 +2,6 @@ import SwiftUI
 import Domain
 import Future
 import DesignLibrary
-import Combine
 
 @dynamicMemberLookup
 class RootViewState: ObservableObject {
@@ -50,7 +49,19 @@ class RootViewState: ObservableObject {
         return { state, event in
             switch event {
             case .ui(.addPair):
-                state.status = .addingPair
+                let (future, promise) = Future<CurrencyPair?, Never>.pipe()
+                state.status = .addingPair(promise)
+
+                return [
+                    future
+                        .map { Event.ui(.added($0)) }
+                        .eraseToAnyPublisher()
+                ]
+            case let .ui(.added(pair)):
+                if let pair = pair {
+                    state.pairs.insert(pair, at: 0)
+                }
+                state.status = .isLoaded
                 return []
             default:
                 state.status = .isLoaded
@@ -66,17 +77,15 @@ class RootViewState: ObservableObject {
 
         var status: Status = .isLoading
 
-        var isAddingPair: Bool {
-            get {
-                if case .addingPair = status { return true }
-                else { return false }
-            }
+        var isAddingPair: Promise<CurrencyPair?, Never>? {
+            if case let .addingPair(promise) = status { return promise }
+            else { return nil }
         }
 
         enum Status {
             case isLoading
             case isLoaded
-            case addingPair/*(Promise<CurrencyPair?, Never>)*/
+            case addingPair(Promise<CurrencyPair?, Never>)
         }
     }
 
@@ -135,17 +144,12 @@ public struct RootView: View {
                             action: {
                                 self.state.sendAction(.addPair)
                             }
-                        ).sheet(
-                            isPresented: $state.isAddingPair,
-                            onDismiss: {
-                                self.state.sendAction(.added(nil))
-                            }
-                        ) {
+                        ).sheet(when: $state.isAddingPair) { promise in
                             CurrencyPairSelectorView(
-                                supportedCurrenciesService: self.state.supportedCurrenciesService
-                            ) {
-                                self.state.sendAction(.added($0))
-                            }
+                                supportedCurrenciesService: self.state.supportedCurrenciesService,
+                                disabled: self.state.pairs,
+                                selected: promise
+                            )
                         }
                      },
                      else: {
@@ -155,5 +159,15 @@ public struct RootView: View {
                 )
              }
         )
+    }
+}
+
+extension View {
+    public func sheet<Item, Content>(when item: Binding<Item?>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (Item) -> Content) -> some View where Content : View {
+        let isPresented = Binding<Bool>(
+            get: { item.wrappedValue != nil },
+            set: { $0 ? item.wrappedValue = nil : () }
+        )
+        return sheet(isPresented: isPresented, onDismiss: onDismiss, content: { content(item.wrappedValue!) })
     }
 }

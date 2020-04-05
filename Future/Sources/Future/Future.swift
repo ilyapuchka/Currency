@@ -3,7 +3,7 @@ import Foundation
 @_exported import Combine
 
 @available(iOS 13.0, *)
-public typealias Future = Combine.Future
+public typealias Future<T, E: Error> = Combine.Future<T, E>
 
 @available(iOS 13.0, *)
 extension Future {
@@ -16,6 +16,12 @@ extension Future {
                 scheduler.schedule { attemptToFulfill(promise) }
             }.eraseToAnyPublisher()
         } ?? Self(attemptToFulfill).eraseToAnyPublisher()
+    }
+
+    public static func pipe() -> (Future<Output, Failure>, Future<Output, Failure>.Promise) {
+        var promise: Promise!
+        let future = Future { promise = $0 }
+        return (future, promise)
     }
 }
 
