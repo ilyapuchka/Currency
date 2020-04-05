@@ -23,7 +23,17 @@ public struct RevolutExchangeRateService: ExchangeRateService {
     }
     #if canImport(Combine)
     public func exchangeRates(pairs: [CurrencyPair]) -> AnyPublisher<[ExchangeRate], Swift.Error> {
-        fatalError()
+        urlSession.get(url: makeURL(pairs: pairs))
+            .tryMap { (data, _) in
+                try JSONDecoder().decode(ExchangeRates.self, from: data)
+                    .rates
+                    .filter { pairs.contains($0.pair) }
+                    .sorted { lhs, rhs in
+                        let lhsIndex = pairs.firstIndex(of: lhs.pair)!
+                        let rhsIndex = pairs.firstIndex(of: rhs.pair)!
+                        return lhsIndex < rhsIndex
+                }
+        }.eraseToAnyPublisher()
     }
     #else
     public func exchangeRates(pairs: [CurrencyPair]) -> Future<[ExchangeRate], Swift.Error> {

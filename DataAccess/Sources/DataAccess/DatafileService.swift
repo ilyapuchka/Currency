@@ -33,7 +33,14 @@ extension DatafileService where T: Decodable {
 }
 extension DatafileService where T: Encodable {
     public func write(_ value: T) -> AnyPublisher<Void, Swift.Error> {
-        fatalError()
+        Future.async(on: queue) { [url] (promise) in
+            promise(
+                Result {
+                    let data = try JSONEncoder().encode(value)
+                    try data.write(to: url, options: .atomic)
+                }
+            )
+        }
     }
 }
 #else

@@ -52,20 +52,77 @@ class RootViewState: ObservableObject {
     ) -> Reducer<State, Event> {
         return { state, event in
             switch event {
+            case .initialised:
+                return [
+                    selectedCurrencyPairsService
+                        .selectedCurrencyPairs()
+                        .catch { _ in Just([]) }
+                        .flatMap { (pairs: [CurrencyPair]) -> AnyPublisher<Event, Never> in
+                            pairs.isEmpty
+                                ? Just(Event.loadedRates([])).eraseToAnyPublisher()
+                                : ratesService.exchangeRates(pairs: pairs)
+                                    .map(Event.loadedRates)
+                                    .catch { error in Just(Event.failedToGetRates(pairs, error)) }
+                                    .eraseToAnyPublisher()
+                    }
+                    .eraseToAnyPublisher()
+                ]
+            case let .loadedRates(rates):
+                state.rates = rates
+                state.pairs = rates.map { $0.pair }
+                state.error = nil
+
+                state.status = .isLoaded
+                return []
+            case let .updatedRates(rates):
+                guard !rates.isEmpty else { return [] }
+
+                state.rates = rates
+                state.pairs = rates.map { $0.pair }
+                state.error = nil
+                //ratesObserving.start()
+                state.status = .isLoaded
+
+                return []
+
             case .ui(.addPair):
                 state.status = .addingPair
                 return []
             case let .ui(.added(pair)):
-                if let pair = pair {
-                    state.pairs.insert(pair, at: 0)
-                    state.rates.insert(ExchangeRate(pair: pair, rate: 1.5), at: 0)
-                }
                 state.status = .isLoaded
-                return []
+
+                guard let pair = pair else {
+                    return []
+                }
+                
+                state.pairs.insert(pair, at: 0)
+
+                return [
+                    selectedCurrencyPairsService
+                        .save(selectedPairs: state.pairs)
+                        .flatMap { _ in Empty<Event, Error>() }
+                        .catch { _ in Empty<Event, Never>() }
+                        .eraseToAnyPublisher(),
+                    ratesService
+                        .exchangeRates(pairs: state.pairs)
+                        .map(Event.updatedRates)
+                        // We could display alert when update fails, for now just ignore errors here,
+                        // they will be recovered on restart
+                        .catch { [rates = state.rates] _ in Just(Event.updatedRates(rates)) }
+                        .eraseToAnyPublisher(),
+                ]
+
             case let .ui(.deletePair(removed)):
                 state.pairs.remove(atOffsets: removed)
                 state.rates.remove(atOffsets: removed)
-                return []
+
+                return [
+                    selectedCurrencyPairsService
+                        .save(selectedPairs: state.pairs)
+                        .flatMap { _ in Empty<Event, Error>() }
+                        .catch { _ in Empty<Event, Never>() }
+                        .eraseToAnyPublisher()
+                ]
             default:
                 state.status = .isLoaded
                 return []
