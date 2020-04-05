@@ -1,7 +1,7 @@
 import Foundation
 import Domain
 
-protocol ExchangeRateFormatter {
+public protocol ExchangeRateFormatter {
     /// Returns formatted string for amount in `rate.from` currency
     func formatFrom(rate: ExchangeRate) -> String
 
@@ -12,10 +12,10 @@ protocol ExchangeRateFormatter {
     func accessibleFormat(rate: ExchangeRate) -> String
 }
 
-struct LocalizedExchangeRateFormatter: ExchangeRateFormatter {
+public struct LocalizedExchangeRateFormatter: ExchangeRateFormatter {
     let bundle: Bundle
 
-    init(bundle: Bundle, locale: Locale = Locale.current) {
+    public init(bundle: Bundle, locale: Locale = Locale.current) {
         self.bundle = bundle
         self.numberFormatter.locale = locale
     }
@@ -27,11 +27,11 @@ struct LocalizedExchangeRateFormatter: ExchangeRateFormatter {
         return formatter
     }()
 
-    func formatFrom(rate: ExchangeRate) -> String {
+    public func formatFrom(rate: ExchangeRate) -> String {
         return formatAmount(1, minimumFractionDigits: 0, label: rate.pair.from.code)
     }
 
-    func formatTo(rate: ExchangeRate) -> String {
+    public func formatTo(rate: ExchangeRate) -> String {
         return formatAmount(rate.convert(amount: 1), minimumFractionDigits: 4, label: rate.pair.to.code)
     }
 
@@ -44,7 +44,7 @@ struct LocalizedExchangeRateFormatter: ExchangeRateFormatter {
         )
     }
 
-    func accessibleFormat(rate: ExchangeRate) -> String {
+    public func accessibleFormat(rate: ExchangeRate) -> String {
         let fromLocalizedDescription = NSLocalizedString(rate.pair.from.code, bundle: bundle, comment: "")
         let toLocalizedDescription = NSLocalizedString(rate.pair.to.code, bundle: bundle, comment: "")
 

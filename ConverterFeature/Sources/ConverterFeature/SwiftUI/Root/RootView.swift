@@ -10,15 +10,19 @@ class RootViewState: ObservableObject {
     @Published private(set) var state: State
 
     let supportedCurrenciesService: SupportedCurrenciesService
+    let formatter: ExchangeRateFormatter
 
     init(
         initial: State = .init(),
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         supportedCurrenciesService: SupportedCurrenciesService,
-        ratesService: ExchangeRateService//,
-        //ratesObserving: RatesUpdateObserving
+        ratesService: ExchangeRateService,
+        //ratesObserving: RatesUpdateObserving,
+        formatter: ExchangeRateFormatter
     ) {
         self.supportedCurrenciesService = supportedCurrenciesService
+        self.formatter = formatter
+
         state = initial
         StateMachine.make(
             assignTo: \.state,
@@ -49,19 +53,18 @@ class RootViewState: ObservableObject {
         return { state, event in
             switch event {
             case .ui(.addPair):
-                let (future, promise) = Future<CurrencyPair?, Never>.pipe()
-                state.status = .addingPair(promise)
-
-                return [
-                    future
-                        .map { Event.ui(.added($0)) }
-                        .eraseToAnyPublisher()
-                ]
+                state.status = .addingPair
+                return []
             case let .ui(.added(pair)):
                 if let pair = pair {
                     state.pairs.insert(pair, at: 0)
+                    state.rates.insert(ExchangeRate(pair: pair, rate: 1.5), at: 0)
                 }
                 state.status = .isLoaded
+                return []
+            case let .ui(.deletePair(removed)):
+                state.pairs.remove(atOffsets: removed)
+                state.rates.remove(atOffsets: removed)
                 return []
             default:
                 state.status = .isLoaded
@@ -77,15 +80,15 @@ class RootViewState: ObservableObject {
 
         var status: Status = .isLoading
 
-        var isAddingPair: Promise<CurrencyPair?, Never>? {
-            if case let .addingPair(promise) = status { return promise }
-            else { return nil }
+        var isAddingPair: Bool {
+            if case .addingPair = status { return true }
+            else { return false }
         }
 
         enum Status {
             case isLoading
             case isLoaded
-            case addingPair(Promise<CurrencyPair?, Never>)
+            case addingPair
         }
     }
 
@@ -103,7 +106,7 @@ class RootViewState: ObservableObject {
             case addPair
             /// Added a pair or canceled selection if nil
             case added(CurrencyPair?)
-            case deletePair(CurrencyPair)
+            case deletePair(IndexSet)
             case retry
         }
     }
@@ -115,12 +118,14 @@ public struct RootView: View {
     public init(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         supportedCurrenciesService: SupportedCurrenciesService,
-        ratesService: ExchangeRateService
+        ratesService: ExchangeRateService,
+        formatter: ExchangeRateFormatter
     ) {
         self.state = RootViewState(
             selectedCurrencyPairsService: selectedCurrencyPairsService,
             supportedCurrenciesService: supportedCurrenciesService,
-            ratesService: ratesService
+            ratesService: ratesService,
+            formatter: formatter
         )
     }
 
@@ -144,30 +149,29 @@ public struct RootView: View {
                             action: {
                                 self.state.sendAction(.addPair)
                             }
-                        ).sheet(when: $state.isAddingPair) { promise in
-                            CurrencyPairSelectorView(
-                                supportedCurrenciesService: self.state.supportedCurrenciesService,
-                                disabled: self.state.pairs,
-                                selected: promise
-                            )
-                        }
+                        )
                      },
                      else: {
-                        EmptyView.init()
-                        //Text("content")
-                     }
-                )
+                        ExchangeRatesList(
+                            items: state.rates.map { rate in
+                                ExchangeRatesList.Item(
+                                    id: "\(rate.pair.hashValue)",
+                                    from: (amount: state.formatter.formatFrom(rate: rate), description: rate.pair.from.code),
+                                    to: (amount: state.formatter.formatTo(rate: rate), description: rate.pair.to.code)
+                                )
+                            },
+                            onAdd: { self.state.sendAction(.addPair) },
+                            onDelete: { self.state.sendAction(.deletePair($0)) }
+                        )
+                    }
+                ).sheet(isPresented: $state.isAddingPair) {
+                    CurrencyPairSelectorView(
+                        supportedCurrenciesService: self.state.supportedCurrenciesService,
+                        disabled: self.state.pairs,
+                        selected: { self.state.sendAction(.added($0)) }
+                    )
+                }
              }
         )
-    }
-}
-
-extension View {
-    public func sheet<Item, Content>(when item: Binding<Item?>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (Item) -> Content) -> some View where Content : View {
-        let isPresented = Binding<Bool>(
-            get: { item.wrappedValue != nil },
-            set: { $0 ? item.wrappedValue = nil : () }
-        )
-        return sheet(isPresented: isPresented, onDismiss: onDismiss, content: { content(item.wrappedValue!) })
     }
 }

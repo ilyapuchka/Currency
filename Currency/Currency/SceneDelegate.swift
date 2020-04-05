@@ -37,7 +37,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 rootView: RootView(
                     selectedCurrencyPairsService: selectedCurrencyPairsService,
                     supportedCurrenciesService: supportedCurrenciesService,
-                    ratesService: exchangeRatesService
+                    ratesService: exchangeRatesService,
+                    formatter: LocalizedExchangeRateFormatter(bundle: Bundle(for: Self.self))
                 )
             )
             self.window = window

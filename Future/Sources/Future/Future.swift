@@ -9,19 +9,13 @@ public typealias Future<T, E: Error> = Combine.Future<T, E>
 extension Future {
     public static func async<S: Scheduler>(
         on scheduler: S?,
-        _ attemptToFulfill: @escaping (@escaping Future<Output, Failure>.Promise
-    ) -> Void) -> AnyPublisher<Output, Failure> {
+        _ attemptToFulfill: @escaping (@escaping Future<Output, Failure>.Promise) -> Void
+    ) -> AnyPublisher<Output, Failure> {
         scheduler.map { scheduler in
             Self { promise in
                 scheduler.schedule { attemptToFulfill(promise) }
             }.eraseToAnyPublisher()
         } ?? Self(attemptToFulfill).eraseToAnyPublisher()
-    }
-
-    public static func pipe() -> (Future<Output, Failure>, Future<Output, Failure>.Promise) {
-        var promise: Promise!
-        let future = Future { promise = $0 }
-        return (future, promise)
     }
 }
 

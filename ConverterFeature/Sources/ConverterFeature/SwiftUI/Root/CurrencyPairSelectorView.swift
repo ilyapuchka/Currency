@@ -17,7 +17,7 @@ class CurrencyPairSelectorViewState: ObservableObject {
     init(
         supportedCurrenciesService: SupportedCurrenciesService,
         disabled: [CurrencyPair],
-        selected: @escaping Promise<CurrencyPair?, Never>
+        selected: @escaping (CurrencyPair?) -> Void
     ) {
         state = State(disabled: disabled)
         StateMachine.make(
@@ -56,7 +56,7 @@ class CurrencyPairSelectorViewState: ObservableObject {
 
     static func reduce(
         supportedCurrenciesService: SupportedCurrenciesService,
-        selected: @escaping Promise<CurrencyPair?, Never>
+        selected: @escaping (CurrencyPair?) -> Void
     ) -> Reducer<State, Event> {
         return { state, event in
             switch event {
@@ -78,12 +78,12 @@ class CurrencyPairSelectorViewState: ObservableObject {
             case let .ui(.selected(currency)):
                 if let currency = currency {
                     if let first = state.first {
-                        selected(.success(CurrencyPair(from: first, to: currency)))
+                        selected(CurrencyPair(from: first, to: currency))
                     } else {
                         state.first = currency
                     }
                 } else {
-                    selected(.success(nil))
+                    selected(nil)
                 }
                 return []
             case .ui(.retry):
@@ -125,7 +125,7 @@ struct CurrencyPairSelectorView: View {
     init(
         supportedCurrenciesService: SupportedCurrenciesService,
         disabled: [CurrencyPair],
-        selected: @escaping Promise<CurrencyPair?, Never>
+        selected: @escaping (CurrencyPair?) -> Void
     ) {
         self.state = CurrencyPairSelectorViewState(
             supportedCurrenciesService: supportedCurrenciesService,

@@ -17,16 +17,22 @@ public struct ExchangeRatesList: View {
         }
     }
 
-    @State private var items: [Item]
+    let items: [Item]
+    let onAdd: () -> Void
+    let onDelete: (IndexSet) -> Void
 
-    public init(items: [Item]) {
-        self._items = State(initialValue: items)
+    public init(items: [Item], onAdd: @escaping () -> Void, onDelete: @escaping (IndexSet) -> Void) {
+        self.items = items
+        self.onAdd = onAdd
+        self.onDelete = onDelete
     }
 
     public var body: some View {
         VStack {
             List {
-                AddCurrencyPairRow()
+                Button(action: self.onAdd) {
+                    AddCurrencyPairRow()
+                }
                 ForEach(items) { (item) in
                     ExchangeRateRow(
                         from: item.from,
@@ -34,9 +40,7 @@ public struct ExchangeRatesList: View {
                         onRateUpdate: { _ in }
                     )
                 }
-                .onDelete { removed in
-                    self.items.remove(atOffsets: removed)
-                }
+                .onDelete(perform: onDelete)
             }
         }
     }
