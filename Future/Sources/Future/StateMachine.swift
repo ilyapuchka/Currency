@@ -4,18 +4,20 @@ import Foundation
 import Combine
 
 @available(iOS 13.0, *)
-@dynamicMemberLookup
-public protocol StateMachine: ObservableObject {
-    associatedtype State
-    associatedtype UserAction
-    associatedtype Event
+public typealias Reducer<State, Event> = (inout State, Event) -> [AnyPublisher<Event, Never>]
 
-    typealias Reducer = (inout State, Event) -> [AnyPublisher<Event, Never>]
+@available(iOS 13.0, *)
+public class StateMachine<State, Event>: ObservableObject {
+    let reduce: Reducer<State, Event>
+    @Published public private(set) var state: State
 
-    var reduce: Reducer { get }
-    var state: State { get set }
-
-    func sendAction(_ action: UserAction)
+    public init(
+        initial: State,
+        reduce: @escaping Reducer<State, Event>
+    ) {
+        self.state = initial
+        self.reduce = reduce
+    }
 }
 
 @available(iOS 13.0, *)
@@ -31,11 +33,6 @@ extension StateMachine {
                 self.performEffects(effects: effects)
             }
         }
-    }
-
-    public subscript<T>(dynamicMember keyPath: KeyPath<State, T>) -> T {
-        get { state[keyPath: keyPath] }
-        set {}
     }
 }
 #else

@@ -4,33 +4,45 @@ import Future
 import DesignLibrary
 import Combine
 
-class RootViewState: StateMachine {
-    @Published var state: State
-    let reduce: Reducer
+@dynamicMemberLookup
+class RootViewState: ObservableObject {
+    private var __state: StateMachine<State, Event>
+    private var cancelable: AnyCancellable!
+
+    @Published private(set) var state: State
 
     init(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService//,
         //ratesObserving: RatesUpdateObserving
     ) {
-        state = .init()
-        reduce = Self.reduce(
-            selectedCurrencyPairsService: selectedCurrencyPairsService,
-            ratesService: ratesService//,
-            //ratesObserving: ratesObserving
+        self.__state = StateMachine(
+            initial: .init(),
+            reduce: Self.reduce(
+                selectedCurrencyPairsService: selectedCurrencyPairsService,
+                ratesService: ratesService//,
+                //ratesObserving: ratesObserving
+            )
         )
-        sink(event: .initialised)
+        self.state = .init()
+        self.cancelable = __state.$state.assign(to: \.state, on: self)
+        __state.sink(event: .initialised)
     }
 
     func sendAction(_ action: Event.UserAction) {
-        sink(event: .ui(action))
+        __state.sink(event: .ui(action))
+    }
+
+    public subscript<T>(dynamicMember keyPath: KeyPath<State, T>) -> T {
+        get { state[keyPath: keyPath] }
+        set {}
     }
 
     static func reduce(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService//,
         //ratesObserving: RatesUpdateObserving
-    ) -> Reducer {
+    ) -> Reducer<State, Event> {
         return { state, event in
             switch event {
             case .ui(.addPair):

@@ -3,13 +3,20 @@ import DesignLibrary
 import Domain
 import Future
 
-class CurrencyPairSelectorViewState: StateMachine {
-    @Published var state: State
-    let reduce: Reducer
+@dynamicMemberLookup
+class CurrencyPairSelectorViewState: ObservableObject {
+    private var __state: StateMachine<State, Event>
+    private var cancelable: AnyCancellable!
+
+    @Published private(set) var state: State
 
     init(selected: @escaping (CurrencyPair) -> Void) {
-        self.state = State(first: nil)
-        self.reduce = Self.reduce(selected: selected)
+        self.__state = StateMachine(
+            initial: .init(first: nil),
+            reduce: Self.reduce(selected: selected)
+        )
+        state = .init(first: nil)
+        self.cancelable = __state.$state.assign(to: \.state, on: self)
     }
 
     struct State {
@@ -22,7 +29,7 @@ class CurrencyPairSelectorViewState: StateMachine {
 
     static func reduce(
         selected: @escaping (CurrencyPair) -> Void
-    ) -> Reducer {
+    ) -> Reducer<State, Event> {
         return { state, event in
             switch event {
             case let .ui(.selected(currency)):
@@ -39,7 +46,12 @@ class CurrencyPairSelectorViewState: StateMachine {
     }
 
     func sendAction(_ action: Event.UserAction) {
-        sink(event: .ui(action))
+        __state.sink(event: .ui(action))
+    }
+
+    public subscript<T>(dynamicMember keyPath: KeyPath<State, T>) -> T {
+        get { state[keyPath: keyPath] }
+        set {}
     }
 
     enum Event {
