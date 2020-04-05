@@ -6,31 +6,31 @@ import Combine
 
 @dynamicMemberLookup
 class RootViewState: ObservableObject {
-    private var __state: StateMachine<State, Event>
-    private var cancelable: AnyCancellable!
-
+    private var bag = Set<AnyCancellable>()
+    private let input = PassthroughSubject<Event, Never>()
     @Published private(set) var state: State
 
     init(
+        initial: State = .init(),
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService//,
         //ratesObserving: RatesUpdateObserving
     ) {
-        self.__state = StateMachine(
-            initial: .init(),
+        state = initial
+        StateMachine.make(
+            assignTo: \.state,
+            on: self,
+            input: input.sink,
             reduce: Self.reduce(
                 selectedCurrencyPairsService: selectedCurrencyPairsService,
-                ratesService: ratesService//,
-                //ratesObserving: ratesObserving
+                ratesService: ratesService
             )
-        )
-        self.state = .init()
-        self.cancelable = __state.$state.assign(to: \.state, on: self)
-        __state.sink(event: .initialised)
+        ).store(in: &bag)
+        input.send(.initialised)
     }
 
     func sendAction(_ action: Event.UserAction) {
-        __state.sink(event: .ui(action))
+        input.send(.ui(action))
     }
 
     public subscript<T>(dynamicMember keyPath: KeyPath<State, T>) -> T {

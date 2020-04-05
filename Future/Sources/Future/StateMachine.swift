@@ -7,23 +7,36 @@ import Combine
 public typealias Reducer<State, Event> = (inout State, Event) -> [AnyPublisher<Event, Never>]
 
 @available(iOS 13.0, *)
-public class StateMachine<State, Event>: ObservableObject {
+public class StateMachine<State, Event> {
+    deinit {
+        Swift.print("deinit")
+    }
+    
     let reduce: Reducer<State, Event>
-    @Published public private(set) var state: State
+    @Published private var state: State
+    var bag = Set<AnyCancellable>()
 
-    public init(
+    public static func make<Root: AnyObject>(
+        assignTo stateKeyPath: ReferenceWritableKeyPath<Root, State>,
+        on stateOwner: Root,
+        input: ( @escaping (Event) -> Void ) -> AnyCancellable,
+        reduce: @escaping Reducer<State, Event>
+    ) -> AnyCancellable {
+        let machine = StateMachine(initial: stateOwner[keyPath: stateKeyPath], reduce: reduce)
+        machine.$state.sink { [weak stateOwner] (state) in
+            stateOwner?[keyPath: stateKeyPath] = state
+        }.store(in: &machine.bag)
+        return input { (event) in
+            machine.performEffects(effects: reduce(&machine.state, event))
+        }
+    }
+
+    init(
         initial: State,
         reduce: @escaping Reducer<State, Event>
     ) {
         self.state = initial
         self.reduce = reduce
-    }
-}
-
-@available(iOS 13.0, *)
-extension StateMachine {
-    public func sink(event: Event) {
-        performEffects(effects: reduce(&state, event))
     }
 
     private func performEffects(effects: [AnyPublisher<Event, Never>]) {

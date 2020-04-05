@@ -5,22 +5,30 @@ import Future
 
 @dynamicMemberLookup
 class CurrencyPairSelectorViewState: ObservableObject {
-    private var __state: StateMachine<State, Event>
-    private var cancelable: AnyCancellable!
+    private var bag = Set<AnyCancellable>()
 
+    deinit {
+        print("deinit")
+    }
+
+    private let input = PassthroughSubject<Event, Never>()
     @Published private(set) var state: State
 
-    init(selected: @escaping (CurrencyPair) -> Void) {
-        self.__state = StateMachine(
-            initial: .init(first: nil),
+    init(
+        initial: State,
+        selected: @escaping (CurrencyPair) -> Void
+    ) {
+        state = initial
+        StateMachine.make(
+            assignTo: \.state,
+            on: self,
+            input: input.sink,
             reduce: Self.reduce(selected: selected)
-        )
-        state = .init(first: nil)
-        self.cancelable = __state.$state.assign(to: \.state, on: self)
+        ).store(in: &bag)
     }
 
     struct State {
-        var first: Currency?
+        var first: Currency? = nil
 
         var isSelectingSecond: Bool {
             first != nil
@@ -46,7 +54,7 @@ class CurrencyPairSelectorViewState: ObservableObject {
     }
 
     func sendAction(_ action: Event.UserAction) {
-        __state.sink(event: .ui(action))
+        input.send(.ui(action))
     }
 
     public subscript<T>(dynamicMember keyPath: KeyPath<State, T>) -> T {
@@ -72,6 +80,7 @@ struct CurrencyPairSelectorView: View {
 
     init(selected: @escaping (CurrencyPair) -> Void) {
         self.state = CurrencyPairSelectorViewState(
+            initial: .init(),
             selected: selected
         )
     }
