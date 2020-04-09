@@ -17,7 +17,7 @@ class RootViewState: ObservableObject {
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         supportedCurrenciesService: SupportedCurrenciesService,
         ratesService: ExchangeRateService,
-        //ratesObserving: RatesUpdateObserving,
+        ratesObserving: RatesUpdateObserving,
         formatter: ExchangeRateFormatter
     ) {
         self.supportedCurrenciesService = supportedCurrenciesService
@@ -30,9 +30,15 @@ class RootViewState: ObservableObject {
             input: input.sink,
             reduce: Self.reduce(
                 selectedCurrencyPairsService: selectedCurrencyPairsService,
-                ratesService: ratesService
+                ratesService: ratesService,
+                ratesObserving: ratesObserving
             )
         ).store(in: &bag)
+
+        ratesObserving.update(subscriber: Subscribers.Assign(object: self, keyPath: \.state.rates)) {
+            ratesService.exchangeRates(pairs: self.state.pairs)
+        }
+
         input.send(.initialised)
     }
 
@@ -47,8 +53,8 @@ class RootViewState: ObservableObject {
 
     static func reduce(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
-        ratesService: ExchangeRateService//,
-        //ratesObserving: RatesUpdateObserving
+        ratesService: ExchangeRateService,
+        ratesObserving: RatesUpdateObserving
     ) -> Reducer<State, Event> {
         return { state, event in
             switch event {
@@ -73,6 +79,11 @@ class RootViewState: ObservableObject {
                 state.error = nil
 
                 state.status = .isLoaded
+
+                if !rates.isEmpty {
+                    ratesObserving.start()
+                }
+
                 return []
             case let .updatedRates(rates):
                 guard !rates.isEmpty else { return [] }
@@ -80,16 +91,21 @@ class RootViewState: ObservableObject {
                 state.rates = rates
                 state.pairs = rates.map { $0.pair }
                 state.error = nil
-                //ratesObserving.start()
+                ratesObserving.start()
                 state.status = .isLoaded
 
                 return []
 
             case .ui(.addPair):
                 state.status = .addingPair
+                ratesObserving.pause()
                 return []
             case let .ui(.added(pair)):
                 state.status = .isLoaded
+
+                if !state.rates.isEmpty {
+                    ratesObserving.start()
+                }
 
                 guard let pair = pair else {
                     return []
@@ -115,6 +131,10 @@ class RootViewState: ObservableObject {
             case let .ui(.deletePair(removed)):
                 state.pairs.remove(atOffsets: removed)
                 state.rates.remove(atOffsets: removed)
+
+                if state.pairs.isEmpty {
+                    ratesObserving.pause()
+                }
 
                 return [
                     selectedCurrencyPairsService
@@ -176,12 +196,14 @@ public struct RootView: View {
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         supportedCurrenciesService: SupportedCurrenciesService,
         ratesService: ExchangeRateService,
+        ratesObserving: RatesUpdateObserving,
         formatter: ExchangeRateFormatter
     ) {
         self.state = RootViewState(
             selectedCurrencyPairsService: selectedCurrencyPairsService,
             supportedCurrenciesService: supportedCurrenciesService,
             ratesService: ratesService,
+            ratesObserving: ratesObserving,
             formatter: formatter
         )
     }

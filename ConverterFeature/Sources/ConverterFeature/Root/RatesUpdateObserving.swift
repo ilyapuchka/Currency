@@ -2,23 +2,28 @@ import Foundation
 import Domain
 import Future
 
-#if !canImport(Combine)
-protocol RatesUpdateObserving {
+public protocol RatesUpdateObserving {
     func start()
     func pause()
 
+    /// Sets a closure to run to update exchange rates. The closure should create a future value of updated exchange rates
+    #if canImport(Combine)
+    func update<S: Subscriber>(
+        subscriber: S,
+        _ future: @escaping () -> AnyPublisher<[ExchangeRate], Error>
+    ) where S.Input == [ExchangeRate], S.Failure == Never
+    #else
     /**
      Registers an observer for updates to provided currency pair exchange rates
 
      - parameters:
-        - pair: a currency pair to observe for changes
-        - update:a block to register as a notification handler
+     - pair: a currency pair to observe for changes
+     - update:a block to register as a notification handler
      */
     func observeUpdates(pair: CurrencyPair, update: @escaping (ExchangeRate) -> Void) -> Void
 
-    /// Sets a closure to run to update exchange rates. The closure should create a future value of updated exchange rates
     func update(_ future: @escaping () -> Future<[ExchangeRate], Error>)
-    
+    #endif
     /**
      - returns: An observer object
      - parameters:
@@ -29,34 +34,54 @@ protocol RatesUpdateObserving {
 }
 
 /// Periodically updates exchange rates and notifies observers
-final class TimerRatesUpdateObserving: RatesUpdateObserving {
+public final class TimerRatesUpdateObserving: RatesUpdateObserving {
     private var observers: [CurrencyPair: (ExchangeRate) -> Void] = [:]
 
-    func observeUpdates(pair: CurrencyPair, update: @escaping (ExchangeRate) -> Void) -> Void {
-        observers[pair] = update
-    }
+    #if canImport(Combine)
+    var bag = Set<AnyCancellable>()
+    #endif
 
     private let updateTimer: Timer
 
-    init(timer: Timer = Timer(repeatInterval: 1)) {
+    public init(timer: Timer = Timer(repeatInterval: 1)) {
         updateTimer = timer
     }
 
     /// Pauses periodic updates
-    func pause() {
+    public func pause() {
         updateTimer.pause()
     }
 
-    var isRunning: Bool {
+    public var isRunning: Bool {
         updateTimer.isRunning
     }
 
     /// Starts periodic updates
-    func start() {
+    public func start() {
         updateTimer.start()
     }
 
-    func update(_ future: @escaping () -> Future<[ExchangeRate], Error>) {
+    #if canImport(Combine)
+    public func update<S: Subscriber>(
+        subscriber: S,
+        _ future: @escaping () -> AnyPublisher<[ExchangeRate], Error>
+    ) where S.Input == [ExchangeRate], S.Failure == Never {
+        let subject = PassthroughSubject<[ExchangeRate], Never>()
+        subject.receive(on: DispatchQueue.main).receive(subscriber: subscriber)
+
+        updateTimer.observe { [unowned self] in
+            future()
+                .catch { _ in Empty() }
+                .sink { subject.send($0) }
+                .store(in: &self.bag)
+        }
+    }
+    #else
+    public func observeUpdates(pair: CurrencyPair, update: @escaping (ExchangeRate) -> Void) -> Void {
+        observers[pair] = update
+    }
+
+    public func update(_ future: @escaping () -> Future<[ExchangeRate], Error>) {
         updateTimer.observe { [unowned self] in
             future().on(success: { rates in
                 rates.forEach { (rate) in
@@ -65,5 +90,5 @@ final class TimerRatesUpdateObserving: RatesUpdateObserving {
             })
         }
     }
+    #endif
 }
-#endif

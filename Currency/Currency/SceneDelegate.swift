@@ -38,6 +38,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                     selectedCurrencyPairsService: selectedCurrencyPairsService,
                     supportedCurrenciesService: supportedCurrenciesService,
                     ratesService: exchangeRatesService,
+                    ratesObserving: TimerRatesUpdateObserving(),
                     formatter: LocalizedExchangeRateFormatter(bundle: Bundle(for: Self.self))
                 )
             )

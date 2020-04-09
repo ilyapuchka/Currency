@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 public struct ExchangeRateRow: View {
     @Environment(\.designLibrary) var designLibrary
 
@@ -8,8 +7,6 @@ public struct ExchangeRateRow: View {
 
     let from: Labels
     let to: Labels
-
-    let onRateUpdate: (@escaping (String, String) -> Void) -> Void
 
     func label(amount: String, description: String, alignment: HorizontalAlignment) -> some View {
         VStack(alignment: alignment) {

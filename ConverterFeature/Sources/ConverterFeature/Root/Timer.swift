@@ -1,26 +1,26 @@
 import Foundation
 
-final class Timer {
+public final class Timer {
     private let source: DispatchSourceTimer
     private(set) var isRunning: Bool = false
 
-    init(repeatInterval: Double) {
+    public init(repeatInterval: Double) {
         source = DispatchSource.makeTimerSource(queue: .main)
         let deadline: DispatchTime = .now() + repeatInterval
         source.schedule(deadline: deadline, repeating: repeatInterval)
     }
 
-    func observe(_ handler: @escaping () -> Void) {
+    public func observe(_ handler: @escaping () -> Void) {
         source.setEventHandler(handler: handler)
     }
 
-    func start() {
+    public func start() {
         guard !self.isRunning else { return }
         self.source.resume()
         self.isRunning = true
     }
 
-    func pause() {
+    public func pause() {
         guard self.isRunning else { return }
         self.source.suspend()
         self.isRunning = false

@@ -21,7 +21,11 @@ public struct ExchangeRatesList: View {
     let onAdd: () -> Void
     let onDelete: (IndexSet) -> Void
 
-    public init(items: [Item], onAdd: @escaping () -> Void, onDelete: @escaping (IndexSet) -> Void) {
+    public init(
+        items: [Item],
+        onAdd: @escaping () -> Void,
+        onDelete: @escaping (IndexSet) -> Void
+    ) {
         self.items = items
         self.onAdd = onAdd
         self.onDelete = onDelete
@@ -34,11 +38,7 @@ public struct ExchangeRatesList: View {
                     AddCurrencyPairRow()
                 }
                 ForEach(items) { (item) in
-                    ExchangeRateRow(
-                        from: item.from,
-                        to: item.to,
-                        onRateUpdate: { _ in }
-                    )
+                    ExchangeRateRow(from: item.from, to: item.to)
                 }
                 .onDelete(perform: onDelete)
             }
