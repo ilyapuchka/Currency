@@ -1,39 +1,59 @@
-import Foundation
+import Combine
+import DataAccess
 import Domain
 import Future
-import DesignLibrary
+import Foundation
 
-#if !canImport(Combine)
-struct RootViewModel: ViewModelProtocol {
-    let state: StateMachine<RootState, RootEvent>
+class RootViewState: ObservableViewState {
+    typealias State = RootState
+    typealias Event = RootEvent
+
+    @Published private(set) var state: State
+    private let input = PassthroughSubject<Event, Never>()
+    private var bag = Set<AnyCancellable>()
+
+    let supportedCurrenciesService: SupportedCurrenciesService
+    let formatter: ExchangeRateFormatter
 
     init(
+        initial: State = .init(),
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
+        supportedCurrenciesService: SupportedCurrenciesService,
         ratesService: ExchangeRateService,
-        ratesObserving: RatesUpdateObserving
+        ratesObserving: RatesUpdateObserving,
+        formatter: ExchangeRateFormatter
     ) {
-        state = StateMachine(
-            initial: .init(
-                status: .isLoaded,
-                observeUpdates: ratesObserving.observeUpdates
-            ),
+        self.supportedCurrenciesService = supportedCurrenciesService
+        self.formatter = formatter
+
+        state = initial
+        StateMachine.make(
+            assignTo: \.state,
+            on: self,
+            input: input.sink,
             reduce: Self.reduce(
                 selectedCurrencyPairsService: selectedCurrencyPairsService,
                 ratesService: ratesService,
                 ratesObserving: ratesObserving
             )
-        )
-        ratesObserving.update { [unowned state] in
-            ratesService.exchangeRates(pairs: state.state.pairs)
+        ).store(in: &bag)
+
+        ratesObserving.update(subscriber: Subscribers.Assign(object: self, keyPath: \.state.rates)) {
+            ratesService.exchangeRates(pairs: self.state.pairs)
         }
-        state.sink(event: .initialised)
+
+        input.send(.initialised)
+    }
+
+    func sendAction(_ action: Event.UserAction) {
+        input.send(.ui(action))
     }
 
     static func reduce(
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService,
         ratesObserving: RatesUpdateObserving
-    ) -> Reducer<RootEvent> {
+    ) -> Reducer<State, Event> {
         return { state, event in
             switch event {
             case .initialised:
@@ -55,8 +75,12 @@ struct RootViewModel: ViewModelProtocol {
                     ratesObserving: ratesObserving
                 )
             case let .failedToGetRates(pairs, error):
-                return failedToUpdateRates(state: &state, pairs: pairs, error: error)
-            case let .added(pair):
+                return failedToUpdateRates(
+                    state: &state,
+                    pairs: pairs,
+                    error: error
+                )
+            case let .ui(.added(pair)):
                 return addedCurrencyPair(
                     state: &state,
                     pair: pair,
@@ -66,10 +90,10 @@ struct RootViewModel: ViewModelProtocol {
                 )
             case .ui(.addPair):
                 return addPair(state: &state, ratesObserving: ratesObserving)
-            case let .ui(.deletePair(pair)):
+            case let .ui(.deletePair(removed)):
                 return deletePair(
                     state: &state,
-                    pair: pair,
+                    removed: removed,
                     selectedCurrencyPairsService: selectedCurrencyPairsService,
                     ratesObserving: ratesObserving
                 )
@@ -79,49 +103,36 @@ struct RootViewModel: ViewModelProtocol {
         }
     }
 
-    func sendAction(_ action: RootEvent.UserAction) {
-        state.sink(event: .ui(action))
-    }
-
-    /// Adds observer for when user wants to add a new pair
-    func addPair(_ observer: @escaping ([CurrencyPair], Promise<CurrencyPair?, Never>) -> Void) {
-        state.observeState { (state) in
-            if case let .addingPair(addedPair) = state.status {
-                observer(state.pairs, addedPair)
-            }
-        }
-    }
 }
 
-private extension RootViewModel {
+extension RootViewState {
     static func loadPreviouslySelectedPairs(
-        state: inout RootState,
+        state: inout RootViewState.State,
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService
-    ) -> [Future<RootEvent, Never>] {
+    ) -> [AnyPublisher<RootEvent, Never>] {
         state.status = .isLoading
-
         return [
-            selectedCurrencyPairsService.selectedCurrencyPairs()
+            selectedCurrencyPairsService
+                .selectedCurrencyPairs()
+                .catch { _ in Just([]) }
                 .flatMap { pairs in
                     pairs.isEmpty
-                        ? .just(RootEvent.loadedRates([]))
-                        : ratesService
-                            .exchangeRates(pairs: pairs)
-                            .map(RootEvent.loadedRates)
-                            .flatMapError { error in
-                                .just(.failedToGetRates(pairs, error))
-                            }
-                }
-                .flatMapError { _ in .just(.loadedRates([])) }
+                        ? Just(Event.loadedRates([])).eraseToAnyPublisher()
+                        : ratesService.exchangeRates(pairs: pairs)
+                            .map(Event.loadedRates)
+                            .catch { error in Just(Event.failedToGetRates(pairs, error)) }
+                            .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
         ]
     }
 
     static func loadedPreviouslySelectedPairs(
         state: inout RootState,
-        rates: [ExchangeRate],
+        rates: ([ExchangeRate]),
         ratesObserving: RatesUpdateObserving
-    ) -> [Future<RootEvent, Never>] {
+    ) -> [AnyPublisher<RootEvent, Never>] {
         state.rates = rates
         state.pairs = rates.map { $0.pair }
         state.error = nil
@@ -139,7 +150,7 @@ private extension RootViewModel {
         state: inout RootState,
         rates: [ExchangeRate],
         ratesObserving: RatesUpdateObserving
-    ) -> [Future<RootEvent, Never>] {
+    ) -> [AnyPublisher<RootEvent, Never>] {
         guard !rates.isEmpty else { return [] }
 
         state.rates = rates
@@ -155,7 +166,7 @@ private extension RootViewModel {
         state: inout RootState,
         pairs: [CurrencyPair],
         error: Error
-    ) -> [Future<RootEvent, Never>] {
+    ) -> [AnyPublisher<RootEvent, Never>] {
         state.pairs = pairs
         state.error = error
         state.status = .isLoaded
@@ -168,53 +179,51 @@ private extension RootViewModel {
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesService: ExchangeRateService,
         ratesObserving: RatesUpdateObserving
-    ) -> [Future<RootEvent, Never>] {
+    ) -> [AnyPublisher<RootEvent, Never>] {
         if !state.rates.isEmpty {
             ratesObserving.start()
         }
         state.status = .isLoaded
 
-        guard let addedPair = pair else {
+        guard let pair = pair else {
             return []
         }
 
-        state.pairs.insert(addedPair, at: 0)
+        state.pairs.insert(pair, at: 0)
 
         return [
             selectedCurrencyPairsService
                 .save(selectedPairs: state.pairs)
                 .ignoreError()
-                .flatMap { .empty },
+                .flatMap { Empty() }
+                .eraseToAnyPublisher(),
             ratesService
                 .exchangeRates(pairs: state.pairs)
-                .map(RootEvent.updatedRates)
+                .map(Event.updatedRates)
                 // We could display alert when update fails, for now just ignore errors here,
                 // they will be recovered on restart
                 .ignoreError()
+                .eraseToAnyPublisher(),
         ]
     }
 
     static func addPair(
         state: inout RootState,
         ratesObserving: RatesUpdateObserving
-    ) -> [Future<RootEvent, Never>] {
-        let promise = Promise<CurrencyPair?, Never>()
+    ) -> [AnyPublisher<RootEvent, Never>] {
+        state.status = .addingPair
         ratesObserving.pause()
-        state.status = .addingPair(promise)
-
-        return [
-            Future(promise: promise).map(RootEvent.added)
-        ]
+        return []
     }
 
     static func deletePair(
         state: inout RootState,
-        pair: CurrencyPair,
+        removed: IndexSet,
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
         ratesObserving: RatesUpdateObserving
-    ) -> [Future<RootEvent, Never>] {
-        state.rates.removeAll(where: { $0.pair == pair })
-        state.pairs.removeAll(where: { $0 == pair })
+    ) -> [AnyPublisher<RootEvent, Never>] {
+        state.pairs.remove(atOffsets: removed)
+        state.rates.remove(atOffsets: removed)
 
         if state.pairs.isEmpty {
             ratesObserving.pause()
@@ -224,36 +233,42 @@ private extension RootViewModel {
             selectedCurrencyPairsService
                 .save(selectedPairs: state.pairs)
                 .ignoreError()
-                .flatMap { .empty },
+                .flatMap { Empty() }
+                .eraseToAnyPublisher()
         ]
     }
 
-    static func retry(state: inout RootState, ratesService: ExchangeRateService) -> [Future<RootEvent, Never>] {
+    static func retry(
+        state: inout RootState,
+        ratesService: ExchangeRateService
+    ) -> [AnyPublisher<RootEvent, Never>] {
         state.status = .isLoading
 
         return [
             ratesService
                 .exchangeRates(pairs: state.pairs)
-                .map(RootEvent.loadedRates)
-                .flatMapError { [pairs = state.pairs] error in .just(.failedToGetRates(pairs, error)) }
+                .map(Event.loadedRates)
+                .catch { [pairs = state.pairs] error in Just(Event.failedToGetRates(pairs, error)) }
+                .eraseToAnyPublisher(),
         ]
     }
 }
 
 struct RootState {
-    /// Current exchange rates
     var rates: [ExchangeRate] = []
-    /// Currently selected pairs
     var pairs: [CurrencyPair] = []
-    var status: Status
+    var status: Status = .isLoaded
     var error: Error?
-    /// Closure to add observer for provided currency pair exchange rate
-    let observeUpdates: RatesUpdateObserving.AddObserver
+
+    var isAddingPair: Bool {
+        if case .addingPair = status { return true }
+        else { return false }
+    }
 
     enum Status {
         case isLoading
         case isLoaded
-        case addingPair(Promise<CurrencyPair?, Never>)
+        case addingPair
     }
 }
 
@@ -263,16 +278,15 @@ enum RootEvent {
     case loadedRates([ExchangeRate])
     /// Failed to get exchange rates for previously selected pairs
     case failedToGetRates([CurrencyPair], Error)
-    /// Added a pair or canceled selection if nil
-    case added(CurrencyPair?)
     /// Updated exchange rates
     case updatedRates([ExchangeRate])
     case ui(UserAction)
 
     enum UserAction {
         case addPair
-        case deletePair(CurrencyPair)
+        /// Added a pair or canceled selection if nil
+        case added(CurrencyPair?)
+        case deletePair(IndexSet)
         case retry
     }
 }
-#endif

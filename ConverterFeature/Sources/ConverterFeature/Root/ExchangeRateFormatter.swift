@@ -15,7 +15,7 @@ public protocol ExchangeRateFormatter {
 public struct LocalizedExchangeRateFormatter: ExchangeRateFormatter {
     let bundle: Bundle
 
-    public init(bundle: Bundle, locale: Locale = Locale.current) {
+    public init(bundle: Bundle = .main, locale: Locale = Locale.current) {
         self.bundle = bundle
         self.numberFormatter.locale = locale
     }

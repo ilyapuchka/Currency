@@ -30,18 +30,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let exchangeRatesService = RevolutExchangeRateService(session: URLSession.shared)
 
+        let root = ConverterFactory(
+            selectedCurrencyPairsService: selectedCurrencyPairsService,
+            supportedCurrenciesService: supportedCurrenciesService,
+            exchangeRatesService: exchangeRatesService
+        ).makeRoot()
+
         // Use a UIHostingController as window root view controller
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
-            window.rootViewController = UIHostingController(
-                rootView: RootView(
-                    selectedCurrencyPairsService: selectedCurrencyPairsService,
-                    supportedCurrenciesService: supportedCurrenciesService,
-                    ratesService: exchangeRatesService,
-                    ratesObserving: TimerRatesUpdateObserving(),
-                    formatter: LocalizedExchangeRateFormatter(bundle: Bundle(for: Self.self))
-                )
-            )
+            window.rootViewController = UIHostingController(rootView: root)
             self.window = window
             window.makeKeyAndVisible()
         }

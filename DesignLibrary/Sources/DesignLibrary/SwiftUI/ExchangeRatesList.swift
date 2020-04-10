@@ -2,12 +2,12 @@ import SwiftUI
 
 public struct ExchangeRatesList: View {
     public struct Item: Identifiable {
-        public let id: String
+        public let id: Int
         let from: ExchangeRateRow.Labels
         let to: ExchangeRateRow.Labels
 
         public init(
-            id: String,
+            id: Int,
             from: ExchangeRateRow.Labels,
             to: ExchangeRateRow.Labels
         ) {

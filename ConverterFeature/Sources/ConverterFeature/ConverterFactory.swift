@@ -4,7 +4,42 @@ import Future
 import Domain
 import Foundation
 
-#if !canImport(SwiftUI)
+#if canImport(SwiftUI)
+import SwiftUI
+
+public struct ConverterFactory {
+    let selectedCurrencyPairsService: SelectedCurrencyPairsService
+    let supportedCurrenciesService: SupportedCurrenciesService
+    let exchangeRatesService: ExchangeRateService
+
+    public init(
+        selectedCurrencyPairsService: SelectedCurrencyPairsService,
+        supportedCurrenciesService: SupportedCurrenciesService,
+        exchangeRatesService: ExchangeRateService
+    ) {
+        self.selectedCurrencyPairsService = selectedCurrencyPairsService
+        self.supportedCurrenciesService = supportedCurrenciesService
+        self.exchangeRatesService = exchangeRatesService
+    }
+
+    public func makeRoot() -> some View {
+        RootView(
+            state: .init(
+                selectedCurrencyPairsService: selectedCurrencyPairsService,
+                supportedCurrenciesService: supportedCurrenciesService,
+                ratesService: exchangeRatesService,
+                ratesObserving: TimerRatesUpdateObserving(),
+                formatter: LocalizedExchangeRateFormatter()
+            )
+        )
+    }
+
+//    public func makeSelectFirstCurrency(disabled: [CurrencyPair]) -> some View {
+//        
+//    }
+
+}
+#else
 public struct ConverterFactory {
     let bundle: Bundle
     let designLibrary: DesignLibrary
