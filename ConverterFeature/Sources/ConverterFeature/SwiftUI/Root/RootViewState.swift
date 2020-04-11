@@ -7,25 +7,18 @@ import Foundation
 class RootViewState: ObservableViewState {
     typealias State = RootState
     typealias Event = RootEvent
+    typealias Action = RootEvent.UserAction
 
     @Published private(set) var state: State
     private let input = PassthroughSubject<Event, Never>()
     private var bag = Set<AnyCancellable>()
 
-    let supportedCurrenciesService: SupportedCurrenciesService
-    let formatter: ExchangeRateFormatter
-
     init(
         initial: State = .init(),
         selectedCurrencyPairsService: SelectedCurrencyPairsService,
-        supportedCurrenciesService: SupportedCurrenciesService,
         ratesService: ExchangeRateService,
-        ratesObserving: RatesUpdateObserving,
-        formatter: ExchangeRateFormatter
+        ratesObserving: RatesUpdateObserving
     ) {
-        self.supportedCurrenciesService = supportedCurrenciesService
-        self.formatter = formatter
-
         state = initial
         StateMachine.make(
             assignTo: \.state,
@@ -45,7 +38,7 @@ class RootViewState: ObservableViewState {
         input.send(.initialised)
     }
 
-    func sendAction(_ action: Event.UserAction) {
+    func sendAction(_ action: Action) {
         input.send(.ui(action))
     }
 
@@ -115,13 +108,13 @@ extension RootViewState {
         return [
             selectedCurrencyPairsService
                 .selectedCurrencyPairs()
-                .catch { _ in Just([]) }
+                .mapError { _ in [] }
                 .flatMap { pairs in
                     pairs.isEmpty
                         ? Just(Event.loadedRates([])).eraseToAnyPublisher()
                         : ratesService.exchangeRates(pairs: pairs)
                             .map(Event.loadedRates)
-                            .catch { error in Just(Event.failedToGetRates(pairs, error)) }
+                            .mapError { error in Event.failedToGetRates(pairs, error) }
                             .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
@@ -248,7 +241,7 @@ extension RootViewState {
             ratesService
                 .exchangeRates(pairs: state.pairs)
                 .map(Event.loadedRates)
-                .catch { [pairs = state.pairs] error in Just(Event.failedToGetRates(pairs, error)) }
+                .mapError { [pairs = state.pairs] error in Event.failedToGetRates(pairs, error) }
                 .eraseToAnyPublisher(),
         ]
     }
@@ -257,8 +250,13 @@ extension RootViewState {
 struct RootState {
     var rates: [ExchangeRate] = []
     var pairs: [CurrencyPair] = []
-    var status: Status = .isLoaded
+    var status: Status = .isLoading
     var error: Error?
+
+    var isLoading: Bool {
+        if case .isLoading = status { return true }
+        else { return false }
+    }
 
     var isAddingPair: Bool {
         if case .addingPair = status { return true }

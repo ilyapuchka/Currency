@@ -23,21 +23,43 @@ public struct ConverterFactory {
     }
 
     public func makeRoot() -> some View {
-        RootView(
+        let view = RootView<RootViewState>(
             state: .init(
                 selectedCurrencyPairsService: selectedCurrencyPairsService,
-                supportedCurrenciesService: supportedCurrenciesService,
                 ratesService: exchangeRatesService,
-                ratesObserving: TimerRatesUpdateObserving(),
-                formatter: LocalizedExchangeRateFormatter()
-            )
+                ratesObserving: TimerRatesUpdateObserving()
+            ),
+            formatter: LocalizedExchangeRateFormatter()
+        )
+
+        return RootFlow(
+            rootView: view,
+            state: view.state,
+            selectPair: { disabled, selected in
+                AnyView(
+                    self.makeSelectPair(disabled: disabled, selected: selected)
+                )
+            }
         )
     }
 
-//    public func makeSelectFirstCurrency(disabled: [CurrencyPair]) -> some View {
-//        
-//    }
-
+    public func makeSelectPair(
+        disabled: [CurrencyPair],
+        selected: @escaping (CurrencyPair?) -> Void
+    ) -> some View {
+        let view = CurrencyPairSelectorView<CurrencyPairSelectorViewState>(
+            state: .init(
+                disabled: disabled,
+                selected: selected,
+                supportedCurrenciesService: supportedCurrenciesService
+            )
+        )
+        
+        return CurrencyPairSelectorFlow(
+            rootView: view,
+            state: view.state
+        )
+    }
 }
 #else
 public struct ConverterFactory {

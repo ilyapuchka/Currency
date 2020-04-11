@@ -58,21 +58,39 @@ public struct CurrencyRow: View {
 
 
 public struct CurrenciesList: View {
+    let error: Error?
+    let onRetry: (() -> Void)?
     let items: [CurrencyRow.Value]
     let onSelect: (CurrencyRow.Value) -> Void
 
-    public init(items: [CurrencyRow.Value], onSelect: @escaping (CurrencyRow.Value) -> Void) {
+    public init(
+        items: [CurrencyRow.Value],
+        error: Error?,
+        onRetry: (() -> Void)?,
+        onSelect: @escaping (CurrencyRow.Value) -> Void
+    ) {
+        self.error = error
+        self.onRetry = onRetry
         self.items = items
         self.onSelect = onSelect
     }
 
     public var body: some View {
-        List(items, id: \.id) { item in
-            Button(action: { item.isEnabled ? self.onSelect(item) : () }) {
-                CurrencyRow(item)
-            }
-        }
-        .navigationBarHidden(true)
-        .navigationBarTitle(Text(verbatim: ""))
+        When(error,
+             then: { _ in
+                EmptyState(
+                    actionImage: nil,
+                    actionTitle: "retry",
+                    description: "failed_to_get_currency_list",
+                    action: { self.onRetry?() }
+                )
+            },
+             else: {
+                List(items, id: \.id) { item in
+                    Button(action: { item.isEnabled ? self.onSelect(item) : () }) {
+                        CurrencyRow(item)
+                    }
+                }
+        })
     }
 }

@@ -1,11 +1,11 @@
 import Combine
-import DataAccess
 import Domain
 import Future
 
 class CurrencyPairSelectorViewState: ObservableViewState {
     typealias State = CurrencyPairSelectorState
     typealias Event = CurrencyPairSelectorEvent
+    typealias Action = CurrencyPairSelectorEvent.UserAction
 
     @Published private(set) var state: State
     private let input = PassthroughSubject<Event, Never>()
@@ -29,15 +29,8 @@ class CurrencyPairSelectorViewState: ObservableViewState {
         input.send(.initialised)
     }
 
-    func isEnabled(currency: Currency) -> Bool {
-        guard let first = state.first else {
-            return true
-        }
-        guard currency != state.first else {
-            return false
-        }
-        let pair = CurrencyPair(from: first, to: currency)
-        return !state.disabled.contains(pair)
+    func sendAction(_ action: Action) {
+        input.send(.ui(action))
     }
 
     static func reduce(
@@ -51,7 +44,7 @@ class CurrencyPairSelectorViewState: ObservableViewState {
                     supportedCurrenciesService
                         .supportedCurrencies()
                         .map(Event.loadedSupportedCurrencies)
-                        .catch { error in Just(.failed(error)) }
+                        .mapError(Event.failed)
                         .eraseToAnyPublisher()
                 ]
             case let .loadedSupportedCurrencies(currencies):
@@ -64,27 +57,27 @@ class CurrencyPairSelectorViewState: ObservableViewState {
             case let .ui(.selected(currency)):
                 if let currency = currency {
                     if let first = state.first {
+                        state.second = currency
                         selected(CurrencyPair(from: first, to: currency))
                     } else {
                         state.first = currency
                     }
-                } else {
-                    selected(nil)
                 }
                 return []
             case .ui(.retry):
                 return [
                     supportedCurrenciesService.supportedCurrencies()
                         .map(Event.loadedSupportedCurrencies)
-                        .catch { error in Just(.failed(error)) }
+                        .mapError(Event.failed)
                         .eraseToAnyPublisher()
                 ]
+            case .ui(.dismiss):
+                if state.second == nil {
+                    selected(nil)
+                }
+                return []
             }
         }
-    }
-
-    func sendAction(_ action: Event.UserAction) {
-        input.send(.ui(action))
     }
 }
 
@@ -92,10 +85,18 @@ struct CurrencyPairSelectorState {
     let disabled: [CurrencyPair]
     var currencies: [Currency] = []
     var first: Currency?
+    var second: Currency?
     var error: Swift.Error?
 
-    var isSelectingSecond: Bool {
-        first != nil
+    func isEnabled(currency: Currency) -> Bool {
+        guard let first = first else {
+            return true
+        }
+        guard currency != first else {
+            return false
+        }
+        let pair = CurrencyPair(from: first, to: currency)
+        return !disabled.contains(pair)
     }
 }
 
@@ -108,5 +109,6 @@ enum CurrencyPairSelectorEvent {
     enum UserAction {
         case selected(Currency?)
         case retry
+        case dismiss
     }
 }

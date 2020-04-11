@@ -49,7 +49,7 @@ extension View {
         When(condition, then: { first(self) }, else: { second(self) })
     }
 
-    public func when<TrueContent: View, FalseContent: View>(
+    public func when<TrueContent: View>(
         _ condition: Bool,
         @ViewBuilder
         then first: @escaping (Self) -> TrueContent
