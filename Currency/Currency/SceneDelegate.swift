@@ -18,9 +18,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         )
 
         #if DEBUG
-//        if ProcessInfo().arguments.contains("-\(UserDefaultsSelectedCurrencyPairsService.userDefaultsKey)") {
-//            selectedCurrencyPairsService = UserDefaultsSelectedCurrencyPairsService()
-//        }
+        if ProcessInfo().arguments.contains("-\(UserDefaultsSelectedCurrencyPairsService.userDefaultsKey)") {
+            selectedCurrencyPairsService = UserDefaultsSelectedCurrencyPairsService()
+        }
         #endif
 
         let supportedCurrenciesService = DatafileSupportedCurrenciesService(

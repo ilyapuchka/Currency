@@ -16,7 +16,7 @@ struct RootView<State: ObservableViewState>: View
              then: { _ in self.error },
              else: {
                 When(state.isLoading,
-                     then: { SwiftUI.EmptyView() },
+                     then: { EmptyView() },
                      else: {
                         When(state.rates.isEmpty,
                              then: { self.empty },

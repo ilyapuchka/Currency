@@ -10,7 +10,6 @@
 		B52AE6ED240BED2E00641E94 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B52AE6EC240BED2E00641E94 /* Localizable.strings */; };
 		B52AE6F1240BF01900641E94 /* EmptyStateViewPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52AE6F0240BF01900641E94 /* EmptyStateViewPreview.swift */; };
 		B5358884240BC30A00A0A713 /* CurrencyRowViewPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5358882240BC30400A0A713 /* CurrencyRowViewPreview.swift */; };
-		B5358885240BC30A00A0A713 /* UIViewPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5358880240BC30400A0A713 /* UIViewPreview.swift */; };
 		B535888F240BC43600A0A713 /* DesignLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = B535888E240BC43600A0A713 /* DesignLibrary */; };
 		B5358893240BC5EC00A0A713 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5358891240BC5DB00A0A713 /* Assets.xcassets */; };
 		B535889E240BD48200A0A713 /* ExchangeRateRowViewPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535889D240BD48200A0A713 /* ExchangeRateRowViewPreview.swift */; };
@@ -20,7 +19,6 @@
 /* Begin PBXFileReference section */
 		B52AE6EC240BED2E00641E94 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = ../../Currency/Currency/Localizable.strings; sourceTree = "<group>"; };
 		B52AE6F0240BF01900641E94 /* EmptyStateViewPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateViewPreview.swift; sourceTree = "<group>"; };
-		B5358880240BC30400A0A713 /* UIViewPreview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewPreview.swift; sourceTree = "<group>"; };
 		B5358882240BC30400A0A713 /* CurrencyRowViewPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyRowViewPreview.swift; sourceTree = "<group>"; };
 		B5358891240BC5DB00A0A713 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../Currency/Currency/Assets.xcassets; sourceTree = "<group>"; };
 		B535889D240BD48200A0A713 /* ExchangeRateRowViewPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeRateRowViewPreview.swift; sourceTree = "<group>"; };
@@ -69,7 +67,6 @@
 			isa = PBXGroup;
 			children = (
 				B5D07E33240BC272001F3A98 /* DesignLibraryPreview.h */,
-				B5358880240BC30400A0A713 /* UIViewPreview.swift */,
 				B5358882240BC30400A0A713 /* CurrencyRowViewPreview.swift */,
 				B535889D240BD48200A0A713 /* ExchangeRateRowViewPreview.swift */,
 				B52AE6F0240BF01900641E94 /* EmptyStateViewPreview.swift */,
@@ -167,7 +164,6 @@
 				B52AE6F1240BF01900641E94 /* EmptyStateViewPreview.swift in Sources */,
 				B5358884240BC30A00A0A713 /* CurrencyRowViewPreview.swift in Sources */,
 				B535889E240BD48200A0A713 /* ExchangeRateRowViewPreview.swift in Sources */,
-				B5358885240BC30A00A0A713 /* UIViewPreview.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

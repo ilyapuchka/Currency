@@ -1,6 +1,3 @@
-import UIKit
-
-#if canImport(SwiftUI)
 import SwiftUI
 
 public class DesignLibraryKey: EnvironmentKey {
@@ -13,7 +10,6 @@ extension EnvironmentValues {
         set { self[DesignLibraryKey.self] = newValue }
     }
 }
-#endif
 
 public struct DesignLibrary {
     public let bundle: Bundle

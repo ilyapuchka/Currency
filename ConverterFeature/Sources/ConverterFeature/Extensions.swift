@@ -45,7 +45,7 @@ extension View {
             NavigationLink(
                 destination: destination(),
                 isActive: isActive,
-                label: { SwiftUI.EmptyView() }
+                label: { EmptyView() }
             )
         }
     }
@@ -75,3 +75,8 @@ extension Publisher where Output == Never {
     }
 }
 
+extension Publisher where Failure == Never {
+    public func promoteErrors<T: Error>() -> Publishers.MapError<Self, T> {
+        Publishers.MapError(upstream: self, transform: { _ in () as! T })
+    }
+}

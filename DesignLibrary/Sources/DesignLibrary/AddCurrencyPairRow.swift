@@ -1,6 +1,5 @@
 import SwiftUI
 
-@available(iOS 13.0.0, *)
 struct AddCurrencyPairRow: View {
     @Environment(\.designLibrary) var designLibrary
 

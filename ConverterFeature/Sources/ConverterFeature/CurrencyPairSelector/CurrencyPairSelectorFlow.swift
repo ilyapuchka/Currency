@@ -6,7 +6,7 @@ struct CurrencyPairSelectorFlow<State: ObservableViewState>: View
     State.Action == CurrencyPairSelectorEvent.UserAction {
 
     let rootView: CurrencyPairSelectorView<State>
-    @ObservedObject var state: State
+    @ObservedObject private(set) var state: State
 
     var body: some View {
         NavigationView {

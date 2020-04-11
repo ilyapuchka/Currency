@@ -2,18 +2,16 @@ import Foundation
 import DataAccess
 import Domain
 import Future
+import ConverterFeature
 
 #if DEBUG
-#if canImport(Combine)
-#else
-/// Service to be used with automation tests only
 struct UserDefaultsSelectedCurrencyPairsService: SelectedCurrencyPairsService {
     static let userDefaultsKey = "selected_pairs"
     init() {}
 
-    func selectedCurrencyPairs() -> Future<[CurrencyPair], Error> {
+    func selectedCurrencyPairs() -> AnyPublisher<[CurrencyPair], Error> {
         return Future { promise in
-            promise.fulfill(
+            promise(
                 Result {
                     guard let string = UserDefaults.standard.string(forKey: Self.userDefaultsKey), !string.isEmpty else {
                         return []
@@ -26,13 +24,12 @@ struct UserDefaultsSelectedCurrencyPairsService: SelectedCurrencyPairsService {
                     return pairs
                 }
             )
-        }
+        }.eraseToAnyPublisher()
     }
 
-    func save(selectedPairs: [CurrencyPair]) -> Future<Void, Error> {
+    func save(selectedPairs: [CurrencyPair]) -> AnyPublisher<Void, Error> {
         // Do not persist to user default to ensure reproducible tests
-        .just(())
+        Just(()).promoteErrors().eraseToAnyPublisher()
     }
 }
-#endif
 #endif

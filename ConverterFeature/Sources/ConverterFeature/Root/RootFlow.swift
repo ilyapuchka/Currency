@@ -7,7 +7,7 @@ struct RootFlow<State: ObservableViewState>: View
     State.Action == RootEvent.UserAction {
 
     let rootView: RootView<State>
-    @ObservedObject var state: State
+    @ObservedObject private(set) var state: State
 
     typealias SelectPair = (
         _ disabled: [CurrencyPair],
