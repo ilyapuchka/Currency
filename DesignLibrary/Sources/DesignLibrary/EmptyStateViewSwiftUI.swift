@@ -1,15 +1,13 @@
 import SwiftUI
 
 public struct EmptyState: View {
-    @Environment(\.designLibrary) var designLibrary
-
-    let actionImage: KeyPath<DesignLibrary, UIImage>?
+    let actionImage: DesignLibrary.Assets?
     let actionTitle: LocalizedStringKey
     let description: LocalizedStringKey
     let action: () -> Void
 
     public init(
-        actionImage: KeyPath<DesignLibrary, UIImage>?,
+        actionImage: DesignLibrary.Assets?,
         actionTitle: LocalizedStringKey,
         description: LocalizedStringKey,
         action: @escaping () -> Void
@@ -25,18 +23,17 @@ public struct EmptyState: View {
             VStack(spacing: 8) {
                 Button(action: action) {
                     VStack(spacing: 8) {
-                        actionImage.map { designLibrary[keyPath: $0] }.map(Image.init)?
+                        actionImage.map(Image.init)?
                             .resizable()
                             .frame(width: 60, height: 60)
                         Text(actionTitle)
                     }
                 }
-                .font(.headline)
-                .foregroundColor(Color(designLibrary.colors.cta))
+                .buttonStyle(CTAStyle())
             }
             Text(description)
                 .font(.subheadline)
-                .foregroundColor(Color(designLibrary.colors.secondaryText))
+                .foregroundColor(Color(DesignLibrary.Colors.secondaryText))
         }
     }
 }

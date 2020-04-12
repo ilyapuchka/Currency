@@ -1,8 +1,6 @@
 import SwiftUI
 
 public struct ExchangeRateRow: View {
-    @Environment(\.designLibrary) var designLibrary
-
     public typealias Labels = (amount: String, description: String)
 
     let from: Labels
@@ -12,11 +10,11 @@ public struct ExchangeRateRow: View {
         VStack(alignment: alignment) {
             Text(amount)
                 .font(Font(UIFont.preferredFont(forTextStyle: .title2)))
-                .foregroundColor(.init(designLibrary.colors.regularText))
+                .foregroundColor(.init(DesignLibrary.Colors.regularText))
             Text(description)
                 .lineLimit(nil)
                 .font(.subheadline)
-                .foregroundColor(.init(designLibrary.colors.secondaryText))
+                .foregroundColor(.init(DesignLibrary.Colors.secondaryText))
         }
     }
 

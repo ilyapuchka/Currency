@@ -29,7 +29,7 @@ struct RootView<State: ObservableViewState>: View
 
     var empty: some View {
         EmptyState(
-            actionImage: \.assets.plus,
+            actionImage: .plus,
             actionTitle: "add_currency_pair_button_title",
             description: "add_currency_pair_button_subtitle",
             action: { self.state.sendAction(.addPair) }

@@ -2,8 +2,6 @@ import SwiftUI
 
 
 public struct CurrencyRow: View {
-    @Environment(\.designLibrary) var designLibrary
-
     public struct Value: Identifiable {
         public var id: String { code }
 
@@ -32,7 +30,7 @@ public struct CurrencyRow: View {
         HStack(spacing: 16) {
             ZStack {
                 Color(.lightGray)
-                Image(value.code, bundle: designLibrary.bundle).renderingMode(.original)
+                Image(value.code).renderingMode(.original)
             }
             .clipShape(Circle())
             .frame(width: 24, height: 24)
@@ -40,13 +38,13 @@ public struct CurrencyRow: View {
 
             Text(value.code)
                 .font(.body)
-                .foregroundColor(Color(designLibrary.colors.secondaryText))
+                .foregroundColor(Color(DesignLibrary.Colors.secondaryText))
 
             Text(value.name)
                 .font(.body)
                 .foregroundColor(value.isEnabled
-                    ? Color(designLibrary.colors.regularText)
-                    : Color(designLibrary.colors.secondaryText)
+                    ? Color(DesignLibrary.Colors.regularText)
+                    : Color(DesignLibrary.Colors.secondaryText)
                 )
                 .lineLimit(nil)
 

@@ -18,15 +18,13 @@ extension ObservableViewState {
 
 extension View {
     public func modal<Content>(isPresented: Binding<Bool>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping () -> Content) -> some View where Content : View {
-        ZStack {
-            self
-            Button(action: {}) { EmptyView() }
-                .sheet(
-                    isPresented: isPresented,
-                    onDismiss: onDismiss,
-                    content: content
+        background(
+            EmptyView().sheet(
+                isPresented: isPresented,
+                onDismiss: onDismiss,
+                content: content
             )
-        }
+        )
     }
 
     public func modal<Content>(isPresented: @autoclosure @escaping () -> Bool, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping () -> Content) -> some View where Content : View {
@@ -40,14 +38,13 @@ extension View {
 
 extension View {
     func push<V: View>(isActive: Binding<Bool>, @ViewBuilder destination: () -> V) -> some View {
-        ZStack {
-            self
+        background(
             NavigationLink(
                 destination: destination(),
                 isActive: isActive,
                 label: { EmptyView() }
             )
-        }
+        )
     }
 
     func push<V: View>(isActive: @autoclosure @escaping () -> Bool, @ViewBuilder destination: () -> V) -> some View {
