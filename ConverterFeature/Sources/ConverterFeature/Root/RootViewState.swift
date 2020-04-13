@@ -30,7 +30,10 @@ class RootViewState: ObservableViewState {
             )
         ).store(in: &bag)
 
-        ratesObserving.update(subscriber: Subscribers.Assign(object: self, keyPath: \.state.rates)) {
+        ratesObserving.update(subscriber: Subscribers.Sink(receiveCompletion: { _ in }, receiveValue: { [unowned self] rates in
+            let rates = rates.filter { self.state.pairs.contains($0.pair) }
+            self.input.send(.updatedRates(rates))
+        })) {
             ratesService.exchangeRates(pairs: self.state.pairs)
         }
 
