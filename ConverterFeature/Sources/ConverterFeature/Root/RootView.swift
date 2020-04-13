@@ -11,20 +11,12 @@ struct RootView<State: ObservableViewState>: View
     @ObservedObject private(set) var state: State
     let formatter: ExchangeRateFormatter
 
+    @ViewBuilder
     var body: some View {
-        When(state.error,
-             then: { _ in self.error },
-             else: {
-                When(state.isLoading,
-                     then: { EmptyView() },
-                     else: {
-                        When(state.rates.isEmpty,
-                             then: { self.empty },
-                             else: { self.exchangeRates }
-                        )
-                })
-             }
-        )
+        if state.error != nil { self.error }
+        else if state.isLoading { EmptyView() }
+        else if state.rates.isEmpty { self.empty }
+        else { self.exchangeRates }
     }
 
     var empty: some View {

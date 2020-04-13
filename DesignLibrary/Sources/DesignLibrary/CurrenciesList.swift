@@ -73,22 +73,26 @@ public struct CurrenciesList: View {
         self.onSelect = onSelect
     }
 
+    @ViewBuilder
     public var body: some View {
-        When(error,
-             then: { _ in
-                EmptyState(
-                    actionImage: nil,
-                    actionTitle: "retry",
-                    description: "failed_to_get_currency_list",
-                    action: { self.onRetry?() }
-                )
-            },
-             else: {
-                List(items, id: \.id) { item in
-                    Button(action: { item.isEnabled ? self.onSelect(item) : () }) {
-                        CurrencyRow(item)
-                    }
-                }
-        })
+        if error != nil { self.retry }
+        else { self.list }
+    }
+
+    var retry: some View {
+        EmptyState(
+            actionImage: nil,
+            actionTitle: "retry",
+            description: "failed_to_get_currency_list",
+            action: { self.onRetry?() }
+        )
+    }
+
+    var list: some View {
+        List(self.items, id: \.id) { item in
+            Button(action: { item.isEnabled ? self.onSelect(item) : () }) {
+                CurrencyRow(item)
+            }
+        }
     }
 }
