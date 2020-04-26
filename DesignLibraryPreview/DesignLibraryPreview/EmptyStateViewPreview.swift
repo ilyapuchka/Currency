@@ -5,7 +5,7 @@ import DesignLibrary
 class EmptyState_Preview: PreviewProvider {
   static var previews: some View {
     return EmptyState(
-        actionImage: \.assets.plus,
+        actionImage: .plus,
         actionTitle: "Action",
         description: "Description",
         action: {}

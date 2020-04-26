@@ -17,15 +17,16 @@ class CurrencyPairSelectorViewState: ObservableViewState {
         supportedCurrenciesService: SupportedCurrenciesService
     ) {
         state = State(disabled: disabled)
-        StateMachine.make(
+        store(
             assignTo: \.state,
             on: self,
             input: input.sink,
             reduce: Self.reduce(
                 supportedCurrenciesService: supportedCurrenciesService,
                 selected: selected
-            )
-        ).store(in: &bag)
+            ),
+            bag: &bag
+        )
         input.send(.initialised)
     }
 

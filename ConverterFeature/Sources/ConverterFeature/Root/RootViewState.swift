@@ -19,7 +19,7 @@ class RootViewState: ObservableViewState {
         ratesObserving: RatesUpdateObserving
     ) {
         state = initial
-        StateMachine.make(
+        store(
             assignTo: \.state,
             on: self,
             input: input.sink,
@@ -27,13 +27,16 @@ class RootViewState: ObservableViewState {
                 selectedCurrencyPairsService: selectedCurrencyPairsService,
                 ratesService: ratesService,
                 ratesObserving: ratesObserving
-            )
-        ).store(in: &bag)
+            ),
+            bag: &bag
+        )
 
-        ratesObserving.update(subscriber: Subscribers.Sink(receiveCompletion: { _ in }, receiveValue: { [unowned self] rates in
-            let rates = rates.filter { self.state.pairs.contains($0.pair) }
-            self.input.send(.updatedRates(rates))
-        })) {
+        ratesObserving.update(
+            subscriber: Subscribers.Sink { [unowned self] rates in
+                let rates = rates.filter { self.state.pairs.contains($0.pair) }
+                self.input.send(.updatedRates(rates))
+            }
+        ) {
             ratesService.exchangeRates(pairs: self.state.pairs)
         }
 
@@ -189,8 +192,8 @@ extension RootViewState {
         return [
             selectedCurrencyPairsService
                 .save(selectedPairs: state.pairs)
-                .ignoreError()
                 .flatMap { Empty() }
+                .ignoreError()
                 .eraseToAnyPublisher(),
             ratesService
                 .exchangeRates(pairs: state.pairs)
@@ -227,8 +230,8 @@ extension RootViewState {
         return [
             selectedCurrencyPairsService
                 .save(selectedPairs: state.pairs)
-                .ignoreError()
                 .flatMap { Empty() }
+                .ignoreError()
                 .eraseToAnyPublisher()
         ]
     }

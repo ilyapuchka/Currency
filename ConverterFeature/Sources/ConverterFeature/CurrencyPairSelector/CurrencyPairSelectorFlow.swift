@@ -1,4 +1,5 @@
 import SwiftUI
+import Future
 
 struct CurrencyPairSelectorFlow<State: ObservableViewState>: View
     where
@@ -11,12 +12,12 @@ struct CurrencyPairSelectorFlow<State: ObservableViewState>: View
     var body: some View {
         NavigationView {
             self.list
-                .push(isActive: { self.state.first != nil }) {
+                .push(isActive: .constant(self.state.first != nil)) {
                     self.list
                 }
-        }.onDisappear {
-            self.state.sendAction(.dismiss)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .onDisappear { self.state.sendAction(.dismiss) }
     }
 
     var list: some View {

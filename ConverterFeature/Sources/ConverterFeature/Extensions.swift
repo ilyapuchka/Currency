@@ -1,23 +1,14 @@
 import SwiftUI
 import Combine
 
-@dynamicMemberLookup
-public protocol ObservableViewState: ObservableObject {
-    associatedtype State
-    associatedtype Action
-    
-    var state: State { get }
-    func sendAction(_ action: Action)
-}
-
-extension ObservableViewState {
-    public subscript<T>(dynamicMember keyPath: KeyPath<State, T>) -> T {
-        state[keyPath: keyPath]
+extension Subscribers.Sink {
+    convenience init(_ sink: @escaping (Input) -> Void) {
+        self.init(receiveCompletion: { _ in }, receiveValue: sink)
     }
 }
 
 extension View {
-    public func modal<Content>(isPresented: Binding<Bool>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping () -> Content) -> some View where Content : View {
+    public func modal<V: View>(isPresented: Binding<Bool>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping () -> V) -> some View {
         background(
             EmptyView().sheet(
                 isPresented: isPresented,
@@ -27,16 +18,6 @@ extension View {
         )
     }
 
-    public func modal<Content>(isPresented: @autoclosure @escaping () -> Bool, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping () -> Content) -> some View where Content : View {
-        modal(isPresented: Binding<Bool>(get: isPresented, set: { _ in }), onDismiss: onDismiss, content: content)
-    }
-    
-    public func modal<Content>(isPresented: @escaping () -> Bool, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping () -> Content) -> some View where Content : View {
-        modal(isPresented: Binding<Bool>(get: isPresented, set: { _ in }), onDismiss: onDismiss, content: content)
-    }
-}
-
-extension View {
     func push<V: View>(isActive: Binding<Bool>, @ViewBuilder destination: () -> V) -> some View {
         background(
             NavigationLink(
@@ -45,14 +26,6 @@ extension View {
                 label: { EmptyView() }
             )
         )
-    }
-
-    func push<V: View>(isActive: @autoclosure @escaping () -> Bool, @ViewBuilder destination: () -> V) -> some View {
-        push(isActive: Binding<Bool>(get: isActive, set: { _ in }), destination: destination)
-    }
-
-    func push<V: View>(isActive: @escaping () -> Bool, @ViewBuilder destination: () -> V) -> some View {
-        push(isActive: Binding<Bool>(get: isActive, set: { _ in }), destination: destination)
     }
 }
 

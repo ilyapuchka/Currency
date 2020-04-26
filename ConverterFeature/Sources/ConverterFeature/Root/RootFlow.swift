@@ -1,5 +1,6 @@
 import SwiftUI
 import Domain
+import Future
 
 struct RootFlow<State: ObservableViewState>: View
     where
@@ -18,7 +19,7 @@ struct RootFlow<State: ObservableViewState>: View
 
     var body: some View {
         rootView
-            .modal(isPresented: self.state.isAddingPair) {
+            .modal(isPresented: .constant(self.state.isAddingPair)) {
                 self.selectPair(self.state.pairs) {
                     self.state.sendAction(.added($0))
                 }
